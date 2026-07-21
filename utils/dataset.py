@@ -2,6 +2,7 @@ import os
 import tarfile
 import urllib.request
 import pathlib
+import pandas as pd
 
 def download_dataset(output_dir="."):
     """Downloads and extracts the NIH Chest X-ray dataset, skipping completed steps."""
@@ -71,3 +72,14 @@ def download_dataset(output_dir="."):
         print(f"Deleted {tar_path}")
 
     print("\nAll done. Please check the checksums and extracted files.")
+    
+
+def load_split(csv_path, image_root):
+    """
+    To match CSV IDs with image paths
+    """
+    df         = pd.read_csv(csv_path)
+    id_to_path = {p.name: str(p) for p in image_root.rglob("*.png")}
+    paths      = df['id'].map(id_to_path).values
+    labels     = df.iloc[:, 1:-1].values
+    return df, paths, labels
