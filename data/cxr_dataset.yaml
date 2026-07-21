@@ -1,0 +1,36 @@
+# Dataset root directory
+image_root: data/nih_images
+
+# CSV file splits
+train_csv: data/cxr8/PruneCXR/miccai2023_nih-cxr-lt_labels_train.csv
+valid_csv: data/cxr8/PruneCXR/miccai2023_nih-cxr-lt_labels_val.csv
+test_csv : data/cxr8/PruneCXR/miccai2023_nih-cxr-lt_labels_test.csv
+
+# Target classes for training (top_labels)
+top_labels:
+  - Infiltration
+  - Effusion
+  - Nodule
+
+# All original 20 labels in the NIH dataset
+all_labels:
+  - Atelectasis
+  - Cardiomegaly
+  - Consolidation
+  - Edema
+  - Effusion
+  - Emphysema
+  - Fibrosis
+  - Hernia
+  - Infiltration
+  - Mass
+  - Nodule
+  - Pleural Thickening
+  - Pneumonia
+  - Pneumothorax
+  - Pneumoperitoneum
+  - Pneumomediastinum
+  - Subcutaneous Emphysema
+  - Tortuous Aorta
+  - Calcification of the Aorta
+  - No Finding

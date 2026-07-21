@@ -3,6 +3,9 @@ import tarfile
 import urllib.request
 import pathlib
 import pandas as pd
+import torch
+import torch.utils.data
+import PIL.Image
 
 def download_dataset(output_dir="."):
     """Downloads and extracts the NIH Chest X-ray dataset, skipping completed steps."""
@@ -83,3 +86,62 @@ def load_split(csv_path, image_root):
     paths      = df['id'].map(id_to_path).values
     labels     = df.iloc[:, 1:-1].values
     return df, paths, labels
+
+
+def filter_dataset(df, paths, top_labels, label_cols):
+    """Filters dataframe and paths to only include target labels with zero other findings."""
+    has_top      = df[top_labels].sum(axis=1) > 0   # selecting top_labels column.
+                                                    # summing in rows.
+                                                    # make boolean.
+    other_labels = [l for l in label_cols if l not in top_labels]
+    no_other     = df[other_labels].sum(axis=1) == 0
+    mask         = has_top & no_other
+    return df[mask].reset_index(drop=True), paths[mask]
+
+
+
+
+class XrayDataset(torch.utils.data.Dataset):
+    def __init__(self, image_paths, df, label_cols, preprocess):
+        self.image_paths = image_paths
+        self.labels      = df[label_cols].values
+        self.preprocess  = preprocess
+
+    def __len__(self):
+        return len(self.image_paths)
+
+    def __getitem__(self, idx):
+        image = PIL.Image.open(self.image_paths[idx]).convert("RGB")
+        #image = self.preprocess(images=image, return_tensors="pt")["pixel_values"][0]
+        image = self.preprocess(image)
+
+        label = torch.tensor(self.labels[idx], dtype=torch.float32)
+
+        return image, label
+    
+    
+def create_dataloaders(paths_dict, df_dict, top_labels, preprocess, batch_size=16, num_workers=2, seed=42):
+    """Creates PyTorch DataLoaders for train, valid, and test splits."""
+    generator = torch.Generator()
+    generator.manual_seed(seed)
+    
+    loaders = {}
+    for split in ['train', 'valid', 'test']:
+        dataset = XrayDataset(paths=paths_dict[split],
+                              df=df_dict[split],
+                              labels=top_labels,
+                              transform=preprocess)
+        
+        # Only shuffle the training dataset
+        is_train = (split == 'train')
+        
+        loaders[split] = DataLoader(
+            dataset,
+            batch_size=batch_size,
+            shuffle=is_train,
+            num_workers=num_workers,
+            generator=generator if is_train else None
+        )
+        print(f"Created {split} loader with {len(dataset)} samples.")
+        
+    return loaders['train'], loaders['valid'], loaders['test']
