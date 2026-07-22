@@ -127,21 +127,19 @@ def create_dataloaders(paths_dict, df_dict, top_labels, preprocess, batch_size=1
     
     loaders = {}
     for split in ['train', 'valid', 'test']:
-        dataset = XrayDataset(paths=paths_dict[split],
-                              df=df_dict[split],
-                              labels=top_labels,
-                              transform=preprocess)
+        dataset = XrayDataset(image_paths = paths_dict[split],
+                              df          = df_dict[split],
+                              label_cols  = top_labels,
+                              preprocess  = preprocess)
         
         # Only shuffle the training dataset
         is_train = (split == 'train')
         
-        loaders[split] = DataLoader(
-            dataset,
-            batch_size=batch_size,
-            shuffle=is_train,
-            num_workers=num_workers,
-            generator=generator if is_train else None
-        )
+        loaders[split] = torch.utils.data.DataLoader(dataset,
+                                                     batch_size  = batch_size,
+                                                     shuffle     = is_train,
+                                                     num_workers = num_workers,
+                                                     generator   = generator if is_train else None)
         print(f"Created {split} loader with {len(dataset)} samples.")
         
     return loaders['train'], loaders['valid'], loaders['test']

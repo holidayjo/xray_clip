@@ -14,6 +14,6 @@ def load_clip_model(model_name, freeze_backbone=True, device=None):
     if freeze_backbone:
         for param in model.parameters():
             param.requires_grad = False
-        print("Model backbone parameters frozen (requires_grad = False).")
+        print("Model backbone parameters frozen (requires_grad = False) loaded.")
         
     return model.to(device), preprocess, tokenizer, device
