@@ -24,29 +24,23 @@ def load_clip_model(model_name, freeze_backbone=True, device=None):
 
 
 class DualBranchAdapter(torch.nn.Module):
-    def __init__(self, dim=768, hidden_dim=512):
+    def __init__(self, dim=512, hidden_dim=512*2):
         super().__init__()
 
         # image branch
-        self.img_mlp = torch.nn.Sequential(
-            torch.nn.Linear(dim, hidden_dim),
-            torch.nn.ReLU(),
-            torch.nn.Linear(hidden_dim, dim)
-        )
+        self.img_mlp = torch.nn.Sequential(torch.nn.Linear(dim, hidden_dim),
+                                           torch.nn.ReLU(),
+                                           torch.nn.Linear(hidden_dim, dim))
 
         # text branch
-        self.txt_mlp = torch.nn.Sequential(
-            torch.nn.Linear(dim, hidden_dim),
-            torch.nn.ReLU(),
-            torch.nn.Linear(hidden_dim, dim)
-        )
+        self.txt_mlp = torch.nn.Sequential(torch.nn.Linear(dim, hidden_dim),
+                                           torch.nn.ReLU(),
+                                           torch.nn.Linear(hidden_dim, dim))
 
-        # mul(D) + min(D) + max(D) = 3D
-        self.classifier = torch.nn.Sequential(
-            torch.nn.Linear(dim * 2, hidden_dim),
-            torch.nn.ReLU(),
-            torch.nn.Linear(hidden_dim, 1)
-        )
+        # mul(D) + diff(D) = 2D
+        self.classifier = torch.nn.Sequential(torch.nn.Linear(dim * 2, hidden_dim),
+                                              torch.nn.ReLU(),
+                                              torch.nn.Linear(hidden_dim, 1))
 
     def forward(self, image_feature, text_feature):
 
@@ -54,7 +48,7 @@ class DualBranchAdapter(torch.nn.Module):
         # text_feature : [C,D]
 
         image = image_feature.unsqueeze(1)
-        text = text_feature.unsqueeze(0)
+        text  = text_feature.unsqueeze(0)
 
         # projection
         h_img = self.img_mlp(image)
@@ -65,50 +59,31 @@ class DualBranchAdapter(torch.nn.Module):
         h_txt = torch.nn.functional.normalize(h_txt, dim=-1)
 
         # expand
-        h_img_expand = h_img.expand(
-            -1,
-            h_txt.size(1),
-            -1
-        )
-
-        h_txt_expand = h_txt.expand(
-            h_img.size(0),
-            -1,
-            -1
-        )
+        h_img_expand = h_img.expand(-1           , h_txt.size(1), -1)
+        h_txt_expand = h_txt.expand(h_img.size(0), -1           , -1)
 
         # interaction
-        mul_feature = (
-            h_img_expand * h_txt_expand
-        )
+        mul_feature = (h_img_expand * h_txt_expand)
 
-        # min-max features
-        min_feature = torch.minimum(
-            h_img_expand,
-            h_txt_expand
-        )
+        # # min-max features
+        # min_feature = torch.minimum(
+        #     h_img_expand,
+        #     h_txt_expand
+        # )
 
-        max_feature = torch.maximum(
-            h_img_expand,
-            h_txt_expand
-        )
+        # max_feature = torch.maximum(
+        #     h_img_expand,
+        #     h_txt_expand
+        # )        
+        
         # element-wise difference
-        diff_feature = torch.abs(
-            h_img_expand - h_txt_expand
-        )   # [B,C,D]
+        diff_feature = torch.abs(h_img_expand - h_txt_expand)   # [B,C,D]
 
         # fusion
-        fused = torch.cat(
-            [
-                mul_feature,
-                diff_feature
-            ],
-            dim=-1
-        )  # [B,C,3D]
+        fused = torch.cat([mul_feature, diff_feature], dim=-1)  # [B,C,2D]
 
         # classifier
-        logits = self.classifier(
-            fused
-        ).squeeze(-1)
+        logits = self.classifier(fused).squeeze(-1)
 
         return logits
+    

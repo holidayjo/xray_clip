@@ -3,7 +3,6 @@ import yaml
 import pathlib
 import numpy as np
 import torch
-import torch.nn.functional
 from sklearn.metrics import roc_auc_score, accuracy_score, precision_score, recall_score, f1_score, hamming_loss, confusion_matrix, average_precision_score
 
 # Import your custom modules
@@ -11,6 +10,7 @@ import utils.dataset
 import utils.models
 import utils.utils
 import utils.loss 
+
 
 def main(opt):
     # 1. Initialize settings and load config using CLI options
@@ -21,26 +21,32 @@ def main(opt):
         cfg = yaml.safe_load(f)
 
     # 2. Load and filter dataset splits
-    image_root = pathlib.Path(cfg['image_root'])
-    train_df, train_paths, _ = utils.dataset.load_split(cfg['train_csv'], image_root)
-    valid_df, valid_paths, _ = utils.dataset.load_split(cfg['valid_csv'], image_root)
-    test_df, test_paths, _   = utils.dataset.load_split(cfg['test_csv'], image_root)
+    image_root               = pathlib.Path(cfg['image_root'])
     
+    # 3. Load Model and Tokenizer using CLI model option
+    model, preprocess, tokenizer, device = utils.models.load_clip_model(model_name=opt.clip_model, freeze_backbone=True, device=device)
+    
+    # Load dataset splits
+    train_df, train_paths, train_labels = utils.dataset.load_split(cfg['train_csv'], image_root, verbose=True)
+    valid_df, valid_paths, valid_labels = utils.dataset.load_split(cfg['valid_csv'], image_root)
+    test_df,  test_paths,  test_labels  = utils.dataset.load_split(cfg['test_csv'],  image_root)
+
+    # filtering
     train_df_filtered, train_paths_filtered = utils.dataset.filter_dataset(train_df, train_paths, cfg['top_labels'], cfg['all_labels'])
     valid_df_filtered, valid_paths_filtered = utils.dataset.filter_dataset(valid_df, valid_paths, cfg['top_labels'], cfg['all_labels'])
-    test_df_filtered, test_paths_filtered = utils.dataset.filter_dataset(test_df, test_paths, cfg['top_labels'], cfg['all_labels'])
+    test_df_filtered,  test_paths_filtered  = utils.dataset.filter_dataset(test_df,  test_paths,  cfg['top_labels'], cfg['all_labels'])
+    # labels                                  = train_df_filtered[cfg['top_labels']].values.astype('float32')
 
-    # 3. Load Model and Tokenizer using CLI model option
-    model, preprocess, tokenizer, device = utils.models.load_clip_model(model_name=opt.model, freeze_backbone=True, device=device)
 
     # 4. Create DataLoaders using CLI batch-size option
-    train_loader, valid_loader, test_loader = utils.dataset.create_dataloaders(
-        paths_dict={'train': train_paths_filtered, 'valid': valid_paths_filtered, 'test': test_paths_filtered},
-        df_dict={'train': train_df_filtered, 'valid': valid_df_filtered, 'test': test_df_filtered},
-        top_labels=cfg['top_labels'],
-        preprocess=preprocess,
-        batch_size=opt.batch_size
-    )
+    paths_dict = {'train': train_paths_filtered, 'valid': valid_paths_filtered, 'test' : test_paths_filtered}
+    df_dict    = {'train': train_df_filtered,    'valid': valid_df_filtered,    'test' : test_df_filtered}
+    train_loader, valid_loader, test_loader = utils.dataset.create_dataloaders(paths_dict  = paths_dict, 
+                                                                                df_dict     = df_dict, 
+                                                                                top_labels  = cfg['top_labels'], 
+                                                                                preprocess  = preprocess, 
+                                                                                batch_size  = opt.batch_size,
+                                                                                num_workers = opt.num_workers)
 
     # 5. Initialize Adapter, Optimizer, and Loss using CLI learning rate
     num_labels = len(cfg['top_labels'])
@@ -51,7 +57,7 @@ def main(opt):
     # 6. Pre-compute Text Features
     with torch.no_grad():
         label_texts   = [f"A chest radiograph with {i}, characterized by specific radiological features in the pulmonary area, affecting the thoracic cavity." for i in cfg['top_labels']]
-        text_tokens   = tokenizer(label_texts, context_length=77).to(device)
+        text_tokens   = tokenizer(label_texts, context_length=opt.context_length).to(device)
         text_features = model.encode_text(text_tokens)  
         text_features = torch.nn.functional.normalize(text_features, dim=-1)
 
@@ -69,7 +75,7 @@ def main(opt):
         train_loss = 0.0
 
         y_train_true, y_train_pred = [], []
-        train_label_accuracies = {f"label_{i}": [] for i in range(num_labels)}
+        train_label_accuracies     = {f"label_{i}": [] for i in range(num_labels)}   # {'label_0': [], 'label_1': [], 'label_2': []}
         
         # ---- Training Batch Loop ----
         for images, labels in train_loader:
@@ -78,10 +84,10 @@ def main(opt):
 
             image_features = model.encode_image(images)
             image_features = torch.nn.functional.normalize(image_features, dim=-1)
-            
+            # print(f"image_features.shape = {image_features.shape}, text_features.shape = {text_features.shape}")
             predictions = Adapter(image_features, text_features)
-
-            loss = criterion(predictions, labels)
+            loss        = criterion(predictions, labels)
+            
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
@@ -116,10 +122,10 @@ def main(opt):
                 y_val_true.append(labels.cpu().numpy())
 
         # ---- Metric Calculation and Printing ----
-        y_train_pred = np.concatenate(y_train_pred, axis=0)
-        y_train_true = np.concatenate(y_train_true, axis=0)
+        y_train_pred      = np.concatenate(y_train_pred, axis=0)
+        y_train_true      = np.concatenate(y_train_true, axis=0)
         y_train_pred_prob = y_train_pred.copy()
-        y_train_pred = (y_train_pred > 0.5).astype(int)
+        y_train_pred      = (y_train_pred > 0.5).astype(int)
 
         train_subset_acc = accuracy_score(y_train_true, y_train_pred)
         train_Acc = accuracy_score(y_train_true.ravel(), y_train_pred.ravel())
@@ -305,16 +311,19 @@ def main(opt):
         if early_stop:
             break
 
+
 def parse_opt():
     parser = argparse.ArgumentParser(description="CLIP-Based Chest X-Ray Multi-Label Classification")
     parser.add_argument("--cfg", type=str, default="data/cxr_dataset.yaml", help="Path to dataset YAML file")
-    parser.add_argument("--model", type=str, default="hf-hub:microsoft/BiomedCLIP-PubMedBERT_256-vit_base_patch16_224", help="Pre-trained CLIP model name")
+    parser.add_argument("--clip_model", type=str, default="hf-hub:microsoft/BiomedCLIP-PubMedBERT_256-vit_base_patch16_224", help="Pre-trained CLIP model name")
     parser.add_argument("--epochs", type=int, default=10, help="Total number of training epochs")
     parser.add_argument("--batch-size", type=int, default=16, help="Total batch size")
     parser.add_argument("--lr", type=float, default=3e-4, help="Initial learning rate for optimizer")
     parser.add_argument("--patience", type=int, default=5, help="Early stopping patience epochs")
     parser.add_argument("--seed", type=int, default=42, help="Global training random seed")
-    parser.add_argument("--save-path", type=str, default="runs/exp/muldiff.pth", help="File path to save the best model checkpoint")
+    parser.add_argument("--save-path", type=str, default="muldiff.pth", help="File path to save the best model checkpoint")
+    parser.add_argument("--num_workers", type=int, default=2)
+    parser.add_argument("--context_length", type=int, default=77, help="the length of the prompt text.")
     return parser.parse_args()
 
 

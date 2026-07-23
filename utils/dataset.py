@@ -1,4 +1,5 @@
 import os
+import yaml
 import tarfile
 import urllib.request
 import pathlib
@@ -8,29 +9,20 @@ import torch.utils.data
 import PIL.Image
 import matplotlib.pyplot as plt
 
-def download_dataset(output_dir="."):
+def download_dataset(cfg_path="data/cxr_dataset.yaml", output_dir="."):
     """Downloads and extracts the NIH Chest X-ray dataset, skipping completed steps."""
     root_dir  = pathlib.Path(output_dir)
     image_dir = root_dir / "nih_images"
     
     root_dir.mkdir(parents=True, exist_ok=True)
     image_dir.mkdir(parents=True, exist_ok=True)
-
-    # URLs for the zip/tar files
-    links = [
-        'https://nihcc.box.com/shared/static/vfk49d74nhbxq3nqjg0900w5nvkorp5c.gz',
-        'https://nihcc.box.com/shared/static/i28rlmbvmfjbl8p2n3ril0pptcmcu9d1.gz',
-        'https://nihcc.box.com/shared/static/f1t00wrtdk94satdfb9olcolqx20z2jp.gz',
-        'https://nihcc.box.com/shared/static/0aowwzs5lhjrceb3qp67ahp0rd1l1etg.gz',
-        'https://nihcc.box.com/shared/static/v5e3goj22zr6h8tzualxfsqlqaygfbsn.gz',
-        'https://nihcc.box.com/shared/static/asi7ikud9jwnkrnkj99jnpfkjdes7l6l.gz',
-        'https://nihcc.box.com/shared/static/jn1b4mw4n6lnh74ovmcjb8y48h8xj07n.gz',
-        'https://nihcc.box.com/shared/static/tvpxmn7qyrgl0w8wfh9kqfjskv6nmm1j.gz',
-        'https://nihcc.box.com/shared/static/upyy3ml7qdumlgk2rfcvlb9k6gvqq2pj.gz',
-        'https://nihcc.box.com/shared/static/l6nilvfa9cg3s28tqv1qc1olm3gnz54p.gz',
-        'https://nihcc.box.com/shared/static/hhq8fkdgvcari67vfhs7ppg2w6ni4jze.gz',
-        'https://nihcc.box.com/shared/static/ioqwiy20ihqwyr8pf4c24eazhh281pbu.gz'
-    ]
+    
+    with open(cfg_path, "r") as f:
+        config = yaml.safe_load(f)
+    links = config.get("dataset_links", [])
+    if not links:
+        print(f"Error: No download links found in {cfg_path}. Aborting.")
+        return
 
     print("--- Phase 1: Downloading ---")
     for idx, link in enumerate(links):
@@ -76,16 +68,24 @@ def download_dataset(output_dir="."):
         print(f"Deleted {tar_path}")
 
     print("\nAll done. Please check the checksums and extracted files.")
-    
 
-def load_split(csv_path, image_root):
+
+def load_split(csv_path, image_root, verbose=False):
     """
     To match CSV IDs with image paths
     """
     df         = pd.read_csv(csv_path)
     id_to_path = {p.name: str(p) for p in image_root.rglob("*.png")}
+    # print(id_to_path) # {'00005750_019.png': 'data/nih_images/images/00005750_019.png', ...}
     paths      = df['id'].map(id_to_path).values
     labels     = df.iloc[:, 1:-1].values
+    
+    if verbose:    
+        # Debug prints to check returned variables
+        print(f"[load_split] Loaded {len(df)} rows from CSV. You may check how CSV file looks like.")
+        print(f"[load_split] paths shape : {paths.shape}, sample: {paths[0] if len(paths) > 0 else 'None'}")
+        print(f"[load_split] labels shape: {labels.shape}, sample row: {labels[0] if len(labels) > 0 else 'None'}") 
+    
     return df, paths, labels
 
 
@@ -129,6 +129,7 @@ def create_dataloaders(paths_dict, df_dict, top_labels, preprocess, batch_size=1
                               df          = df_dict[split],
                               label_cols  = top_labels,
                               preprocess  = preprocess)
+        
         is_train       = (split == 'train') # Only shuffle the training dataset                
         loaders[split] = torch.utils.data.DataLoader(dataset,
                                                      batch_size  = batch_size,
@@ -141,30 +142,46 @@ def create_dataloaders(paths_dict, df_dict, top_labels, preprocess, batch_size=1
 
 
 
-def inspect_dataloader(dataloader):
-    """Pulls a single batch from the dataloader, prints stats, and visualizes the first image."""
+def inspect_dataloader(dataloader, split_name="DataLoader", class_names=['Infiltration', 'Effusion', 'Nodule'], num_images=5):
+    """Pulls a single batch from the dataloader, prints stats, and visualizes multiple images with disease titles."""
     # 1. Pull one batch of images and labels
     images, labels = next(iter(dataloader))
     single_image   = images[0]
 
     # 2. Print the tensor statistics
-    print("--- Image Tensor Stats ---")
+    print(f"\n================ {split_name} Stats ================")
     print(f"Batch Shape        : {images.shape}")
     print(f"Single Image Shape : {single_image.shape}")
     print(f"Min Value          : {single_image.min().item():.4f}")
     print(f"Max Value          : {single_image.max().item():.4f}")
     print(f"Label Vector       : {labels[0].tolist()}")
 
-    # 3. Prepare the tensor for Matplotlib
-    # Shift from [Channels, Height, Width] to [Height, Width, Channels]
-    img_to_show = single_image.permute(1, 2, 0).numpy()
-    
-    # Scale the values between 0 and 1 so Matplotlib doesn't throw a clipping warning
-    img_to_show = (img_to_show - img_to_show.min()) / (img_to_show.max() - img_to_show.min())
+    # 3. Prepare and display multiple images in a grid
+    # Increased height from 4 to 5.5 so the taller titles don't get squished
+    fig, axes = plt.subplots(1, num_images, figsize=(16, 5.5))
+    for i in range(num_images):
+        # Shift from [Channels, Height, Width] to [Height, Width, Channels]
+        img_to_show = images[i].permute(1, 2, 0).numpy()
+        
+        # Scale the values between 0 and 1 so Matplotlib doesn't throw a clipping warning
+        img_to_show = (img_to_show - img_to_show.min()) / (img_to_show.max() - img_to_show.min())
 
-    # 4. Display the image
-    plt.figure(figsize=(4, 4))
-    plt.imshow(img_to_show)
-    plt.title(f"Label: {labels[0].tolist()}")
-    plt.axis("off")
+        # Translate the one-hot label vector into readable disease names
+        pos_labels = [class_names[idx] for idx, val in enumerate(labels[i]) if val == 1]
+        title      = ", ".join(pos_labels) if pos_labels else "No Finding"
+
+        # Get the image path, clean file name, and numerical label values
+        img_path   = dataloader.dataset.image_paths[i]
+        file_name  = pathlib.Path(img_path).name
+        label_vals = labels[i].tolist()
+
+        # Print the full path to the console for easy debugging/copying
+        print(f"[Sample {i+1}] File: {file_name} | Full Path: {img_path} | Vector: {label_vals}")
+
+        # 4. Display the image in the subplot grid
+        axes[i].imshow(img_to_show)
+        axes[i].set_title(f"Sample {i+1}: {file_name}\n{title}\n{label_vals}", fontsize=10, fontweight='bold')
+        axes[i].axis("off")
+    
+    plt.tight_layout()
     plt.show()
