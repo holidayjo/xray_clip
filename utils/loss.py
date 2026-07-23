@@ -1,6 +1,5 @@
 import torch
 
-
 class AsymmetricLoss(torch.nn.Module):
     def __init__(self, gamma_neg=4, gamma_pos=1, clip=0.05, eps=1e-8, disable_torch_grad_focal_loss=True):
         super(AsymmetricLoss, self).__init__()

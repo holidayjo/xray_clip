@@ -6,6 +6,7 @@ import pandas as pd
 import torch
 import torch.utils.data
 import PIL.Image
+import matplotlib.pyplot as plt
 
 def download_dataset(output_dir="."):
     """Downloads and extracts the NIH Chest X-ray dataset, skipping completed steps."""
@@ -99,8 +100,6 @@ def filter_dataset(df, paths, top_labels, label_cols):
     return df[mask].reset_index(drop=True), paths[mask]
 
 
-
-
 class XrayDataset(torch.utils.data.Dataset):
     def __init__(self, image_paths, df, label_cols, preprocess):
         self.image_paths = image_paths
@@ -114,7 +113,6 @@ class XrayDataset(torch.utils.data.Dataset):
         image = PIL.Image.open(self.image_paths[idx]).convert("RGB")
         #image = self.preprocess(images=image, return_tensors="pt")["pixel_values"][0]
         image = self.preprocess(image)
-
         label = torch.tensor(self.labels[idx], dtype=torch.float32)
 
         return image, label
@@ -131,10 +129,7 @@ def create_dataloaders(paths_dict, df_dict, top_labels, preprocess, batch_size=1
                               df          = df_dict[split],
                               label_cols  = top_labels,
                               preprocess  = preprocess)
-        
-        # Only shuffle the training dataset
-        is_train = (split == 'train')
-        
+        is_train       = (split == 'train') # Only shuffle the training dataset                
         loaders[split] = torch.utils.data.DataLoader(dataset,
                                                      batch_size  = batch_size,
                                                      shuffle     = is_train,
@@ -143,3 +138,33 @@ def create_dataloaders(paths_dict, df_dict, top_labels, preprocess, batch_size=1
         print(f"Created {split} loader with {len(dataset)} samples.")
         
     return loaders['train'], loaders['valid'], loaders['test']
+
+
+
+def inspect_dataloader(dataloader):
+    """Pulls a single batch from the dataloader, prints stats, and visualizes the first image."""
+    # 1. Pull one batch of images and labels
+    images, labels = next(iter(dataloader))
+    single_image   = images[0]
+
+    # 2. Print the tensor statistics
+    print("--- Image Tensor Stats ---")
+    print(f"Batch Shape        : {images.shape}")
+    print(f"Single Image Shape : {single_image.shape}")
+    print(f"Min Value          : {single_image.min().item():.4f}")
+    print(f"Max Value          : {single_image.max().item():.4f}")
+    print(f"Label Vector       : {labels[0].tolist()}")
+
+    # 3. Prepare the tensor for Matplotlib
+    # Shift from [Channels, Height, Width] to [Height, Width, Channels]
+    img_to_show = single_image.permute(1, 2, 0).numpy()
+    
+    # Scale the values between 0 and 1 so Matplotlib doesn't throw a clipping warning
+    img_to_show = (img_to_show - img_to_show.min()) / (img_to_show.max() - img_to_show.min())
+
+    # 4. Display the image
+    plt.figure(figsize=(4, 4))
+    plt.imshow(img_to_show)
+    plt.title(f"Label: {labels[0].tolist()}")
+    plt.axis("off")
+    plt.show()
