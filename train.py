@@ -3,7 +3,8 @@ import yaml
 import pathlib
 import numpy as np
 import torch
-from sklearn.metrics import roc_auc_score, accuracy_score, precision_score, recall_score, f1_score, hamming_loss, confusion_matrix, average_precision_score
+from sklearn.metrics import roc_auc_score, accuracy_score, precision_score, \
+    recall_score, f1_score, hamming_loss, confusion_matrix, average_precision_score
 
 # Import your custom modules
 import utils.dataset
@@ -100,9 +101,9 @@ def main(opt):
         # Evaluate Validation
         model.eval()
         Adapter.eval()
-        val_loss = 0.0
+        val_loss               = 0.0
         y_val_true, y_val_pred = [], []
-        val_label_accuracies = {f"label_{i}": [] for i in range(num_labels)}
+        val_label_accuracies   = {f"label_{i}": [] for i in range(num_labels)}
 
         # ---- Validation Batch Loop ----
         with torch.no_grad():
@@ -114,8 +115,8 @@ def main(opt):
                 image_features = torch.nn.functional.normalize(image_features, dim=-1)
 
                 predictions = Adapter(image_features, text_features)
-                loss = criterion(predictions, labels)
-                val_loss += loss.item()
+                loss        = criterion(predictions, labels)
+                val_loss   += loss.item()
                 predictions = torch.sigmoid(predictions)
 
                 y_val_pred.append(predictions.detach().cpu().numpy())
