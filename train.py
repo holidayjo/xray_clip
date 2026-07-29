@@ -87,6 +87,10 @@ def main(opt):
             image_features = torch.nn.functional.normalize(image_features, dim=-1)
             # print(f"image_features.shape = {image_features.shape}, text_features.shape = {text_features.shape}")
             predictions = Adapter(image_features, text_features)
+            print(f"predictions = {predictions}")
+            break
+        break
+"""
             loss        = criterion(predictions, labels)
             
             optimizer.zero_grad()
@@ -311,7 +315,7 @@ def main(opt):
 
         if early_stop:
             break
-
+"""
 
 def parse_opt():
     parser = argparse.ArgumentParser(description="CLIP-Based Chest X-Ray Multi-Label Classification")
