@@ -3,14 +3,18 @@ import yaml
 import pathlib
 import numpy as np
 import torch
-from sklearn.metrics import roc_auc_score, accuracy_score, precision_score, \
-    recall_score, f1_score, hamming_loss, confusion_matrix, average_precision_score
+from tqdm import tqdm
 
 # Import your custom modules
 import utils.dataset
 import utils.models
 import utils.utils
-import utils.loss 
+import utils.loss
+import utils.evaluation
+import utils.plot
+
+
+
 
 
 def main(opt):
@@ -20,6 +24,9 @@ def main(opt):
 
     with open(opt.cfg, "r") as f:
         cfg = yaml.safe_load(f)
+
+    exp_dir   = utils.utils.increment_path("runs/exp")
+    save_path = exp_dir / opt.save_path
 
     # 2. Load and filter dataset splits
     image_root               = pathlib.Path(cfg['image_root'])
@@ -70,12 +77,8 @@ def main(opt):
     train_losses, val_losses, train_Accs, valid_Accs = [], [], [], []
     
     # 8. Main Training Loop using CLI epochs option
-    ii=0
     for epoch in range(opt.epochs):
-        ii+=1
-        if ii==2:
-            break
-        model.train()
+        # model.train()
         Adapter.train()
         train_loss = 0.0
 
@@ -128,7 +131,31 @@ def main(opt):
 
                 y_val_pred.append(predictions.detach().cpu().numpy())
                 y_val_true.append(labels.cpu().numpy())
+                
+                
+                
+        y_train_pred_prob = np.concatenate(y_train_pred, axis=0)
+        y_train_true       = np.concatenate(y_train_true, axis=0)
+        y_val_pred_prob    = np.concatenate(y_val_pred, axis=0)
+        y_val_true         = np.concatenate(y_val_true, axis=0)
 
+        train_overall, train_per_label = utils.evaluation.compute_multilabel_metrics(y_train_true, y_train_pred_prob)
+        val_overall,   val_per_label   = utils.evaluation.compute_multilabel_metrics(y_val_true,   y_val_pred_prob)
+
+        train_loss /= len(train_loader)
+        val_loss   /= len(valid_loader)
+        train_losses.append(train_loss)
+        val_losses.append(val_loss)
+        train_Accs.append(train_overall['accuracy'])
+        valid_Accs.append(val_overall['accuracy'])
+
+        print(f"\nEpoch [{epoch+1}/{opt.epochs}]  Train Loss: {train_loss:.4f}  Val Loss: {val_loss:.4f}")
+        print("\nTrain Metrics")
+        print(utils.evaluation.format_metrics_table(cfg['top_labels'], train_overall, train_per_label))
+        print("\nValidation Metrics")
+        print(utils.evaluation.format_metrics_table(cfg['top_labels'], val_overall, val_per_label))
+               
+        """
         # ---- Metric Calculation and Printing ----
         y_train_pred      = np.concatenate(y_train_pred, axis=0)
         y_train_true      = np.concatenate(y_train_true, axis=0)
@@ -183,7 +210,8 @@ def main(opt):
             train_label_aucs[f"label_{i}"] = train_label_auc
 
             try:
-                train_label_map = average_precision_score(y_train_true[:, i], y_train_pred[:, i])
+                # print(f'y_train_true[:, i], y_train_pred[:, i] = {y_train_true[:, i]}, {y_train_pred[:, i]}')
+                train_label_map = average_precision_score(y_train_true[:, i], y_train_pred_prob[:, i])
             except ValueError:
                 train_label_map = float('nan')
             train_label_maps[f"label_{i}"] = train_label_map
@@ -244,7 +272,7 @@ def main(opt):
             val_label_aucs[f"label_{i}"] = val_label_auc
 
             try:
-                val_label_map = average_precision_score(y_val_true[:, i], y_val_pred[:, i])
+                val_label_map = average_precision_score(y_val_true[:, i], y_val_pred_prob[:, i])
             except ValueError:
                 val_label_map = float('nan')
             val_label_maps[f"label_{i}"] = val_label_map
@@ -257,15 +285,15 @@ def main(opt):
         valid_Accs.append(val_Acc)
 
         print(f"Epoch [{epoch+1}/{opt.epochs}], "
-              f"Train Loss: {train_loss:.4f}, Val Loss: {val_loss:.4f}, "
+              f"Train Loss      : {train_loss:.4f}, Val Loss: {val_loss:.4f}, "
               f"Train subset acc: {train_subset_acc:.4f}, Val Acc: {val_subset_acc:.4f}, "
-              f"Train Acc: {train_Acc:.4f}, Val Acc: {val_Acc:.4f}, "
-              f"Train mAP: {train_mAP:.4f}, Val mAP: {val_mAP:.4f}, "
-              f"Train F1: {train_f1:.4f}, Val F1: {val_f1:.4f}, "
-              f"Train Hamming: {train_hamming:.4f}, Val Hamming: {val_hamming:.4f}, "
-              f"Train spec: {train_specificity:.4f}, Val spec: {val_specificity:.4f}, "
-              f"Train recall: {train_recall:.4f}, Val recall: {val_recall:.4f}, "
-              f"Train precision: {train_precision:.4f}, Val precision: {val_precision:.4f}")
+              f"Train Acc       : {train_Acc:.4f}, Val Acc: {val_Acc:.4f}, "
+              f"Train mAP       : {train_mAP:.4f}, Val mAP: {val_mAP:.4f}, "
+              f"Train F1        : {train_f1:.4f}, Val F1: {val_f1:.4f}, "
+              f"Train Hamming   : {train_hamming:.4f}, Val Hamming: {val_hamming:.4f}, "
+              f"Train spec      : {train_specificity:.4f}, Val spec: {val_specificity:.4f}, "
+              f"Train recall    : {train_recall:.4f}, Val recall: {val_recall:.4f}, "
+              f"Train precision : {train_precision:.4f}, Val precision: {val_precision:.4f}")
         print("========== Per-Label Training Metrics ==========")
         for i in range(num_labels):
             print(f"[Label {i}]")
@@ -275,7 +303,7 @@ def main(opt):
             print(f"  Specificity     : {train_label_specificities[f'label_{i}']:.4f}")
             print(f"  F1 Score        : {train_label_f1_scores[f'label_{i}']:.4f}")
             print(f"  AUC             : {train_label_aucs[f'label_{i}']:.4f}")
-            print(f"  mAP             : {train_label_maps[f'label_{i}']:.4f}")
+            print(f"  AP              : {train_label_maps[f'label_{i}']:.4f}")
             print(f"  Hamming Loss    : {train_label_hamming_losses[f'label_{i}']:.4f}")
             print("")
 
@@ -288,9 +316,9 @@ def main(opt):
             print(f"  Specificity     : {val_label_specificities[f'label_{i}']:.4f}")
             print(f"  F1 Score        : {val_label_f1_scores[f'label_{i}']:.4f}")
             print(f"  AUC             : {val_label_aucs[f'label_{i}']:.4f}")
-            print(f"  mAP             : {val_label_maps[f'label_{i}']:.4f}")
+            print(f"  AP              : {val_label_maps[f'label_{i}']:.4f}")
             print(f"  Hamming Loss    : {val_label_hamming_losses[f'label_{i}']:.4f}")
-
+        """
         # ======= Early Stopping Check =======
         if val_loss < best_val_loss:
             best_val_loss = val_loss
@@ -305,7 +333,7 @@ def main(opt):
                 'train_acc': train_Accs,
                 'valid_loss': val_losses,
                 'valid_acc': valid_Accs,
-            }, opt.save_path)
+            }, save_path)
 
             print(f"Validation loss improved. Model saved.")
         else:
@@ -319,14 +347,16 @@ def main(opt):
         if early_stop:
             break
 
+    utils.plot.plot_training_curves(train_losses, val_losses, train_Accs, valid_Accs,
+                                      save_path=str(exp_dir / "training_curves.png"))
 
 def parse_opt():
     parser = argparse.ArgumentParser(description="CLIP-Based Chest X-Ray Multi-Label Classification")
     parser.add_argument("--cfg", type=str, default="data/cxr_dataset.yaml", help="Path to dataset YAML file")
     parser.add_argument("--clip_model", type=str, default="hf-hub:microsoft/BiomedCLIP-PubMedBERT_256-vit_base_patch16_224", help="Pre-trained CLIP model name")
-    parser.add_argument("--epochs", type=int, default=10, help="Total number of training epochs")
-    parser.add_argument("--batch-size", type=int, default=3, help="Total batch size")
-    parser.add_argument("--lr", type=float, default=3e-4, help="Initial learning rate for optimizer")
+    parser.add_argument("--epochs", type=int, default=20, help="Total number of training epochs")
+    parser.add_argument("--batch-size", type=int, default=250, help="Total batch size")
+    parser.add_argument("--lr", type=float, default=1e-4, help="Initial learning rate for optimizer")
     parser.add_argument("--patience", type=int, default=5, help="Early stopping patience epochs")
     parser.add_argument("--seed", type=int, default=42, help="Global training random seed")
     parser.add_argument("--save-path", type=str, default="muldiff.pth", help="File path to save the best model checkpoint")
