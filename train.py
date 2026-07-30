@@ -70,7 +70,11 @@ def main(opt):
     train_losses, val_losses, train_Accs, valid_Accs = [], [], [], []
     
     # 8. Main Training Loop using CLI epochs option
+    ii=0
     for epoch in range(opt.epochs):
+        ii+=1
+        if ii==2:
+            break
         model.train()
         Adapter.train()
         train_loss = 0.0
@@ -85,19 +89,18 @@ def main(opt):
 
             image_features = model.encode_image(images)
             image_features = torch.nn.functional.normalize(image_features, dim=-1)
-            # print(f"image_features.shape = {image_features.shape}, text_features.shape = {text_features.shape}")
+            # print(f"image_features.shape = {image_features.shape}, text_features.shape = {text_features.shape}") 
+            # # image_features.shape = torch.Size([16, 512]), text_features.shape = torch.Size([3, 512])
             predictions = Adapter(image_features, text_features)
-            print(f"predictions = {predictions}")
-            break
-        break
-"""
+            # print(f"predictions = {predictions}") # (3, 16)
+
             loss        = criterion(predictions, labels)
             
-            optimizer.zero_grad()
-            loss.backward()
-            optimizer.step()
+            optimizer.zero_grad() # clears .grad on every parameter the optimizer tracks 
+            loss.backward()  
+            optimizer.step() # updating weights.
 
-            train_loss += loss.item()
+            train_loss += loss.item() # loss sum for this batch.
             predictions = torch.sigmoid(predictions)
             y_train_pred.append(predictions.detach().cpu().numpy())
             y_train_true.append(labels.cpu().numpy())
@@ -132,31 +135,31 @@ def main(opt):
         y_train_pred_prob = y_train_pred.copy()
         y_train_pred      = (y_train_pred > 0.5).astype(int)
 
-        train_subset_acc = accuracy_score(y_train_true, y_train_pred)
-        train_Acc = accuracy_score(y_train_true.ravel(), y_train_pred.ravel())
-        train_precision = precision_score(y_train_true, y_train_pred, average="micro", zero_division=0)
-        train_recall = recall_score(y_train_true, y_train_pred, average="micro", zero_division=0)
-        train_f1 = f1_score(y_train_true, y_train_pred, average="micro")
-        train_hamming = hamming_loss(y_train_true, y_train_pred)
-        train_mAP = average_precision_score(y_train_true, y_train_pred_prob, average="macro")
-
-        tn, fp, fn, tp = confusion_matrix(y_train_true.ravel(), y_train_pred.ravel(), labels=[0, 1]).ravel()
+        train_subset_acc  = accuracy_score(y_train_true, y_train_pred)
+        train_Acc         = accuracy_score(y_train_true.ravel(), y_train_pred.ravel())
+        train_precision   = precision_score(y_train_true, y_train_pred, average="micro", zero_division=0)
+        train_recall      = recall_score(y_train_true, y_train_pred, average="micro", zero_division=0)
+        train_f1          = f1_score(y_train_true, y_train_pred, average="micro")
+        train_hamming     = hamming_loss(y_train_true, y_train_pred)
+        train_mAP         = average_precision_score(y_train_true, y_train_pred_prob, average="macro")
+        tn, fp, fn, tp    = confusion_matrix(y_train_true.ravel(), y_train_pred.ravel(), labels=[0, 1]).ravel()
         train_specificity = tn / (tn + fp + 1e-7)
 
-        train_label_precisions = {}
-        train_label_recalls = {}
+        train_label_precisions     = {}
+        train_label_recalls        = {}
         train_label_hamming_losses = {}
-        train_label_f1_scores = {}
-        train_label_specificities = {}
-        train_label_aucs = {}
-        train_label_maps = {}
+        train_label_f1_scores      = {}
+        train_label_specificities  = {}
+        train_label_aucs           = {}
+        train_label_maps           = {}
 
         for i in range(num_labels):
+            # print(f'y_train_true[:, {i}], y_train_pred[:, {i}] = {y_train_true[:, i]}, {y_train_pred[:, i]}')
             train_label_acc = accuracy_score(y_train_true[:, i], y_train_pred[:, i])
             train_label_accuracies[f"label_{i}"].append(train_label_acc)
 
             train_label_prec = precision_score(y_train_true[:, i], y_train_pred[:, i], zero_division=0)
-            train_label_rec = recall_score(y_train_true[:, i], y_train_pred[:, i], zero_division=0)
+            train_label_rec  = recall_score(y_train_true[:, i], y_train_pred[:, i], zero_division=0)
             train_label_precisions[f"label_{i}"] = train_label_prec
             train_label_recalls[f"label_{i}"] = train_label_rec
 
@@ -315,19 +318,19 @@ def main(opt):
 
         if early_stop:
             break
-"""
+
 
 def parse_opt():
     parser = argparse.ArgumentParser(description="CLIP-Based Chest X-Ray Multi-Label Classification")
     parser.add_argument("--cfg", type=str, default="data/cxr_dataset.yaml", help="Path to dataset YAML file")
     parser.add_argument("--clip_model", type=str, default="hf-hub:microsoft/BiomedCLIP-PubMedBERT_256-vit_base_patch16_224", help="Pre-trained CLIP model name")
     parser.add_argument("--epochs", type=int, default=10, help="Total number of training epochs")
-    parser.add_argument("--batch-size", type=int, default=16, help="Total batch size")
+    parser.add_argument("--batch-size", type=int, default=3, help="Total batch size")
     parser.add_argument("--lr", type=float, default=3e-4, help="Initial learning rate for optimizer")
     parser.add_argument("--patience", type=int, default=5, help="Early stopping patience epochs")
     parser.add_argument("--seed", type=int, default=42, help="Global training random seed")
     parser.add_argument("--save-path", type=str, default="muldiff.pth", help="File path to save the best model checkpoint")
-    parser.add_argument("--num_workers", type=int, default=2)
+    parser.add_argument("--num_workers", type=int, default=20)
     parser.add_argument("--context_length", type=int, default=77, help="the length of the prompt text.")
     return parser.parse_args()
 
