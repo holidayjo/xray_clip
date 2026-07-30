@@ -12,6 +12,11 @@ top_labels:
   - Effusion
   - Nodule
 
+# Text prompt template used to build the per-label CLIP text prototypes.
+# {label} is substituted with each entry of top_labels. Must stay identical
+# between train.py and val.py.
+prompt_template: "A chest radiograph with {label}, characterized by specific radiological features in the pulmonary area, affecting the thoracic cavity."
+
 # All original 20 labels in the NIH dataset
 all_labels:
   - Atelectasis

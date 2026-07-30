@@ -23,6 +23,18 @@ def load_clip_model(model_name, freeze_backbone=True, device=None):
     return model.to(device), preprocess, tokenizer, device
 
 
+@torch.no_grad()
+def encode_label_prompts(model, tokenizer, label_names, context_length, device, prompt_template):
+    """Fills prompt_template (must contain '{label}') once per label and encodes the
+    resulting prompts into normalized CLIP text features. prompt_template should come from
+    the dataset config so train.py and val.py always encode identical prompts."""
+    label_texts   = [prompt_template.format(label=name) for name in label_names]
+    text_tokens   = tokenizer(label_texts, context_length=context_length).to(device)
+    text_features = model.encode_text(text_tokens)
+    text_features = torch.nn.functional.normalize(text_features, dim=-1)
+    return text_features
+
+
 class DualBranchAdapter(torch.nn.Module):
     def __init__(self, dim=512, hidden_dim=512*2):
         super().__init__()

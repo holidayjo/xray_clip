@@ -63,11 +63,8 @@ def main(opt):
     criterion  = utils.loss.AsymmetricLoss(gamma_neg=4, gamma_pos=1, clip=0.05, disable_torch_grad_focal_loss=True)
 
     # 6. Pre-compute Text Features
-    with torch.no_grad():
-        label_texts   = [f"A chest radiograph with {i}, characterized by specific radiological features in the pulmonary area, affecting the thoracic cavity." for i in cfg['top_labels']]
-        text_tokens   = tokenizer(label_texts, context_length=opt.context_length).to(device)
-        text_features = model.encode_text(text_tokens)  
-        text_features = torch.nn.functional.normalize(text_features, dim=-1)
+    text_features = utils.models.encode_label_prompts(model, tokenizer, cfg['top_labels'],
+                                                        opt.context_length, device, cfg['prompt_template'])
 
     # 7. Training Setup using CLI options
     best_val_loss = float("inf")
@@ -75,9 +72,12 @@ def main(opt):
     early_stop    = False
 
     train_losses, val_losses, train_Accs, valid_Accs = [], [], [], []
-    
+    best_epoch = None
+    best_train_overall, best_train_per_label = None, None
+    best_val_overall,   best_val_per_label   = None, None
+
     # 8. Main Training Loop using CLI epochs option
-    for epoch in range(opt.epochs):
+    for epoch in tqdm(range(opt.epochs), desc="Training"):
         # model.train()
         Adapter.train()
         train_loss = 0.0
@@ -149,12 +149,9 @@ def main(opt):
         train_Accs.append(train_overall['accuracy'])
         valid_Accs.append(val_overall['accuracy'])
 
-        print(f"\nEpoch [{epoch+1}/{opt.epochs}]  Train Loss: {train_loss:.4f}  Val Loss: {val_loss:.4f}")
-        print("\nTrain Metrics")
-        print(utils.evaluation.format_metrics_table(cfg['top_labels'], train_overall, train_per_label))
-        print("\nValidation Metrics")
-        print(utils.evaluation.format_metrics_table(cfg['top_labels'], val_overall, val_per_label))
-               
+        tqdm.write(f"Epoch [{epoch+1}/{opt.epochs}] Train Loss: {train_loss:.4f} | Val Loss: {val_loss:.4f} | "
+                   f"Val Acc: {val_overall['accuracy']:.4f} | Val mAP: {val_overall['mAP']:.4f}")
+
         """
         # ---- Metric Calculation and Printing ----
         y_train_pred      = np.concatenate(y_train_pred, axis=0)
@@ -323,6 +320,9 @@ def main(opt):
         if val_loss < best_val_loss:
             best_val_loss = val_loss
             counter = 0
+            best_epoch = epoch + 1
+            best_train_overall, best_train_per_label = train_overall, train_per_label
+            best_val_overall,   best_val_per_label   = val_overall,   val_per_label
 
             torch.save({
                 'epoch': epoch + 1,
@@ -335,17 +335,23 @@ def main(opt):
                 'valid_acc': valid_Accs,
             }, save_path)
 
-            print(f"Validation loss improved. Model saved.")
+            tqdm.write("Validation loss improved. Model saved.")
         else:
             counter += 1
-            print(f"No improvement for {counter}/{opt.patience} epochs.")
+            tqdm.write(f"No improvement for {counter}/{opt.patience} epochs.")
 
             if counter >= opt.patience:
-                print("Early stopping triggered.")
+                tqdm.write("Early stopping triggered.")
                 early_stop = True
 
         if early_stop:
             break
+
+    print(f"\n===== Best Epoch: {best_epoch} (Val Loss: {best_val_loss:.4f}) =====")
+    print("\nTrain Metrics (Best Epoch)")
+    print(utils.evaluation.format_metrics_table(cfg['top_labels'], best_train_overall, best_train_per_label))
+    print("\nValidation Metrics (Best Epoch)")
+    print(utils.evaluation.format_metrics_table(cfg['top_labels'], best_val_overall, best_val_per_label))
 
     utils.plot.plot_training_curves(train_losses, val_losses, train_Accs, valid_Accs,
                                       save_path=str(exp_dir / "training_curves.png"))
