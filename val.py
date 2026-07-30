@@ -12,36 +12,31 @@ import utils.evaluation
 
 
 @torch.no_grad()
-def run(cfg="data/cxr_dataset.yaml",
-        weights="muldiff.pth",
-        clip_model="hf-hub:microsoft/BiomedCLIP-PubMedBERT_256-vit_base_patch16_224",
-        split="test",
-        batch_size=16,
-        num_workers=2,
-        context_length=77,
-        seed=42,
-        device=None):
+def run(cfg            = "data/cxr_dataset.yaml",
+        weights        = "muldiff.pth",
+        clip_model     = "hf-hub:microsoft/BiomedCLIP-PubMedBERT_256-vit_base_patch16_224",
+        split          = "test",
+        batch_size     = 250,
+        num_workers    = 20,
+        context_length = 77,
+        seed           = 42,
+        device         = None):
     """Evaluates a trained Adapter checkpoint on one dataset split and prints the metrics table."""
     utils.utils.set_random_seeds(seed=seed)
     device = device or torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     with open(cfg, "r") as f:
         cfg = yaml.safe_load(f)
-    image_root = pathlib.Path(cfg['image_root'])
-
+    image_root                           = pathlib.Path(cfg['image_root'])
     model, preprocess, tokenizer, device = utils.models.load_clip_model(model_name=clip_model, freeze_backbone=True, device=device)
-
-    csv_key = {"train": "train_csv", "valid": "valid_csv", "test": "test_csv"}[split]
-    df, paths, _ = utils.dataset.load_split(cfg[csv_key], image_root, verbose=True)
-    df_filtered, paths_filtered = utils.dataset.filter_dataset(df, paths, cfg['top_labels'], cfg['all_labels'])
-
-    dataset = utils.dataset.XrayDataset(image_paths=paths_filtered, df=df_filtered,
-                                         label_cols=cfg['top_labels'], preprocess=preprocess)
-    loader = torch.utils.data.DataLoader(dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers)
+    csv_key                              = {"train": "train_csv", "valid": "valid_csv", "test": "test_csv"}[split]
+    df, paths, _                         = utils.dataset.load_split(cfg[csv_key], image_root, verbose=True)
+    df_filtered, paths_filtered          = utils.dataset.filter_dataset(df, paths, cfg['top_labels'], cfg['all_labels'])
+    dataset                              = utils.dataset.XrayDataset(image_paths=paths_filtered, df=df_filtered, label_cols=cfg['top_labels'], preprocess=preprocess)
+    loader                               = torch.utils.data.DataLoader(dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers)
     print(f"Created {split} loader with {len(dataset)} samples.")
 
-    Adapter = utils.models.DualBranchAdapter().to(device)
-
+    Adapter    = utils.models.DualBranchAdapter().to(device)
     checkpoint = torch.load(weights, map_location=device)
     Adapter.load_state_dict(checkpoint['adapter_state_dict'])
     if 'model_state_dict' in checkpoint:
@@ -51,9 +46,7 @@ def run(cfg="data/cxr_dataset.yaml",
     model.eval()
     Adapter.eval()
 
-    text_features = utils.models.encode_label_prompts(model, tokenizer, cfg['top_labels'],
-                                                        context_length, device, cfg['prompt_template'])
-
+    text_features  = utils.models.encode_label_prompts(model, tokenizer, cfg['top_labels'], context_length, device, cfg['prompt_template'])
     y_true, y_pred = [], []
     for images, labels in tqdm(loader, desc=f"Evaluating [{split}]"):
         images = images.to(device)

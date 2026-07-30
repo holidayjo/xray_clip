@@ -3,6 +3,8 @@ import yaml
 import tarfile
 import urllib.request
 import pathlib
+import pickle
+import numpy as np
 import pandas as pd
 import torch
 import torch.utils.data
@@ -70,22 +72,48 @@ def download_dataset(cfg_path="data/cxr_dataset.yaml", output_dir="."):
     print("\nAll done. Please check the checksums and extracted files.")
 
 
-def load_split(csv_path, image_root, verbose=False):
+def build_image_index(image_root, cache_path=None, force_rebuild=False):
+    """Scans image_root once for every .png file and returns {filename: full_path}.
+    Scanning a large image directory is slow and, since the dataset doesn't change
+    between runs, the result is cached to disk (YOLO-style .cache file) so later
+    runs load it instantly instead of re-scanning. Delete the cache file (or pass
+    force_rebuild=True) if images are ever added/removed/moved."""
+    image_root = pathlib.Path(image_root)
+    if cache_path is None:
+        cache_path = image_root.parent / f"{image_root.name}.index_cache.pkl"
+    cache_path = pathlib.Path(cache_path)
+
+    if cache_path.exists() and not force_rebuild:
+        with open(cache_path, "rb") as f:
+            id_to_path = pickle.load(f)
+        print(f"[build_image_index] Loaded cached image index from {cache_path} ({len(id_to_path)} images).")
+        return id_to_path
+
+    print(f"[build_image_index] Scanning {image_root} for .png files (first run, result will be cached)...")
+    id_to_path = {p.name: str(p) for p in image_root.rglob("*.png")}
+    with open(cache_path, "wb") as f:
+        pickle.dump(id_to_path, f)
+    print(f"[build_image_index] Cached image index to {cache_path} ({len(id_to_path)} images).")
+    return id_to_path
+
+
+def load_split(csv_path, image_root, id_to_path=None, verbose=False):
     """
     To match CSV IDs with image paths
     """
-    df         = pd.read_csv(csv_path)
-    id_to_path = {p.name: str(p) for p in image_root.rglob("*.png")}
+    df = pd.read_csv(csv_path)
+    if id_to_path is None:
+        id_to_path = build_image_index(image_root)
     # print(id_to_path) # {'00005750_019.png': 'data/nih_images/images/00005750_019.png', ...}
     paths      = df['id'].map(id_to_path).values
     labels     = df.iloc[:, 1:-1].values
-    
-    if verbose:    
+
+    if verbose:
         # Debug prints to check returned variables
         print(f"[load_split] Loaded {len(df)} rows from CSV. You may check how CSV file looks like.")
         print(f"[load_split] paths shape : {paths.shape}, sample: {paths[0] if len(paths) > 0 else 'None'}")
-        print(f"[load_split] labels shape: {labels.shape}, sample row: {labels[0] if len(labels) > 0 else 'None'}") 
-    
+        print(f"[load_split] labels shape: {labels.shape}, sample row: {labels[0] if len(labels) > 0 else 'None'}")
+
     return df, paths, labels
 
 
@@ -98,6 +126,14 @@ def filter_dataset(df, paths, top_labels, label_cols):
     no_other     = df[other_labels].sum(axis=1) == 0
     mask         = has_top & no_other
     return df[mask].reset_index(drop=True), paths[mask]
+
+
+def concat_splits(df_a, paths_a, df_b, paths_b):
+    """Concatenates two (df, paths) split pairs into one combined split, e.g. to
+    refit on train+valid together after early stopping has picked a best_epoch."""
+    combined_df    = pd.concat([df_a, df_b], ignore_index=True)
+    combined_paths = np.concatenate([paths_a, paths_b])
+    return combined_df, combined_paths
 
 
 class XrayDataset(torch.utils.data.Dataset):
@@ -142,7 +178,7 @@ def create_dataloaders(paths_dict, df_dict, top_labels, preprocess, batch_size=1
 
 
 
-def inspect_dataloader(dataloader, split_name="DataLoader", class_names=['Infiltration', 'Effusion', 'Nodule'], num_images=5):
+def inspect_dataloader(dataloader, split_name="DataLoader", class_names=['Infiltration', 'Effusion', 'Nodule'], num_images=5, ncols=5):
     """Pulls a single batch from the dataloader, prints stats, and visualizes multiple images with disease titles."""
     # 1. Pull one batch of images and labels
     images, labels = next(iter(dataloader))
@@ -156,13 +192,20 @@ def inspect_dataloader(dataloader, split_name="DataLoader", class_names=['Infilt
     print(f"Max Value          : {single_image.max().item():.4f}")
     print(f"Label Vector       : {labels[0].tolist()}")
 
-    # 3. Prepare and display multiple images in a grid
-    # Increased height from 4 to 5.5 so the taller titles don't get squished
-    fig, axes = plt.subplots(1, num_images, figsize=(16, 5.5))
-    for i in range(num_images):
+    # 3. Prepare and display multiple images in a grid (e.g. 15 images, ncols=5 -> 3x5 grid)
+    ncols = min(ncols, num_images)
+    nrows = -(-num_images // ncols)  # ceil division
+    fig, axes = plt.subplots(nrows, ncols, figsize=(ncols * 3.2, nrows * 3.8))
+    axes = np.atleast_1d(axes).ravel()
+
+    for i in range(nrows * ncols):
+        if i >= num_images:
+            axes[i].axis("off")
+            continue
+
         # Shift from [Channels, Height, Width] to [Height, Width, Channels]
         img_to_show = images[i].permute(1, 2, 0).numpy()
-        
+
         # Scale the values between 0 and 1 so Matplotlib doesn't throw a clipping warning
         img_to_show = (img_to_show - img_to_show.min()) / (img_to_show.max() - img_to_show.min())
 
@@ -182,6 +225,6 @@ def inspect_dataloader(dataloader, split_name="DataLoader", class_names=['Infilt
         axes[i].imshow(img_to_show)
         axes[i].set_title(f"Sample {i+1}: {file_name}\n{title}\n{label_vals}", fontsize=10, fontweight='bold')
         axes[i].axis("off")
-    
+
     plt.tight_layout()
     plt.show()

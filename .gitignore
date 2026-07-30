@@ -2,5 +2,6 @@ data/nih_images/
 utils/__pycache__
 files/
 *.pth
+*.pkl
 runs/
 __pycache__/

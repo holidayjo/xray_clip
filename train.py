@@ -12,9 +12,7 @@ import utils.utils
 import utils.loss
 import utils.evaluation
 import utils.plot
-
-
-
+import val as validate  # for end-of-epoch mAP
 
 
 def main(opt):
@@ -34,10 +32,11 @@ def main(opt):
     # 3. Load Model and Tokenizer using CLI model option
     model, preprocess, tokenizer, device = utils.models.load_clip_model(model_name=opt.clip_model, freeze_backbone=True, device=device)
     
-    # Load dataset splits
-    train_df, train_paths, train_labels = utils.dataset.load_split(cfg['train_csv'], image_root, verbose=True)
-    valid_df, valid_paths, valid_labels = utils.dataset.load_split(cfg['valid_csv'], image_root)
-    test_df,  test_paths,  test_labels  = utils.dataset.load_split(cfg['test_csv'],  image_root)
+    # Load dataset splits (image index built once and reused across all three splits)
+    id_to_path = utils.dataset.build_image_index(image_root)
+    train_df, train_paths, train_labels = utils.dataset.load_split(cfg['train_csv'], image_root, id_to_path=id_to_path, verbose=True)
+    valid_df, valid_paths, valid_labels = utils.dataset.load_split(cfg['valid_csv'], image_root, id_to_path=id_to_path)
+    test_df,  test_paths,  test_labels  = utils.dataset.load_split(cfg['test_csv'],  image_root, id_to_path=id_to_path)
 
     # filtering
     train_df_filtered, train_paths_filtered = utils.dataset.filter_dataset(train_df, train_paths, cfg['top_labels'], cfg['all_labels'])
@@ -50,11 +49,11 @@ def main(opt):
     paths_dict = {'train': train_paths_filtered, 'valid': valid_paths_filtered, 'test' : test_paths_filtered}
     df_dict    = {'train': train_df_filtered,    'valid': valid_df_filtered,    'test' : test_df_filtered}
     train_loader, valid_loader, test_loader = utils.dataset.create_dataloaders(paths_dict  = paths_dict, 
-                                                                                df_dict     = df_dict, 
-                                                                                top_labels  = cfg['top_labels'], 
-                                                                                preprocess  = preprocess, 
-                                                                                batch_size  = opt.batch_size,
-                                                                                num_workers = opt.num_workers)
+                                                                               df_dict     = df_dict, 
+                                                                               top_labels  = cfg['top_labels'], 
+                                                                               preprocess  = preprocess, 
+                                                                               batch_size  = opt.batch_size,
+                                                                               num_workers = opt.num_workers)
 
     # 5. Initialize Adapter, Optimizer, and Loss using CLI learning rate
     num_labels = len(cfg['top_labels'])
@@ -86,7 +85,7 @@ def main(opt):
         train_label_accuracies     = {f"label_{i}": [] for i in range(num_labels)}   # {'label_0': [], 'label_1': [], 'label_2': []}
         
         # ---- Training Batch Loop ----
-        for images, labels in train_loader:
+        for images, labels in tqdm(train_loader, desc=f"Epoch {epoch+1}/{opt.epochs} [Train]", leave=False):
             images = images.to(device)
             labels = labels.to(device)
 
@@ -117,7 +116,7 @@ def main(opt):
 
         # ---- Validation Batch Loop ----
         with torch.no_grad():
-            for images, labels in valid_loader:
+            for images, labels in tqdm(valid_loader, desc=f"Epoch {epoch+1}/{opt.epochs} [Valid]", leave=False):
                 images = images.to(device)
                 labels = labels.to(device)
 
@@ -149,8 +148,12 @@ def main(opt):
         train_Accs.append(train_overall['accuracy'])
         valid_Accs.append(val_overall['accuracy'])
 
+        val_per_class_str = " | ".join(
+            f"{name}: Acc {row['accuracy']:.4f} AP {row['ap']:.4f}"
+            for name, row in zip(cfg['top_labels'], val_per_label)
+        )
         tqdm.write(f"Epoch [{epoch+1}/{opt.epochs}] Train Loss: {train_loss:.4f} | Val Loss: {val_loss:.4f} | "
-                   f"Val Acc: {val_overall['accuracy']:.4f} | Val mAP: {val_overall['mAP']:.4f}")
+                   f"Val Acc: {val_overall['accuracy']:.4f} | Val mAP: {val_overall['mAP']:.4f} | {val_per_class_str}")
 
         """
         # ---- Metric Calculation and Printing ----
@@ -356,18 +359,88 @@ def main(opt):
     utils.plot.plot_training_curves(train_losses, val_losses, train_Accs, valid_Accs,
                                       save_path=str(exp_dir / "training_curves.png"))
 
+    print(f"\n===== Final Test Set Evaluation (Best Weights: {save_path}) =====")
+    validate.run(cfg            = opt.cfg,
+                 weights        = str(save_path),
+                 clip_model     = opt.clip_model,
+                 split          = "test",
+                 batch_size     = opt.batch_size,
+                 num_workers    = opt.num_workers,
+                 context_length = opt.context_length,
+                 seed           = opt.seed)
+
+    # 9. Optional: Refit on Train+Valid combined for best_epoch epochs, no early stopping
+    if opt.refit and best_epoch is None:
+        print("Skipping refit: no epoch ever improved val_loss (best_epoch is None).")
+    elif opt.refit:
+        tqdm.write(f"\n===== Refitting on Train+Valid combined for {best_epoch} epochs =====")
+
+        refit_df, refit_paths = utils.dataset.concat_splits(train_df_filtered, train_paths_filtered, valid_df_filtered, valid_paths_filtered)
+        refit_dataset = utils.dataset.XrayDataset(image_paths=refit_paths, df=refit_df,
+                                                   label_cols=cfg['top_labels'], preprocess=preprocess)
+        refit_loader  = torch.utils.data.DataLoader(refit_dataset, batch_size=opt.batch_size,
+                                                     shuffle=True, num_workers=opt.num_workers)
+        print(f"Refit loader: {len(refit_dataset)} samples (train+valid combined).")
+
+        refit_adapter   = utils.models.DualBranchAdapter().to(device)
+        refit_optimizer = torch.optim.Adam(refit_adapter.parameters(), lr=opt.lr)
+        model.eval()  # backbone stays frozen/eval, same as during the main training loop
+
+        for refit_epoch in tqdm(range(best_epoch), desc="Refit"):
+            refit_adapter.train()
+            refit_loss = 0.0
+
+            for images, labels in tqdm(refit_loader, desc=f"Refit Epoch {refit_epoch+1}/{best_epoch}", leave=False):
+                images = images.to(device)
+                labels = labels.to(device)
+
+                image_features = model.encode_image(images)
+                image_features = torch.nn.functional.normalize(image_features, dim=-1)
+
+                predictions = refit_adapter(image_features, text_features)
+                loss        = criterion(predictions, labels)
+
+                refit_optimizer.zero_grad()
+                loss.backward()
+                refit_optimizer.step()
+
+                refit_loss += loss.item()
+
+            refit_loss /= len(refit_loader)
+            tqdm.write(f"Refit Epoch [{refit_epoch+1}/{best_epoch}] Loss: {refit_loss:.4f}")
+
+        refit_save_path = exp_dir / f"refit_{opt.save_path}"
+        torch.save({
+            'epoch': best_epoch,
+            'model_state_dict': model.state_dict(),
+            'adapter_state_dict': refit_adapter.state_dict(),
+            'optimizer_state_dict': refit_optimizer.state_dict(),
+        }, refit_save_path)
+        print(f"Refit model saved to {refit_save_path}")
+
+        print(f"\n===== Final Test Set Evaluation (Refit Weights: {refit_save_path}) =====")
+        validate.run(cfg            = opt.cfg,
+                     weights        = str(refit_save_path),
+                     clip_model     = opt.clip_model,
+                     split          = "test",
+                     batch_size     = opt.batch_size,
+                     num_workers    = opt.num_workers,
+                     context_length = opt.context_length,
+                     seed           = opt.seed)
+
 def parse_opt():
     parser = argparse.ArgumentParser(description="CLIP-Based Chest X-Ray Multi-Label Classification")
     parser.add_argument("--cfg", type=str, default="data/cxr_dataset.yaml", help="Path to dataset YAML file")
     parser.add_argument("--clip_model", type=str, default="hf-hub:microsoft/BiomedCLIP-PubMedBERT_256-vit_base_patch16_224", help="Pre-trained CLIP model name")
-    parser.add_argument("--epochs", type=int, default=20, help="Total number of training epochs")
-    parser.add_argument("--batch-size", type=int, default=250, help="Total batch size")
+    parser.add_argument("--epochs", type=int, default=50, help="Total number of training epochs")
+    parser.add_argument("--batch-size", type=int, default=1200, help="Total batch size")
     parser.add_argument("--lr", type=float, default=1e-4, help="Initial learning rate for optimizer")
-    parser.add_argument("--patience", type=int, default=5, help="Early stopping patience epochs")
+    parser.add_argument("--patience", type=int, default=7, help="Early stopping patience epochs")
     parser.add_argument("--seed", type=int, default=42, help="Global training random seed")
     parser.add_argument("--save-path", type=str, default="muldiff.pth", help="File path to save the best model checkpoint")
     parser.add_argument("--num_workers", type=int, default=20)
     parser.add_argument("--context_length", type=int, default=77, help="the length of the prompt text.")
+    parser.add_argument("--refit", action="store_true", help="After training, retrain a fresh Adapter on train+valid combined for best_epoch epochs (no early stopping) and re-evaluate on the test set")    
     return parser.parse_args()
 
 
