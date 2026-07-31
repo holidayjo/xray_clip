@@ -9,6 +9,7 @@ import pandas as pd
 import torch
 import torch.utils.data
 import PIL.Image
+import torchvision.transforms as T
 import matplotlib.pyplot as plt
 
 def download_dataset(cfg_path="data/cxr_dataset.yaml", output_dir="."):
@@ -128,6 +129,15 @@ def filter_dataset(df, paths, top_labels, label_cols):
     return df[mask].reset_index(drop=True), paths[mask]
 
 
+def filter_dataset_any_positive(df, paths, top_labels):
+    """Keeps samples with at least one positive among top_labels, regardless of what
+    other findings (target or non-target) are also present -- i.e. no purity
+    restriction, unlike filter_dataset(). Used for reproducing baselines trained on
+    the full multilabel reality rather than isolated single-condition cases."""
+    mask = df[top_labels].sum(axis=1) > 0
+    return df[mask].reset_index(drop=True), paths[mask]
+
+
 def concat_splits(df_a, paths_a, df_b, paths_b):
     """Concatenates two (df, paths) split pairs into one combined split, e.g. to
     refit on train+valid together after early stopping has picked a best_epoch."""
@@ -136,37 +146,55 @@ def concat_splits(df_a, paths_a, df_b, paths_b):
     return combined_df, combined_paths
 
 
+def build_train_augmentation():
+    """Mild, clinically-conservative augmentation for chest X-rays, applied to the PIL
+    image before the CLIP preprocess pipeline. Deliberately excludes horizontal flip
+    (laterality can matter for some findings) and excludes cutout/aggressive cropping
+    (could remove small findings like Nodule from a positive sample)."""
+    return T.Compose([
+        T.RandomRotation(degrees=7),
+        T.RandomAffine(degrees=0, translate=(0.05, 0.05)),
+        T.ColorJitter(brightness=0.15, contrast=0.15),
+    ])
+
+
 class XrayDataset(torch.utils.data.Dataset):
-    def __init__(self, image_paths, df, label_cols, preprocess):
+    def __init__(self, image_paths, df, label_cols, preprocess, augment=None):
         self.image_paths = image_paths
         self.labels      = df[label_cols].values
         self.preprocess  = preprocess
+        self.augment     = augment
 
     def __len__(self):
         return len(self.image_paths)
 
     def __getitem__(self, idx):
         image = PIL.Image.open(self.image_paths[idx]).convert("RGB")
+        if self.augment is not None:
+            image = self.augment(image)
         #image = self.preprocess(images=image, return_tensors="pt")["pixel_values"][0]
         image = self.preprocess(image)
         label = torch.tensor(self.labels[idx], dtype=torch.float32)
 
         return image, label
-    
-    
-def create_dataloaders(paths_dict, df_dict, top_labels, preprocess, batch_size=16, num_workers=2, seed=42):
-    """Creates PyTorch DataLoaders for train, valid, and test splits."""
+
+
+def create_dataloaders(paths_dict, df_dict, top_labels, preprocess, batch_size=16, num_workers=2, seed=42, augment=None):
+    """Creates PyTorch DataLoaders for train, valid, and test splits.
+    augment (if given) is applied to the train split only -- valid/test always stay
+    on the deterministic preprocess pipeline for comparable evaluation numbers."""
     generator = torch.Generator()
     generator.manual_seed(seed)
-    
+
     loaders = {}
     for split in ['train', 'valid', 'test']:
         dataset = XrayDataset(image_paths = paths_dict[split],
                               df          = df_dict[split],
                               label_cols  = top_labels,
-                              preprocess  = preprocess)
-        
-        is_train       = (split == 'train') # Only shuffle the training dataset                
+                              preprocess  = preprocess,
+                              augment     = augment if split == 'train' else None)
+
+        is_train       = (split == 'train') # Only shuffle the training dataset
         loaders[split] = torch.utils.data.DataLoader(dataset,
                                                      batch_size  = batch_size,
                                                      shuffle     = is_train,

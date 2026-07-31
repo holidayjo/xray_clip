@@ -48,12 +48,14 @@ def main(opt):
     # 4. Create DataLoaders using CLI batch-size option
     paths_dict = {'train': train_paths_filtered, 'valid': valid_paths_filtered, 'test' : test_paths_filtered}
     df_dict    = {'train': train_df_filtered,    'valid': valid_df_filtered,    'test' : test_df_filtered}
-    train_loader, valid_loader, test_loader = utils.dataset.create_dataloaders(paths_dict  = paths_dict, 
-                                                                               df_dict     = df_dict, 
-                                                                               top_labels  = cfg['top_labels'], 
-                                                                               preprocess  = preprocess, 
+    train_augment = utils.dataset.build_train_augmentation() if opt.augment else None
+    train_loader, valid_loader, test_loader = utils.dataset.create_dataloaders(paths_dict  = paths_dict,
+                                                                               df_dict     = df_dict,
+                                                                               top_labels  = cfg['top_labels'],
+                                                                               preprocess  = preprocess,
                                                                                batch_size  = opt.batch_size,
-                                                                               num_workers = opt.num_workers)
+                                                                               num_workers = opt.num_workers,
+                                                                               augment     = train_augment)
 
     # 5. Initialize Adapter, Optimizer, and Loss using CLI learning rate
     num_labels = len(cfg['top_labels'])
@@ -154,6 +156,9 @@ def main(opt):
         )
         tqdm.write(f"Epoch [{epoch+1}/{opt.epochs}] Train Loss: {train_loss:.4f} | Val Loss: {val_loss:.4f} | "
                    f"Val Acc: {val_overall['accuracy']:.4f} | Val mAP: {val_overall['mAP']:.4f} | {val_per_class_str}")
+
+        utils.evaluation.log_epoch_to_csv(exp_dir / "results.csv", epoch + 1, train_loss, val_loss,
+                                           train_overall, val_overall, val_per_label, cfg['top_labels'])
 
         """
         # ---- Metric Calculation and Printing ----
@@ -367,7 +372,8 @@ def main(opt):
                  batch_size     = opt.batch_size,
                  num_workers    = opt.num_workers,
                  context_length = opt.context_length,
-                 seed           = opt.seed)
+                 seed           = opt.seed,
+                 save_dir       = exp_dir)
 
     # 9. Optional: Refit on Train+Valid combined for best_epoch epochs, no early stopping
     if opt.refit and best_epoch is None:
@@ -377,7 +383,8 @@ def main(opt):
 
         refit_df, refit_paths = utils.dataset.concat_splits(train_df_filtered, train_paths_filtered, valid_df_filtered, valid_paths_filtered)
         refit_dataset = utils.dataset.XrayDataset(image_paths=refit_paths, df=refit_df,
-                                                   label_cols=cfg['top_labels'], preprocess=preprocess)
+                                                   label_cols=cfg['top_labels'], preprocess=preprocess,
+                                                   augment=train_augment)
         refit_loader  = torch.utils.data.DataLoader(refit_dataset, batch_size=opt.batch_size,
                                                      shuffle=True, num_workers=opt.num_workers)
         print(f"Refit loader: {len(refit_dataset)} samples (train+valid combined).")
@@ -426,7 +433,8 @@ def main(opt):
                      batch_size     = opt.batch_size,
                      num_workers    = opt.num_workers,
                      context_length = opt.context_length,
-                     seed           = opt.seed)
+                     seed           = opt.seed,
+                     save_dir       = exp_dir)
 
 def parse_opt():
     parser = argparse.ArgumentParser(description="CLIP-Based Chest X-Ray Multi-Label Classification")
@@ -435,12 +443,13 @@ def parse_opt():
     parser.add_argument("--epochs", type=int, default=50, help="Total number of training epochs")
     parser.add_argument("--batch-size", type=int, default=1200, help="Total batch size")
     parser.add_argument("--lr", type=float, default=1e-4, help="Initial learning rate for optimizer")
-    parser.add_argument("--patience", type=int, default=7, help="Early stopping patience epochs")
+    parser.add_argument("--patience", type=int, default=15, help="Early stopping patience epochs")
     parser.add_argument("--seed", type=int, default=42, help="Global training random seed")
     parser.add_argument("--save-path", type=str, default="muldiff.pth", help="File path to save the best model checkpoint")
     parser.add_argument("--num_workers", type=int, default=20)
     parser.add_argument("--context_length", type=int, default=77, help="the length of the prompt text.")
-    parser.add_argument("--refit", action="store_true", help="After training, retrain a fresh Adapter on train+valid combined for best_epoch epochs (no early stopping) and re-evaluate on the test set")    
+    parser.add_argument("--refit", action="store_true", help="After training, retrain a fresh Adapter on train+valid combined for best_epoch epochs (no early stopping) and re-evaluate on the test set")
+    parser.add_argument("--augment", action="store_true", help="Apply mild image augmentation (rotation, translation, brightness/contrast jitter) to the train split only")
     return parser.parse_args()
 
 

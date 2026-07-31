@@ -16,14 +16,25 @@ def run(cfg            = "data/cxr_dataset.yaml",
         weights        = "muldiff.pth",
         clip_model     = "hf-hub:microsoft/BiomedCLIP-PubMedBERT_256-vit_base_patch16_224",
         split          = "test",
-        batch_size     = 250,
+        batch_size     = 300,
         num_workers    = 20,
         context_length = 77,
         seed           = 42,
-        device         = None):
-    """Evaluates a trained Adapter checkpoint on one dataset split and prints the metrics table."""
+        device         = None,
+        save_dir       = None):
+    """Evaluates a trained Adapter checkpoint on one dataset split and prints the metrics table.
+
+    save_dir: where to save results.txt/results.csv. Pass an existing directory (e.g. train.py's
+    own exp_dir) to save alongside a training run without creating a new folder -- matching how
+    YOLO's val.run() reuses train.py's save_dir instead of also writing to runs/val. Leave as
+    None for standalone CLI usage, which auto-creates a fresh runs/val/expN directory."""
     utils.utils.set_random_seeds(seed=seed)
     device = device or torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+    if save_dir is None:
+        save_dir = utils.utils.increment_path("runs/val/exp")
+    else:
+        save_dir = pathlib.Path(save_dir)
 
     with open(cfg, "r") as f:
         cfg = yaml.safe_load(f)
@@ -67,7 +78,21 @@ def run(cfg            = "data/cxr_dataset.yaml",
     overall, per_label = utils.evaluation.compute_multilabel_metrics(y_true, y_pred_prob)
 
     print(f"\n===== {split.capitalize()} Set Results =====")
-    print(utils.evaluation.format_metrics_table(cfg['top_labels'], overall, per_label))
+    table_text = utils.evaluation.format_metrics_table(cfg['top_labels'], overall, per_label)
+    print(table_text)
+
+    # Prefix with the checkpoint's stem so evaluating multiple checkpoints (e.g. best vs.
+    # refit weights) into the same save_dir doesn't overwrite each other's results.
+    weights_stem      = pathlib.Path(weights).stem
+    results_txt_path = save_dir / f"{weights_stem}_{split}_results.txt"
+    with open(results_txt_path, "w") as f:
+        f.write(f"{split.capitalize()} Set Results (weights: {weights})\n\n")
+        f.write(table_text + "\n")
+
+    results_csv_path = save_dir / f"{weights_stem}_{split}_results.csv"
+    utils.evaluation.save_results_csv(results_csv_path, overall, per_label, cfg['top_labels'],
+                                       extra_fields={"split": split, "weights": str(weights)})
+    print(f"Saved results to {results_txt_path} and {results_csv_path}")
 
     return overall, per_label
 

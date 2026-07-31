@@ -1,3 +1,5 @@
+import csv
+import pathlib
 import numpy as np
 import torch
 from tqdm import tqdm
@@ -66,17 +68,67 @@ def compute_multilabel_metrics(y_true, y_pred_prob, threshold=0.5):
     return overall, per_label
 
 
+def log_epoch_to_csv(csv_path, epoch, train_loss, val_loss, train_overall, val_overall, val_per_label, label_names):
+    """Appends one epoch's metrics as a row to a results.csv file (YOLO-style running log),
+    writing the header only the first time the file is created."""
+    csv_path = pathlib.Path(csv_path)
+
+    header = ["epoch", "train_loss", "val_loss", "train_acc", "val_acc", "train_mAP", "val_mAP"]
+    row    = [epoch, train_loss, val_loss, train_overall['accuracy'], val_overall['accuracy'],
+              train_overall['mAP'], val_overall['mAP']]
+
+    for name, label_row in zip(label_names, val_per_label):
+        header += [f"{name}_val_acc", f"{name}_val_ap"]
+        row    += [label_row['accuracy'], label_row['ap']]
+
+    write_header = not csv_path.exists()
+    with open(csv_path, "a", newline="") as f:
+        writer = csv.writer(f)
+        if write_header:
+            writer.writerow(header)
+        writer.writerow(row)
+
+
+def save_results_csv(csv_path, overall, per_label, label_names, extra_fields=None):
+    """Writes a single-row CSV summarizing one evaluation (e.g. a val.py run),
+    overwriting any existing file at csv_path. extra_fields is an optional dict
+    of extra leading columns (e.g. {'split': 'test', 'weights': '...'})."""
+    csv_path = pathlib.Path(csv_path)
+    extra_fields = extra_fields or {}
+
+    header = list(extra_fields.keys()) + ["accuracy", "mAP"]
+    row    = list(extra_fields.values()) + [overall['accuracy'], overall['mAP']]
+
+    for name, label_row in zip(label_names, per_label):
+        header += [f"{name}_acc", f"{name}_ap"]
+        row    += [label_row['accuracy'], label_row['ap']]
+
+    with open(csv_path, "w", newline="") as f:
+        writer = csv.writer(f)
+        writer.writerow(header)
+        writer.writerow(row)
+
+
 def format_metrics_table(label_names, overall, per_label, tablefmt="github"):
-    """Builds a printable table: one row per label plus a final Overall row."""
-    headers = ["Label", "Accuracy", "Precision", "Recall", "Specificity", "F1", "AUC", "AP", "Hamming"]
+    """Builds a printable table: one row per label plus a final Overall row.
+
+    The Overall row's "Accuracy" column uses overall['accuracy'] (the standard
+    per-element accuracy, directly comparable to each label's own Accuracy column)
+    -- NOT overall['subset_acc'] (exact-match accuracy, which requires every single
+    label to be simultaneously correct and collapses toward 0 as label count grows).
+    Subset accuracy is still reported, in its own "Subset Acc" column, so it isn't
+    lost -- it's just no longer mislabeled as if it were the same metric as
+    "Accuracy" elsewhere in the table."""
+    headers = ["Label", "Accuracy", "Precision", "Recall", "Specificity", "F1", "AUC", "AP", "Hamming", "Subset Acc"]
 
     rows = []
     for name, row in zip(label_names, per_label):
         rows.append([name, row['accuracy'], row['precision'], row['recall'],
-                      row['specificity'], row['f1'], row['auc'], row['ap'], row['hamming']])
+                      row['specificity'], row['f1'], row['auc'], row['ap'], row['hamming'], "-"])
 
-    rows.append(["Overall", overall['subset_acc'], overall['precision'], overall['recall'],
-                 overall['specificity'], overall['f1'], "-", overall['mAP'], overall['hamming']])
+    rows.append(["Overall", overall['accuracy'], overall['precision'], overall['recall'],
+                 overall['specificity'], overall['f1'], "-", overall['mAP'], overall['hamming'],
+                 overall['subset_acc']])
 
     return tabulate(rows, headers=headers, floatfmt=".4f", tablefmt=tablefmt)
 
