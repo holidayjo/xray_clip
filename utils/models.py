@@ -67,7 +67,7 @@ class DualBranchAdapter(torch.nn.Module):
         h_txt = self.txt_mlp(text)
 
         # normalize
-        h_img = torch.nn.functional.normalize(h_img, dim=-1)
+        h_img = torch.nn.functional.normalize(h_img, dim=-1) # (1, 512), L2 norm through the 512 dim. 
         h_txt = torch.nn.functional.normalize(h_txt, dim=-1)
 
         # expand

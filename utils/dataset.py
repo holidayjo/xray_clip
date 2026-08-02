@@ -138,6 +138,35 @@ def filter_dataset_any_positive(df, paths, top_labels):
     return df[mask].reset_index(drop=True), paths[mask]
 
 
+def split_binary_label(df, paths, target_label):
+    """Splits a (df, paths) split into a positive subset (target_label == 1, regardless of
+    any co-occurring findings) and a negative subset (target_label == 0, i.e. every other
+    image -- other diseases and "No Finding" alike). Unlike filter_dataset(), which only
+    keeps top_labels-positive rows and so never yields a true negative sample, this gives a
+    genuine binary positive/negative partition for single-label experiments."""
+    is_pos = df[target_label] == 1
+    pos_df, pos_paths = df[is_pos].reset_index(drop=True), paths[is_pos]
+    neg_df, neg_paths = df[~is_pos].reset_index(drop=True), paths[~is_pos]
+    return pos_df, pos_paths, neg_df, neg_paths
+
+
+def sample_balanced_split(pos_df, pos_paths, neg_df, neg_paths, seed=None):
+    """Draws a random subset of len(pos_df) rows (without replacement) from the negative
+    pool and concatenates it with the (full) positive split, producing a 1:1 balanced
+    split. Call this once per epoch with a different seed so the classifier sees a fresh
+    random negative subset each epoch instead of one frozen draw."""
+    n_pos      = len(pos_df)
+    n_neg_pool = len(neg_df)
+    if n_pos > n_neg_pool:
+        raise ValueError(f"Not enough negative samples ({n_neg_pool}) to match positives ({n_pos}).")
+
+    rng                = np.random.default_rng(seed)
+    idx                = rng.choice(n_neg_pool, size=n_pos, replace=False)
+    sampled_neg_df     = neg_df.iloc[idx].reset_index(drop=True)
+    sampled_neg_paths  = neg_paths[idx]
+    return concat_splits(pos_df, pos_paths, sampled_neg_df, sampled_neg_paths)
+
+
 def concat_splits(df_a, paths_a, df_b, paths_b):
     """Concatenates two (df, paths) split pairs into one combined split, e.g. to
     refit on train+valid together after early stopping has picked a best_epoch."""
@@ -221,10 +250,10 @@ def inspect_dataloader(dataloader, split_name="DataLoader", class_names=['Infilt
     print(f"Label Vector       : {labels[0].tolist()}")
 
     # 3. Prepare and display multiple images in a grid (e.g. 15 images, ncols=5 -> 3x5 grid)
-    ncols = min(ncols, num_images)
-    nrows = -(-num_images // ncols)  # ceil division
+    ncols     = min(ncols, num_images)
+    nrows     = -(-num_images // ncols)  # ceil division
     fig, axes = plt.subplots(nrows, ncols, figsize=(ncols * 3.2, nrows * 3.8))
-    axes = np.atleast_1d(axes).ravel()
+    axes      = np.atleast_1d(axes).ravel()
 
     for i in range(nrows * ncols):
         if i >= num_images:

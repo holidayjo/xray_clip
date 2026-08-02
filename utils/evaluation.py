@@ -151,7 +151,7 @@ def evaluate(loader, model, Adapter, text_features, criterion, device, desc="Eva
         total_loss    += loss.item()
 
         predictions = torch.sigmoid(predictions)
-        y_pred_prob.append(predictions.cpu().numpy())
+        y_pred_prob.append(predictions.detach().cpu().numpy())
         y_true.append(labels.cpu().numpy())
 
     total_loss  = total_loss / len(loader)
