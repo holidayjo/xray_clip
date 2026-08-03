@@ -98,4 +98,15 @@ class DualBranchAdapter(torch.nn.Module):
         logits = self.classifier(fused).squeeze(-1)
 
         return logits
-    
+
+
+class ImageLinearProbe(torch.nn.Module):
+    """Plain linear classifier on frozen CLIP image embeddings -- no text branch at all.
+    Used to test how linearly-separable BiomedCLIP's frozen image representation already is for a given label, isolated from
+    DualBranchAdapter mul/diff text-interaction scheme."""
+    def __init__(self, dim=512, num_labels=1):
+        super().__init__()
+        self.classifier = torch.nn.Linear(dim, num_labels)
+
+    def forward(self, image_feature):
+        return self.classifier(image_feature)

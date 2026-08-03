@@ -14,6 +14,47 @@ import utils.evaluation
 import utils.plot
 
 
+@torch.no_grad()
+def evaluate_image_only(loader, model, probe, criterion, device, desc="Eval"):
+    """Local no-grad evaluation helper for the image-only linear-probe ablation.
+    utils.evaluation.evaluate() can't be reused here -- its signature is hardcoded to
+    the Adapter + text_features calling convention -- so this mirrors its structure
+    closely, minus the text branch: no_grad, tqdm progress, accumulate y_true/
+    y_pred_prob, return (avg_loss, y_true, y_pred_prob).
+
+    NOTE on the .detach() below: utils/loss.py's AsymmetricLoss, when constructed with
+    disable_torch_grad_focal_loss=True, calls the GLOBAL torch.set_grad_enabled(True)
+    internally (not a properly scoped context manager) after computing the focal
+    weight. That silently re-enables grad for the remainder of this no_grad-decorated
+    function once criterion(...) returns. Any tensor-to-numpy conversion after the
+    criterion(...) call in this function must therefore go through .detach() first,
+    or it will crash with "Can't call numpy() on Tensor that requires grad". Do not
+    "fix" this by removing the .detach() below even though the function is already
+    @torch.no_grad()-decorated.
+    """
+    probe.eval()
+    total_loss = 0.0
+    y_true, y_pred_prob = [], []
+
+    for images, labels in tqdm(loader, desc=desc, leave=False):
+        images = images.to(device)
+        labels = labels.to(device)
+
+        image_features = model.encode_image(images)
+        image_features = torch.nn.functional.normalize(image_features, dim=-1)
+        logits         = probe(image_features)
+        loss           = criterion(logits, labels)
+        total_loss    += loss.item()
+
+        y_pred_prob.append(torch.sigmoid(logits).detach().cpu().numpy())
+        y_true.append(labels.cpu().numpy())
+
+    total_loss  = total_loss / len(loader)
+    y_true      = np.concatenate(y_true, axis=0)
+    y_pred_prob = np.concatenate(y_pred_prob, axis=0)
+    return total_loss, y_true, y_pred_prob
+
+
 def main(opt):
     # 1. Initialize settings and load config using CLI options
     utils.utils.set_random_seeds(seed=opt.seed)
@@ -23,9 +64,9 @@ def main(opt):
         cfg = yaml.safe_load(f)
 
     assert len(cfg['top_labels']) == 1, (
-        "train_nodule_balanced.py expects a single-label cfg (top_labels must have exactly "
+        "train_linear_probe.py expects a single-label cfg (top_labels must have exactly "
         "one entry, e.g. data/cxr_dataset_nodule.yaml) -- it trains target-label-vs-rest, "
-        "balanced 1:1 every epoch.")
+        "balanced 1:1 every epoch, on frozen CLIP image embeddings only.")
     target_label = cfg['top_labels'][0]
 
     exp_dir   = utils.utils.increment_path("runs/exp")
@@ -34,7 +75,8 @@ def main(opt):
     # 2. Load dataset splits
     image_root = pathlib.Path(cfg['image_root'])
 
-    # 3. Load Model and Tokenizer using CLI model option
+    # 3. Load Model (and Tokenizer, unused -- this ablation has no text branch at all,
+    # so the tokenizer returned by load_clip_model is received but never called)
     model, preprocess, tokenizer, device = utils.models.load_clip_model(model_name=opt.clip_model, freeze_backbone=True, device=device)
 
     # Load dataset splits (image index built once and reused across all three splits)
@@ -62,16 +104,18 @@ def main(opt):
     print(f"Created valid loader with {len(valid_dataset)} samples.")
     print(f"Created test loader with {len(test_dataset)} samples.")
 
-    # 5. Initialize Adapter, Optimizer, and Loss using CLI learning rate
-    Adapter    = utils.models.DualBranchAdapter().to(device)
-    optimizer  = torch.optim.Adam(Adapter.parameters(), lr=opt.lr)
+    # 5. Initialize the image-only linear probe, Optimizer, and Loss using CLI learning rate.
+    # num_labels is len(cfg['top_labels']) (not hardcoded to 1) so this stays correct if
+    # someone later points --cfg at a multi-label yaml, though the assert above still
+    # restricts this script to single-label use, like train_nodule_balanced.py.
+    probe      = utils.models.ImageLinearProbe(num_labels=len(cfg['top_labels'])).to(device)
+    optimizer  = torch.optim.Adam(probe.parameters(), lr=opt.lr)
     criterion  = utils.loss.AsymmetricLoss(gamma_neg=1, gamma_pos=1, clip=0, disable_torch_grad_focal_loss=True)
 
-    # 6. Pre-compute Text Features
-    text_features = utils.models.encode_label_prompts(model, tokenizer, cfg['top_labels'],
-                                                      opt.context_length, device, cfg['prompt_template'])
+    # No text-feature pre-computation step -- this ablation is image-only (no
+    # encode_label_prompts call, no prompt_template usage).
 
-    # 7. Training Setup
+    # 6. Training Setup
     best_val_loss = float("inf")
     best_val_map  = 0.0
     counter       = 0
@@ -82,14 +126,14 @@ def main(opt):
     best_train_overall, best_train_per_label = None, None
     best_val_overall,   best_val_per_label   = None, None
 
-    # 8. Main Training Loop
+    # 7. Main Training Loop
     for epoch in tqdm(range(opt.epochs), desc="Training"):
         # Resample a fresh random negative subset every epoch, matched 1:1 to the (fixed)
         # positive set, so the classifier isn't stuck training on one arbitrary negative draw.
-        epoch_train_df, epoch_train_paths = utils.dataset.sample_balanced_split(train_pos_df, 
-                                                                                train_pos_paths, 
-                                                                                train_neg_df, 
-                                                                                train_neg_paths, 
+        epoch_train_df, epoch_train_paths = utils.dataset.sample_balanced_split(train_pos_df,
+                                                                                train_pos_paths,
+                                                                                train_neg_df,
+                                                                                train_neg_paths,
                                                                                 seed=opt.seed + epoch)
         train_dataset = utils.dataset.XrayDataset(image_paths=epoch_train_paths, df=epoch_train_df,
                                                    label_cols=[target_label], preprocess=preprocess,
@@ -99,7 +143,7 @@ def main(opt):
         if epoch == 0:
             print(f"Created train loader with {len(train_dataset)} samples (balanced 1:1, resampled every epoch).")
 
-        Adapter.train()
+        probe.train()
         train_loss = 0.0
         y_train_true, y_train_pred = [], []
 
@@ -108,10 +152,17 @@ def main(opt):
             images = images.to(device)
             labels = labels.to(device)
 
-            image_features = model.encode_image(images)
-            image_features = torch.nn.functional.normalize(image_features, dim=-1)
-            predictions    = Adapter(image_features, text_features)
-            loss           = criterion(predictions, labels)
+            # Backbone is frozen and this ablation has no img_mlp branch needing
+            # gradients to flow back through image_features, so compute it under
+            # no_grad -- saves memory/compute (autograd would likely already skip
+            # building a graph here anyway, since encode_image's own parameters all
+            # have requires_grad=False, but this is explicit good practice).
+            with torch.no_grad():
+                image_features = model.encode_image(images)
+                image_features = torch.nn.functional.normalize(image_features, dim=-1)
+
+            predictions = probe(image_features)
+            loss        = criterion(predictions, labels)
 
             optimizer.zero_grad()
             loss.backward()
@@ -124,8 +175,8 @@ def main(opt):
 
         # ---- Validation ----
         model.eval()
-        val_loss, y_val_true, y_val_pred_prob = utils.evaluation.evaluate(
-            valid_loader, model, Adapter, text_features, criterion, device,
+        val_loss, y_val_true, y_val_pred_prob = evaluate_image_only(
+            valid_loader, model, probe, criterion, device,
             desc=f"Epoch {epoch+1}/{opt.epochs} [Valid]")
 
         y_train_pred_prob = np.concatenate(y_train_pred, axis=0)
@@ -146,7 +197,6 @@ def main(opt):
         utils.evaluation.log_epoch_to_csv(exp_dir / "results.csv", epoch + 1, train_loss, val_loss,
                                            train_overall, val_overall, val_per_label, cfg['top_labels'])
 
-        # PROPOSED
         # ======= Early Stopping Check (selection criterion: val mAP, not val_loss --
         # val_loss is dominated by calibration collapse under 1:1-resampled training and
         # doesn't track genuine ranking improvement here; val_mAP is threshold-free) =======
@@ -161,7 +211,7 @@ def main(opt):
             torch.save({
                 'epoch': epoch + 1,
                 'model_state_dict': model.state_dict(),
-                'adapter_state_dict': Adapter.state_dict(),
+                'probe_state_dict': probe.state_dict(),
                 'optimizer_state_dict': optimizer.state_dict(),
                 'train_loss': train_losses,
                 'train_acc': train_Accs,
@@ -197,13 +247,13 @@ def main(opt):
     def evaluate_and_save(weights_path, tag):
         print(f"\n===== Final Test Set Evaluation ({tag} Weights: {weights_path}) =====")
         checkpoint = torch.load(weights_path, map_location=device)
-        Adapter.load_state_dict(checkpoint['adapter_state_dict'])
+        probe.load_state_dict(checkpoint['probe_state_dict'])
         if 'model_state_dict' in checkpoint:
             model.load_state_dict(checkpoint['model_state_dict'])
         model.eval()
 
-        test_loss, y_test_true, y_test_pred_prob = utils.evaluation.evaluate(
-            test_loader, model, Adapter, text_features, criterion, device, desc="Evaluating [test]")
+        test_loss, y_test_true, y_test_pred_prob = evaluate_image_only(
+            test_loader, model, probe, criterion, device, desc="Evaluating [test]")
         test_overall, test_per_label = utils.evaluation.compute_multilabel_metrics(y_test_true, y_test_pred_prob)
         test_table = utils.evaluation.format_metrics_table(cfg['top_labels'], test_overall, test_per_label)
         print(test_table)
@@ -218,7 +268,7 @@ def main(opt):
 
     evaluate_and_save(save_path, "Best")
 
-    # 9. Optional: Refit on Train+Valid combined for best_epoch epochs, no early stopping
+    # 8. Optional: Refit on Train+Valid combined for best_epoch epochs, no early stopping
     if opt.refit and best_epoch is None:
         print("Skipping refit: no epoch ever improved val_loss (best_epoch is None).")
     elif opt.refit:
@@ -229,8 +279,8 @@ def main(opt):
         refit_neg_df,   refit_neg_paths   = utils.dataset.concat_splits(train_neg_df, train_neg_paths, valid_neg_df, valid_neg_paths)
         print(f"Refit pool: {len(refit_pos_df)} positive / {len(refit_neg_df)} negative (train+valid combined).")
 
-        refit_adapter   = utils.models.DualBranchAdapter().to(device)
-        refit_optimizer = torch.optim.Adam(refit_adapter.parameters(), lr=opt.lr)
+        refit_probe     = utils.models.ImageLinearProbe(num_labels=len(cfg['top_labels'])).to(device)
+        refit_optimizer = torch.optim.Adam(refit_probe.parameters(), lr=opt.lr)
         model.eval()  # backbone stays frozen/eval, same as during the main training loop
 
         for refit_epoch in tqdm(range(best_epoch), desc="Refit"):
@@ -242,17 +292,18 @@ def main(opt):
             refit_loader  = torch.utils.data.DataLoader(refit_dataset, batch_size=opt.batch_size,
                                                          shuffle=True, num_workers=opt.num_workers)
 
-            refit_adapter.train()
+            refit_probe.train()
             refit_loss = 0.0
 
             for images, labels in tqdm(refit_loader, desc=f"Refit Epoch {refit_epoch+1}/{best_epoch}", leave=False):
                 images = images.to(device)
                 labels = labels.to(device)
 
-                image_features = model.encode_image(images)
-                image_features = torch.nn.functional.normalize(image_features, dim=-1)
+                with torch.no_grad():
+                    image_features = model.encode_image(images)
+                    image_features = torch.nn.functional.normalize(image_features, dim=-1)
 
-                predictions = refit_adapter(image_features, text_features)
+                predictions = refit_probe(image_features)
                 loss        = criterion(predictions, labels)
 
                 refit_optimizer.zero_grad()
@@ -268,18 +319,19 @@ def main(opt):
         torch.save({
             'epoch': best_epoch,
             'model_state_dict': model.state_dict(),
-            'adapter_state_dict': refit_adapter.state_dict(),
+            'probe_state_dict': refit_probe.state_dict(),
             'optimizer_state_dict': refit_optimizer.state_dict(),
         }, refit_save_path)
         print(f"Refit model saved to {refit_save_path}")
 
-        Adapter = refit_adapter  # so evaluate_and_save's load below matches its own state dict
+        probe = refit_probe  # so evaluate_and_save's load below matches its own state dict
         evaluate_and_save(refit_save_path, "Refit")
 
 
 def parse_opt():
-    parser = argparse.ArgumentParser(description = "CLIP-Based Chest X-Ray Binary Classification. \
-                                                    Single target label vs. everything else, resampled 1:1 balanced every epoch")
+    parser = argparse.ArgumentParser(description="Image-only ablation: frozen CLIP image embeddings -> plain linear probe,"
+                                     "single target label vs. everything else, resampled 1:1 balanced every epoch."
+                                     "No text branch, no DualBranchAdapter, no tokenizer/prompt usage.")
     parser.add_argument("--cfg", type=str, default="data/cxr_dataset_nodule.yaml", help="Path to a single-label dataset YAML file (top_labels must contain exactly one label)")
     parser.add_argument("--clip_model", type=str, default="hf-hub:microsoft/BiomedCLIP-PubMedBERT_256-vit_base_patch16_224", help="Pre-trained CLIP model name")
     parser.add_argument("--epochs", type=int, default=100, help="Total number of training epochs")
@@ -287,10 +339,9 @@ def parse_opt():
     parser.add_argument("--lr", type=float, default=1e-4, help="Initial learning rate for optimizer")
     parser.add_argument("--patience", type=int, default=15, help="Early stopping patience epochs")
     parser.add_argument("--seed", type=int, default=42, help="Global training random seed")
-    parser.add_argument("--save-path", type=str, default="nodule_balanced.pth", help="File path to save the best model checkpoint")
+    parser.add_argument("--save-path", type=str, default="nodule_linear_probe.pth", help="File path to save the best model checkpoint")
     parser.add_argument("--num_workers", type=int, default=20)
-    parser.add_argument("--context_length", type=int, default=77, help="the length of the prompt text.")
-    parser.add_argument("--refit", action="store_true", help="After training, retrain a fresh Adapter on train+valid combined (still resampled 1:1 every epoch) for best_epoch epochs and re-evaluate on the test set")
+    parser.add_argument("--refit", action="store_true", help="After training, retrain a fresh ImageLinearProbe on train+valid combined (still resampled 1:1 every epoch) for best_epoch epochs and re-evaluate on the test set")
     parser.add_argument("--augment", action="store_true", help="Apply mild image augmentation (rotation, translation, brightness/contrast jitter) to the train split only")
     return parser.parse_args()
 

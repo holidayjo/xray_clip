@@ -8,8 +8,6 @@ test_csv : data/cxr8/PruneCXR/miccai2023_nih-cxr-lt_labels_test.csv
 
 # Single target class for this experiment: Nodule vs. everything else.
 top_labels:
-  # - Infiltration
-  # - Effusion
   - Nodule
 
 # Text prompt template used to build the per-label CLIP text prototype.
