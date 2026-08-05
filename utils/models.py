@@ -50,44 +50,32 @@ class DualBranchAdapter(torch.nn.Module):
                                            torch.nn.Linear(hidden_dim, dim))
 
         # mul(D) + diff(D) = 2D
-        self.classifier = torch.nn.Sequential(torch.nn.Linear(dim * 2, hidden_dim),
+        self.classifier = torch.nn.Sequential(torch.nn.Linear(dim * 2, hidden_dim), # 2D: since we concatenated.
                                               torch.nn.ReLU(),
                                               torch.nn.Linear(hidden_dim, 1))
 
     def forward(self, image_feature, text_feature):
 
-        # image_feature: [B,D]
-        # text_feature : [C,D]
+        # image_feature: [B,D] -> (batch, 512).
+        # text_feature : [C,D] -> (class, 512).
 
         image = image_feature.unsqueeze(1)
         text  = text_feature.unsqueeze(0)
 
         # projection
-        h_img = self.img_mlp(image)
-        h_txt = self.txt_mlp(text)
+        h_img = self.img_mlp(image) # (B, 1, 512)
+        h_txt = self.txt_mlp(text)  # (1, C, 512)
 
         # normalize
-        h_img = torch.nn.functional.normalize(h_img, dim=-1) # (1, 512), L2 norm through the 512 dim. 
-        h_txt = torch.nn.functional.normalize(h_txt, dim=-1)
+        h_img = torch.nn.functional.normalize(h_img, dim=-1) # (B, 1, 512), L2 norm through the 512 dim. 
+        h_txt = torch.nn.functional.normalize(h_txt, dim=-1) # (1, C, 512)
 
         # expand
-        h_img_expand = h_img.expand(-1           , h_txt.size(1), -1)
-        h_txt_expand = h_txt.expand(h_img.size(0), -1           , -1)
+        h_img_expand = h_img.expand(-1           , h_txt.size(1), -1) # (B, C, 512) --> c identical copies of the image embedding for each class.
+        h_txt_expand = h_txt.expand(h_img.size(0), -1           , -1) # (B, C, 512)
 
         # interaction
-        mul_feature = (h_img_expand * h_txt_expand)
-
-        # # min-max features
-        # min_feature = torch.minimum(
-        #     h_img_expand,
-        #     h_txt_expand
-        # )
-
-        # max_feature = torch.maximum(
-        #     h_img_expand,
-        #     h_txt_expand
-        # )        
-        
+        mul_feature  = (h_img_expand * h_txt_expand) # [B,C,D]
         # element-wise difference
         diff_feature = torch.abs(h_img_expand - h_txt_expand)   # [B,C,D]
 
@@ -95,9 +83,12 @@ class DualBranchAdapter(torch.nn.Module):
         fused = torch.cat([mul_feature, diff_feature], dim=-1)  # [B,C,2D]
 
         # classifier
-        logits = self.classifier(fused).squeeze(-1)
-
-        return logits
+        logits = self.classifier(fused).squeeze(-1) # torch.nn.Linear ignore the B and C dim. 
+                                                    # It forces the last dim to be the input dim, 
+                                                    # and outputs a single value for each B,C pair.
+                                                    # Therefore, the output shape is [B,C] since it is squeezed.
+        return logits # Now we are going to put this to the cross-entropy loss.
+    
 
 
 class ImageLinearProbe(torch.nn.Module):

@@ -39,9 +39,18 @@ def main(opt):
     test_df,  test_paths,  test_labels  = utils.dataset.load_split(cfg['test_csv'],  image_root, id_to_path=id_to_path)
 
     # filtering
-    train_df_filtered, train_paths_filtered = utils.dataset.filter_dataset(train_df, train_paths, cfg['top_labels'], cfg['all_labels'])
-    valid_df_filtered, valid_paths_filtered = utils.dataset.filter_dataset(valid_df, valid_paths, cfg['top_labels'], cfg['all_labels'])
-    test_df_filtered,  test_paths_filtered  = utils.dataset.filter_dataset(test_df,  test_paths,  cfg['top_labels'], cfg['all_labels'])
+    # "purity" keeps only images whose findings are entirely within top_labels (original
+    # behaviour); "any_positive" keeps any image with >=1 top_label regardless of what else
+    # co-occurs, matching train_resnet_baseline.py and the reference paper, so the two are
+    # comparable. val.py must be given the same mode or its test numbers won't line up.
+    if opt.filter_mode == "any_positive":
+        filter_fn = lambda df, paths: utils.dataset.filter_dataset_any_positive(df, paths, cfg['top_labels'])
+    else:
+        filter_fn = lambda df, paths: utils.dataset.filter_dataset(df, paths, cfg['top_labels'], cfg['all_labels'])
+    print(f"Filter mode: {opt.filter_mode}")
+    train_df_filtered, train_paths_filtered = filter_fn(train_df, train_paths)
+    valid_df_filtered, valid_paths_filtered = filter_fn(valid_df, valid_paths)
+    test_df_filtered,  test_paths_filtered  = filter_fn(test_df,  test_paths)
     # labels                                  = train_df_filtered[cfg['top_labels']].values.astype('float32')
 
 
@@ -61,14 +70,24 @@ def main(opt):
     num_labels = len(cfg['top_labels'])
     Adapter    = utils.models.DualBranchAdapter().to(device)
     optimizer  = torch.optim.Adam(Adapter.parameters(), lr=opt.lr)
-    criterion  = utils.loss.AsymmetricLoss(gamma_neg=4, gamma_pos=1, clip=0.05, disable_torch_grad_focal_loss=True)
+    # AsymmetricLoss and pos_weight are two alternative answers to the same class-imbalance
+    # problem, so exactly one is used -- never both.
+    if opt.pos_weight:
+        pos_weight = utils.loss.compute_pos_weight(train_df_filtered, cfg['top_labels'], device=device)
+        criterion  = torch.nn.BCEWithLogitsLoss(pos_weight=pos_weight)
+        print("Loss: BCEWithLogitsLoss with per-label pos_weight (computed from the train split)")
+        for name, w in zip(cfg['top_labels'], pos_weight.tolist()):
+            print(f"  {name:<15s} pos_weight = {w:6.2f}")
+    else:
+        criterion  = utils.loss.AsymmetricLoss(gamma_neg=4, gamma_pos=1, clip=0.05, disable_torch_grad_focal_loss=True)
 
     # 6. Pre-compute Text Features
     text_features = utils.models.encode_label_prompts(model, tokenizer, cfg['top_labels'],
                                                         opt.context_length, device, cfg['prompt_template'])
 
     # 7. Training Setup using CLI options
-    best_val_loss = float("inf")
+    best_val_map  = -float("inf")   # checkpoint / early-stopping criterion
+    best_val_loss = float("inf")    # still tracked, for reporting only
     counter       = 0
     early_stop    = False
 
@@ -90,24 +109,27 @@ def main(opt):
         for images, labels in tqdm(train_loader, desc=f"Epoch {epoch+1}/{opt.epochs} [Train]", leave=False):
             images = images.to(device)
             labels = labels.to(device)
-
-            image_features = model.encode_image(images)
-            image_features = torch.nn.functional.normalize(image_features, dim=-1)
+            
+            with torch.no_grad():
+                image_features = model.encode_image(images)
+                image_features = torch.nn.functional.normalize(image_features, dim=-1)
             # print(f"image_features.shape = {image_features.shape}, text_features.shape = {text_features.shape}") 
             # # image_features.shape = torch.Size([16, 512]), text_features.shape = torch.Size([3, 512])
-            predictions = Adapter(image_features, text_features)
+            predictions = Adapter(image_features, text_features) # (C,B)
             # print(f"predictions = {predictions}") # (3, 16)
-
             loss        = criterion(predictions, labels)
+            # print(f"loss = {loss.item()}") # loss = 0.14700116217136383
             
             optimizer.zero_grad() # clears .grad on every parameter the optimizer tracks 
-            loss.backward()  
+            loss.backward()
             optimizer.step() # updating weights.
 
             train_loss += loss.item() # loss sum for this batch.
             predictions = torch.sigmoid(predictions)
             y_train_pred.append(predictions.detach().cpu().numpy())
             y_train_true.append(labels.cpu().numpy())
+
+    
 
         # Evaluate Validation
         model.eval()
@@ -159,173 +181,14 @@ def main(opt):
 
         utils.evaluation.log_epoch_to_csv(exp_dir / "results.csv", epoch + 1, train_loss, val_loss,
                                            train_overall, val_overall, val_per_label, cfg['top_labels'])
-
-        """
-        # ---- Metric Calculation and Printing ----
-        y_train_pred      = np.concatenate(y_train_pred, axis=0)
-        y_train_true      = np.concatenate(y_train_true, axis=0)
-        y_train_pred_prob = y_train_pred.copy()
-        y_train_pred      = (y_train_pred > 0.5).astype(int)
-
-        train_subset_acc  = accuracy_score(y_train_true, y_train_pred)
-        train_Acc         = accuracy_score(y_train_true.ravel(), y_train_pred.ravel())
-        train_precision   = precision_score(y_train_true, y_train_pred, average="micro", zero_division=0)
-        train_recall      = recall_score(y_train_true, y_train_pred, average="micro", zero_division=0)
-        train_f1          = f1_score(y_train_true, y_train_pred, average="micro")
-        train_hamming     = hamming_loss(y_train_true, y_train_pred)
-        train_mAP         = average_precision_score(y_train_true, y_train_pred_prob, average="macro")
-        tn, fp, fn, tp    = confusion_matrix(y_train_true.ravel(), y_train_pred.ravel(), labels=[0, 1]).ravel()
-        train_specificity = tn / (tn + fp + 1e-7)
-
-        train_label_precisions     = {}
-        train_label_recalls        = {}
-        train_label_hamming_losses = {}
-        train_label_f1_scores      = {}
-        train_label_specificities  = {}
-        train_label_aucs           = {}
-        train_label_maps           = {}
-
-        for i in range(num_labels):
-            # print(f'y_train_true[:, {i}], y_train_pred[:, {i}] = {y_train_true[:, i]}, {y_train_pred[:, i]}')
-            train_label_acc = accuracy_score(y_train_true[:, i], y_train_pred[:, i])
-            train_label_accuracies[f"label_{i}"].append(train_label_acc)
-
-            train_label_prec = precision_score(y_train_true[:, i], y_train_pred[:, i], zero_division=0)
-            train_label_rec  = recall_score(y_train_true[:, i], y_train_pred[:, i], zero_division=0)
-            train_label_precisions[f"label_{i}"] = train_label_prec
-            train_label_recalls[f"label_{i}"] = train_label_rec
-
-            train_label_hamming = hamming_loss(y_train_true[:, i], y_train_pred[:, i])
-            train_label_hamming_losses[f"label_{i}"] = train_label_hamming
-
-            train_label_f1 = f1_score(y_train_true[:, i], y_train_pred[:, i], zero_division=0)
-            train_label_f1_scores[f"label_{i}"] = train_label_f1
-
-            try:
-                tn, fp, fn, tp = confusion_matrix(y_train_true[:, i], y_train_pred[:, i], labels=[0, 1]).ravel()
-                train_label_spec = tn / (tn + fp + 1e-7)
-            except:
-                train_label_spec = float('nan')
-            train_label_specificities[f"label_{i}"] = train_label_spec
-
-            try:
-                train_label_auc = roc_auc_score(y_train_true[:, i], y_train_pred_prob[:, i])
-            except ValueError:
-                train_label_auc = float('nan')
-            train_label_aucs[f"label_{i}"] = train_label_auc
-
-            try:
-                # print(f'y_train_true[:, i], y_train_pred[:, i] = {y_train_true[:, i]}, {y_train_pred[:, i]}')
-                train_label_map = average_precision_score(y_train_true[:, i], y_train_pred_prob[:, i])
-            except ValueError:
-                train_label_map = float('nan')
-            train_label_maps[f"label_{i}"] = train_label_map
-
-        train_loss /= len(train_loader)
-        train_losses.append(train_loss)
-        train_Accs.append(train_Acc)
-
-        print(f"Epoch [{epoch+1}/{opt.epochs}] - Train Loss: {train_loss:.4f}")
-
-        y_val_pred = np.concatenate(y_val_pred, axis=0)
-        y_val_true = np.concatenate(y_val_true, axis=0)
-        y_val_pred_prob = y_val_pred.copy()
-        y_val_pred = (y_val_pred > 0.5).astype(int)
-
-        val_subset_acc = accuracy_score(y_val_true, y_val_pred)
-        val_Acc = accuracy_score(y_val_true.ravel(), y_val_pred.ravel())
-        val_precision = precision_score(y_val_true, y_val_pred, average="micro", zero_division=0)
-        val_recall = recall_score(y_val_true, y_val_pred, average="micro", zero_division=0)
-        val_f1 = f1_score(y_val_true, y_val_pred, average="micro")
-        val_hamming = hamming_loss(y_val_true, y_val_pred)
-        val_mAP = average_precision_score(y_val_true, y_val_pred_prob, average="macro")
-
-        tn, fp, fn, tp = confusion_matrix(y_val_true.ravel(), y_val_pred.ravel(), labels=[0, 1]).ravel()
-        val_specificity = tn / (tn + fp + 1e-7)
-
-        val_label_precisions = {}
-        val_label_recalls = {}
-        val_label_hamming_losses = {}
-        val_label_f1_scores = {}
-        val_label_specificities = {}
-        val_label_aucs = {}
-        val_label_maps = {}
-
-        for i in range(num_labels):
-            val_label_acc = accuracy_score(y_val_true[:, i], y_val_pred[:, i])
-            val_label_accuracies[f"label_{i}"].append(val_label_acc)
-
-            val_label_prec = precision_score(y_val_true[:, i], y_val_pred[:, i], zero_division=0)
-            val_label_rec = recall_score(y_val_true[:, i], y_val_pred[:, i], zero_division=0)
-            val_label_precisions[f"label_{i}"] = val_label_prec
-            val_label_recalls[f"label_{i}"] = val_label_rec
-
-            val_label_f1 = f1_score(y_val_true[:, i], y_val_pred[:, i], zero_division=0)
-            val_label_f1_scores[f"label_{i}"] = val_label_f1
-
-            try:
-                tn, fp, fn, tp = confusion_matrix(y_val_true[:, i], y_val_pred[:, i], labels=[0, 1]).ravel()
-                val_label_spec = tn / (tn + fp + 1e-7)
-            except:
-                val_label_spec = float('nan')
-            val_label_specificities[f"label_{i}"] = val_label_spec
-
-            try:
-                val_label_auc = roc_auc_score(y_val_true[:, i], y_val_pred_prob[:, i])
-            except ValueError:
-                val_label_auc = float('nan')
-            val_label_aucs[f"label_{i}"] = val_label_auc
-
-            try:
-                val_label_map = average_precision_score(y_val_true[:, i], y_val_pred_prob[:, i])
-            except ValueError:
-                val_label_map = float('nan')
-            val_label_maps[f"label_{i}"] = val_label_map
-
-            val_label_hamming = hamming_loss(y_val_true[:, i], y_val_pred[:, i])
-            val_label_hamming_losses[f"label_{i}"] = val_label_hamming
-
-        val_loss /= len(valid_loader)
-        val_losses.append(val_loss)
-        valid_Accs.append(val_Acc)
-
-        print(f"Epoch [{epoch+1}/{opt.epochs}], "
-              f"Train Loss      : {train_loss:.4f}, Val Loss: {val_loss:.4f}, "
-              f"Train subset acc: {train_subset_acc:.4f}, Val Acc: {val_subset_acc:.4f}, "
-              f"Train Acc       : {train_Acc:.4f}, Val Acc: {val_Acc:.4f}, "
-              f"Train mAP       : {train_mAP:.4f}, Val mAP: {val_mAP:.4f}, "
-              f"Train F1        : {train_f1:.4f}, Val F1: {val_f1:.4f}, "
-              f"Train Hamming   : {train_hamming:.4f}, Val Hamming: {val_hamming:.4f}, "
-              f"Train spec      : {train_specificity:.4f}, Val spec: {val_specificity:.4f}, "
-              f"Train recall    : {train_recall:.4f}, Val recall: {val_recall:.4f}, "
-              f"Train precision : {train_precision:.4f}, Val precision: {val_precision:.4f}")
-        print("========== Per-Label Training Metrics ==========")
-        for i in range(num_labels):
-            print(f"[Label {i}]")
-            print(f"  Accuracy        : {train_label_accuracies[f'label_{i}'][-1]:.4f}")
-            print(f"  Precision       : {train_label_precisions[f'label_{i}']:.4f}")
-            print(f"  Recall (Sens)   : {train_label_recalls[f'label_{i}']:.4f}")
-            print(f"  Specificity     : {train_label_specificities[f'label_{i}']:.4f}")
-            print(f"  F1 Score        : {train_label_f1_scores[f'label_{i}']:.4f}")
-            print(f"  AUC             : {train_label_aucs[f'label_{i}']:.4f}")
-            print(f"  AP              : {train_label_maps[f'label_{i}']:.4f}")
-            print(f"  Hamming Loss    : {train_label_hamming_losses[f'label_{i}']:.4f}")
-            print("")
-
-        print("========== Per-Label Validation Metrics ==========")
-        for i in range(num_labels):
-            print(f"[Label {i}]")
-            print(f"  Accuracy        : {val_label_accuracies[f'label_{i}'][-1]:.4f}")
-            print(f"  Precision       : {val_label_precisions[f'label_{i}']:.4f}")
-            print(f"  Recall (Sens)   : {val_label_recalls[f'label_{i}']:.4f}")
-            print(f"  Specificity     : {val_label_specificities[f'label_{i}']:.4f}")
-            print(f"  F1 Score        : {val_label_f1_scores[f'label_{i}']:.4f}")
-            print(f"  AUC             : {val_label_aucs[f'label_{i}']:.4f}")
-            print(f"  AP              : {val_label_maps[f'label_{i}']:.4f}")
-            print(f"  Hamming Loss    : {val_label_hamming_losses[f'label_{i}']:.4f}")
-        """
+        
         # ======= Early Stopping Check =======
-        if val_loss < best_val_loss:
+        # Selects on val mAP rather than val_loss: mAP measures ranking quality (how well
+        # positives separate from negatives), whereas val_loss on imbalanced data can improve
+        # just by growing better-calibrated toward the majority class. pos_weight also rescales
+        # loss magnitude, so raw loss is not comparable across configs.
+        if val_overall['mAP'] > best_val_map:
+            best_val_map  = val_overall['mAP']
             best_val_loss = val_loss
             counter = 0
             best_epoch = epoch + 1
@@ -341,9 +204,13 @@ def main(opt):
                 'train_acc': train_Accs,
                 'valid_loss': val_losses,
                 'valid_acc': valid_Accs,
+                # Recorded so val.py can reproduce this run's exact data preparation without
+                # the caller having to remember matching flags.
+                'filter_mode': opt.filter_mode,
+                'top_labels': cfg['top_labels'],
             }, save_path)
 
-            tqdm.write("Validation loss improved. Model saved.")
+            tqdm.write(f"Validation mAP improved to {best_val_map:.4f}. Model saved.")
         else:
             counter += 1
             tqdm.write(f"No improvement for {counter}/{opt.patience} epochs.")
@@ -355,7 +222,7 @@ def main(opt):
         if early_stop:
             break
 
-    print(f"\n===== Best Epoch: {best_epoch} (Val Loss: {best_val_loss:.4f}) =====")
+    print(f"\n===== Best Epoch: {best_epoch} (Val mAP: {best_val_map:.4f}, Val Loss: {best_val_loss:.4f}) =====")
     print("\nTrain Metrics (Best Epoch)")
     print(utils.evaluation.format_metrics_table(cfg['top_labels'], best_train_overall, best_train_per_label))
     print("\nValidation Metrics (Best Epoch)")
@@ -373,7 +240,8 @@ def main(opt):
                  num_workers    = opt.num_workers,
                  context_length = opt.context_length,
                  seed           = opt.seed,
-                 save_dir       = exp_dir)
+                 save_dir       = exp_dir,
+                 filter_mode    = opt.filter_mode)
 
     # 9. Optional: Refit on Train+Valid combined for best_epoch epochs, no early stopping
     if opt.refit and best_epoch is None:
@@ -400,9 +268,10 @@ def main(opt):
             for images, labels in tqdm(refit_loader, desc=f"Refit Epoch {refit_epoch+1}/{best_epoch}", leave=False):
                 images = images.to(device)
                 labels = labels.to(device)
-
-                image_features = model.encode_image(images)
-                image_features = torch.nn.functional.normalize(image_features, dim=-1)
+                
+                with torch.no_grad():
+                    image_features = model.encode_image(images)
+                    image_features = torch.nn.functional.normalize(image_features, dim=-1)
 
                 predictions = refit_adapter(image_features, text_features)
                 loss        = criterion(predictions, labels)
@@ -422,6 +291,8 @@ def main(opt):
             'model_state_dict': model.state_dict(),
             'adapter_state_dict': refit_adapter.state_dict(),
             'optimizer_state_dict': refit_optimizer.state_dict(),
+            'filter_mode': opt.filter_mode,
+            'top_labels': cfg['top_labels'],
         }, refit_save_path)
         print(f"Refit model saved to {refit_save_path}")
 
@@ -434,7 +305,8 @@ def main(opt):
                      num_workers    = opt.num_workers,
                      context_length = opt.context_length,
                      seed           = opt.seed,
-                     save_dir       = exp_dir)
+                     save_dir       = exp_dir,
+                     filter_mode    = opt.filter_mode)
 
 def parse_opt():
     parser = argparse.ArgumentParser(description="CLIP-Based Chest X-Ray Multi-Label Classification")
@@ -450,6 +322,8 @@ def parse_opt():
     parser.add_argument("--context_length", type=int, default=77, help="the length of the prompt text.")
     parser.add_argument("--refit", action="store_true", help="After training, retrain a fresh Adapter on train+valid combined for best_epoch epochs (no early stopping) and re-evaluate on the test set")
     parser.add_argument("--augment", action="store_true", help="Apply mild image augmentation (rotation, translation, brightness/contrast jitter) to the train split only")
+    parser.add_argument("--pos-weight", action="store_true", help="Use BCEWithLogitsLoss with per-label pos_weight (num_neg/num_pos, computed from the train split) instead of AsymmetricLoss")
+    parser.add_argument("--filter-mode", type=str, default="purity", choices=["purity", "any_positive"], help="purity: keep only images whose findings are entirely within top_labels (original). any_positive: keep any image with >=1 top_label, matching train_resnet_baseline.py and the reference paper")
     return parser.parse_args()
 
 
