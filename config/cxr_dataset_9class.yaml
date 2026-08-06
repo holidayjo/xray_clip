@@ -7,11 +7,9 @@ valid_csv: data/cxr8/PruneCXR/miccai2023_nih-cxr-lt_labels_val.csv
 test_csv : data/cxr8/PruneCXR/miccai2023_nih-cxr-lt_labels_test.csv
 
 # Target classes for training (top_labels).
-# These are the 9 diseases selected by the reference paper (Mezina & Burget, 2024,
-# "Detection of post-COVID-19-related pulmonary diseases in X-ray images using
-# Vision Transformer-based neural network"), so results here are directly comparable
-# to its Table 3 / Table 4. Must stay in the same order as train_resnet_baseline.py's
-# PAPER_LABELS, since pos_weight and the model's output logits are both ordered by it.
+# These are the 9 diseases selected by the reference paper (Mezina & Burget, 2024, Detection of post-COVID-19-related pulmonary diseases in X-ray images using Vision Transformer-based neural network"),
+# so results here are directly comparable to its Table 3 / Table 4. Must stay in the same order as train_resnet_baseline.py's PAPER_LABELS, 
+# since pos_weight and the model's output logits are both ordered by it.
 top_labels:
   - Cardiomegaly
   - Consolidation

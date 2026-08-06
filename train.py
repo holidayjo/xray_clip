@@ -16,20 +16,16 @@ import val as validate  # for end-of-epoch mAP
 
 
 def main(opt):
-    # 1. Initialize settings and load config using CLI options
     utils.utils.set_random_seeds(seed=opt.seed)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     with open(opt.cfg, "r") as f:
         cfg = yaml.safe_load(f)
-
-    exp_dir   = utils.utils.increment_path("runs/exp")
-    save_path = exp_dir / opt.save_path
-
-    # 2. Load and filter dataset splits
-    image_root               = pathlib.Path(cfg['image_root'])
+    exp_dir    = utils.utils.increment_path("runs/exp")
+    save_path  = exp_dir / opt.save_path
+    image_root = pathlib.Path(cfg['image_root'])
     
-    # 3. Load Model and Tokenizer using CLI model option
+    # Load CLIP Model and Tokenizer using CLI model option
     model, preprocess, tokenizer, device = utils.models.load_clip_model(model_name=opt.clip_model, freeze_backbone=True, device=device)
     
     # Load dataset splits (image index built once and reused across all three splits)
@@ -38,11 +34,11 @@ def main(opt):
     valid_df, valid_paths, valid_labels = utils.dataset.load_split(cfg['valid_csv'], image_root, id_to_path=id_to_path)
     test_df,  test_paths,  test_labels  = utils.dataset.load_split(cfg['test_csv'],  image_root, id_to_path=id_to_path)
 
-    # filtering
-    # "purity" keeps only images whose findings are entirely within top_labels (original
-    # behaviour); "any_positive" keeps any image with >=1 top_label regardless of what else
-    # co-occurs, matching train_resnet_baseline.py and the reference paper, so the two are
-    # comparable. val.py must be given the same mode or its test numbers won't line up.
+    # --filter-mode: filtering
+    # "purity": keeps only images whose findings are entirely within top_labels (original behaviour); 
+    # "any_positive": keeps any image with >=1 top_label regardless of what else co-occurs, 
+    # matching train_resnet_baseline.py and the reference paper, so the two are comparable. 
+    # val.py must be given the same mode or its test numbers won't line up.
     if opt.filter_mode == "any_positive":
         filter_fn = lambda df, paths: utils.dataset.filter_dataset_any_positive(df, paths, cfg['top_labels'])
     else:
@@ -53,8 +49,7 @@ def main(opt):
     test_df_filtered,  test_paths_filtered  = filter_fn(test_df,  test_paths)
     # labels                                  = train_df_filtered[cfg['top_labels']].values.astype('float32')
 
-
-    # 4. Create DataLoaders using CLI batch-size option
+    # Create DataLoaders using CLI batch-size option
     paths_dict = {'train': train_paths_filtered, 'valid': valid_paths_filtered, 'test' : test_paths_filtered}
     df_dict    = {'train': train_df_filtered,    'valid': valid_df_filtered,    'test' : test_df_filtered}
     train_augment = utils.dataset.build_train_augmentation() if opt.augment else None
@@ -87,14 +82,14 @@ def main(opt):
 
     # 7. Training Setup using CLI options
     best_val_map  = -float("inf")   # checkpoint / early-stopping criterion
-    best_val_loss = float("inf")    # still tracked, for reporting only
+    best_val_loss =  float("inf")   # still tracked, for reporting only
     counter       = 0
     early_stop    = False
 
     train_losses, val_losses, train_Accs, valid_Accs = [], [], [], []
-    best_epoch = None
-    best_train_overall, best_train_per_label = None, None
-    best_val_overall,   best_val_per_label   = None, None
+    best_epoch                                       = None
+    best_train_overall, best_train_per_label         = None, None
+    best_val_overall,   best_val_per_label           = None, None
 
     # 8. Main Training Loop using CLI epochs option
     for epoch in tqdm(range(opt.epochs), desc="Training"):
@@ -129,8 +124,6 @@ def main(opt):
             y_train_pred.append(predictions.detach().cpu().numpy())
             y_train_true.append(labels.cpu().numpy())
 
-    
-
         # Evaluate Validation
         model.eval()
         Adapter.eval()
@@ -154,13 +147,11 @@ def main(opt):
 
                 y_val_pred.append(predictions.detach().cpu().numpy())
                 y_val_true.append(labels.cpu().numpy())
-                
-                
-                
+
         y_train_pred_prob = np.concatenate(y_train_pred, axis=0)
-        y_train_true       = np.concatenate(y_train_true, axis=0)
-        y_val_pred_prob    = np.concatenate(y_val_pred, axis=0)
-        y_val_true         = np.concatenate(y_val_true, axis=0)
+        y_train_true      = np.concatenate(y_train_true, axis=0)
+        y_val_pred_prob   = np.concatenate(y_val_pred, axis=0)
+        y_val_true        = np.concatenate(y_val_true, axis=0)
 
         train_overall, train_per_label = utils.evaluation.compute_multilabel_metrics(y_train_true, y_train_pred_prob)
         val_overall,   val_per_label   = utils.evaluation.compute_multilabel_metrics(y_val_true,   y_val_pred_prob)
@@ -310,7 +301,7 @@ def main(opt):
 
 def parse_opt():
     parser = argparse.ArgumentParser(description="CLIP-Based Chest X-Ray Multi-Label Classification")
-    parser.add_argument("--cfg", type=str, default="data/cxr_dataset.yaml", help="Path to dataset YAML file")
+    parser.add_argument("--cfg", type=str, default="config/cxr_dataset.yaml", help="Path to dataset YAML file")
     parser.add_argument("--clip_model", type=str, default="hf-hub:microsoft/BiomedCLIP-PubMedBERT_256-vit_base_patch16_224", help="Pre-trained CLIP model name")
     parser.add_argument("--epochs", type=int, default=100, help="Total number of training epochs")
     parser.add_argument("--batch-size", type=int, default=1200, help="Total batch size")

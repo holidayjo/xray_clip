@@ -130,10 +130,9 @@ def filter_dataset(df, paths, top_labels, label_cols):
 
 
 def filter_dataset_any_positive(df, paths, top_labels):
-    """Keeps samples with at least one positive among top_labels, regardless of what
-    other findings (target or non-target) are also present -- i.e. no purity
-    restriction, unlike filter_dataset(). Used for reproducing baselines trained on
-    the full multilabel reality rather than isolated single-condition cases."""
+    """Keeps samples with at least one positive among top_labels, regardless of what other findings (target or non-target) are also present 
+    -- i.e. no purity restriction, unlike filter_dataset(). 
+    Used for reproducing baselines trained on the full multilabel reality rather than isolated single-condition cases."""
     mask = df[top_labels].sum(axis=1) > 0
     return df[mask].reset_index(drop=True), paths[mask]
 
