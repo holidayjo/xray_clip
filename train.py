@@ -312,7 +312,7 @@ def parse_opt():
     parser = argparse.ArgumentParser(description="CLIP-Based Chest X-Ray Multi-Label Classification")
     parser.add_argument("--cfg", type=str, default="data/cxr_dataset.yaml", help="Path to dataset YAML file")
     parser.add_argument("--clip_model", type=str, default="hf-hub:microsoft/BiomedCLIP-PubMedBERT_256-vit_base_patch16_224", help="Pre-trained CLIP model name")
-    parser.add_argument("--epochs", type=int, default=50, help="Total number of training epochs")
+    parser.add_argument("--epochs", type=int, default=100, help="Total number of training epochs")
     parser.add_argument("--batch-size", type=int, default=1200, help="Total batch size")
     parser.add_argument("--lr", type=float, default=1e-4, help="Initial learning rate for optimizer")
     parser.add_argument("--patience", type=int, default=15, help="Early stopping patience epochs")
