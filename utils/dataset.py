@@ -4,6 +4,7 @@ import tarfile
 import urllib.request
 import pathlib
 import pickle
+import tabulate
 import numpy as np
 import pandas as pd
 import torch
@@ -116,6 +117,64 @@ def load_split(csv_path, image_root, id_to_path=None, verbose=False):
         print(f"[load_split] labels shape: {labels.shape}, sample row: {labels[0] if len(labels) > 0 else 'None'}")
 
     return df, paths, labels
+
+
+def load_official_split(data_entry_csv, train_val_list, test_list, image_root, label_cols,
+                        id_to_path=None, val_fraction=0.1, seed=42, verbose=False):
+    """
+    Builds train/valid/test from the ORIGINAL NIH ChestX-ray14 release files.
+    The two list files carry split membership only (one filename per line, no labels), 
+    so labels are joined in from Data_Entry_2017_v2020.csv on the filename.
+
+    test_list is used verbatim. Validation is carved out of train_val by PATIENT, never by
+    image -- the official partition guarantees no patient spans train_val/test, and splitting
+    validation by image would break that same guarantee internally, leaking a patient's other
+    views across the train/valid boundary.
+
+    Returns {'train': (df, paths), 'valid': (df, paths), 'test': (df, paths)}
+    each df has an 'id' column plus one binary column per entry of label_cols.
+    """
+    
+    image_root = pathlib.Path(image_root)
+
+    de = pd.read_csv(data_entry_csv)
+    # 'Finding Labels' is pipe-delimited, e.g. "Cardiomegaly|Effusion". Split on '|' and test
+    # exact membership -- substring matching would misclassify any label containing another
+    # as a substring (harmless in this file's 15 labels, unsafe if the label set ever grows).
+    finding_sets = de['Finding Labels'].str.split('|')
+    for label in label_cols:
+        de[label] = finding_sets.map(lambda xs, l=label: int(l in xs))
+
+    de = de.rename(columns={'Image Index': 'id'})
+
+    train_val_ids = {x for x in pathlib.Path(train_val_list).read_text().split() if x}
+    test_ids      = {x for x in pathlib.Path(test_list).read_text().split() if x}
+
+    tv_df   = de[de['id'].isin(train_val_ids)].reset_index(drop=True)
+    test_df = de[de['id'].isin(test_ids)].reset_index(drop=True)
+
+    patients = np.sort(tv_df['Patient ID'].unique())
+    rng      = np.random.default_rng(seed)
+    rng.shuffle(patients)
+    val_patients = set(patients[:int(round(len(patients) * val_fraction))].tolist())
+
+    is_val   = tv_df['Patient ID'].isin(val_patients)
+    train_df = tv_df[~is_val].reset_index(drop=True)
+    valid_df = tv_df[is_val].reset_index(drop=True)
+
+    if id_to_path is None:
+        id_to_path = build_image_index(image_root)
+
+    out = {}
+    for name, df in [('train', train_df), ('valid', valid_df), ('test', test_df)]:
+        keep = df['id'].isin(id_to_path)
+        if (~keep).any():
+            print(f"[load_official_split] {name}: dropping {int((~keep).sum())} rows with no image on disk.")
+            df = df[keep].reset_index(drop=True)
+        out[name] = (df, df['id'].map(id_to_path).values)
+        if verbose:
+            print(f"[load_official_split] {name}: {len(df)} images, {df['Patient ID'].nunique()} patients")
+    return out
 
 
 def filter_dataset(df, paths, top_labels, label_cols):
@@ -284,3 +343,40 @@ def inspect_dataloader(dataloader, split_name="DataLoader", class_names=['Infilt
 
     plt.tight_layout()
     plt.show()
+
+
+def summarize_splits(df_dict, label_cols, pos_weight=None, tablefmt="github"):
+    """
+    Prints a per-split, per-label breakdown of the (already filtered) dataset: 
+    image counts, positive counts and prevalence per label, and multi-label cardinality.
+    Run before training so the class balance the model is about to see -- and any prevalence drift between train/valid/test -- 
+    is visible in the log rather than inferred later from the metrics.
+    """
+    print("\n===== Dataset Statistics =====")
+    # print(tabulate.tabulate([[s, len(df)] for s, df in df_dict.items()],
+    #                         headers  = ["Split", "Images"], 
+    #                         tablefmt = tablefmt))
+
+    rows = []
+    for label in label_cols:
+        row = [label]
+        for df in df_dict.values():
+            pos = int(df[label].sum())
+            row.append(f"{pos} ({pos / max(len(df), 1) * 100:.1f}%)")
+        rows.append(row)
+    print("Positive count (prevalence) per label:")
+    print(tabulate.tabulate(rows, 
+                            headers  = ["Label"] + [s for s in df_dict], 
+                            tablefmt = tablefmt))
+
+    rows = []
+    for split, df in df_dict.items():
+        card = df[label_cols].sum(axis=1)
+        rows.append([split, 
+                     f"{card.mean():.2f}",
+                     f"{int((card >= 2).sum())} ({(card >= 2).mean() * 100:.1f}%)"])
+    print("\nMulti-label structure:")
+    print(tabulate.tabulate(rows, 
+                            headers  = ["Split", "Mean labels/image", "Images with >=2 labels"],
+                            tablefmt = tablefmt))
+    print()

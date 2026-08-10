@@ -22,7 +22,8 @@ def run(cfg            = "data/cxr_dataset.yaml",
         seed           = 42,
         device         = None,
         save_dir       = None,
-        filter_mode    = None):
+        filter_mode    = None,
+        split_source   = None):
     """Evaluates a trained Adapter checkpoint on one dataset split and prints the metrics table.
 
     save_dir: where to save results.txt/results.csv. Pass an existing directory (e.g. train.py's
@@ -46,13 +47,13 @@ def run(cfg            = "data/cxr_dataset.yaml",
         cfg = yaml.safe_load(f)
     image_root                           = pathlib.Path(cfg['image_root'])
 
-    # Loaded up-front (not just before load_state_dict) because the checkpoint carries the
-    # filter_mode and label set train.py used, and both are needed to prepare the data below.
+    # Loaded up-front (not just before load_state_dict) because the checkpoint carries the filter_mode 
+    # and label set train.py used, and both are needed to prepare the data below.
     checkpoint = torch.load(weights, map_location=device)
 
     ckpt_filter_mode = checkpoint.get('filter_mode')
     if filter_mode is None:
-        filter_mode = ckpt_filter_mode or "purity"
+        filter_mode = ckpt_filter_mode # or "purity"
         source      = "checkpoint" if ckpt_filter_mode else "default (checkpoint predates this field)"
     else:
         source = "explicit argument"
@@ -60,6 +61,20 @@ def run(cfg            = "data/cxr_dataset.yaml",
             print(f"WARNING: filter_mode='{filter_mode}' overrides checkpoint's '{ckpt_filter_mode}' "
                   f"-- results will not match how this model was trained.")
     print(f"Filter mode: {filter_mode}  (from {source})")
+    
+
+    ckpt_split_source = checkpoint.get('split_source')
+    if split_source is None:
+        split_source = ckpt_split_source # or "prunecxr"
+        src = "checkpoint" if ckpt_split_source else "default (checkpoint predates this field)"
+    else:
+        src = "explicit argument"
+        if ckpt_split_source and ckpt_split_source != split_source:
+            print(f"WARNING: split_source='{split_source}' overrides checkpoint's "
+                  f"'{ckpt_split_source}' -- scoring on a different test set than it was trained for.")
+    print(f"Split source: {split_source}  (from {src})")
+
+    
 
     # DualBranchAdapter emits one logit per (image, label) pair, so NO weight shape depends on
     # the number of labels -- a checkpoint trained on 9 labels loads cleanly against a 3-label
@@ -72,14 +87,23 @@ def run(cfg            = "data/cxr_dataset.yaml",
               f"         fail loudly -- the metrics below would be meaningless. Check --cfg.")
 
     model, preprocess, tokenizer, device = utils.models.load_clip_model(model_name=clip_model, freeze_backbone=True, device=device)
-    csv_key                              = {"train": "train_csv", "valid": "valid_csv", "test": "test_csv"}[split]
-    df, paths, _                         = utils.dataset.load_split(cfg[csv_key], image_root, verbose=True)
+    # csv_key                              = {"train": "train_csv", "valid": "valid_csv", "test": "test_csv"}[split]
+    # df, paths, _                         = utils.dataset.load_split(cfg[csv_key], image_root, verbose=True)
+    
+    if split_source == "official": # files/Detection of post-COVID-19-related pulmonary diseases in X-ray images using Vision Transformer-based neural network.pdf
+        splits    = utils.dataset.load_official_split(cfg['data_entry_csv'], cfg['train_val_list'], cfg['test_list'], image_root, cfg['top_labels'], seed=seed, verbose=True)
+        df, paths = splits[split]
+    else:                          # How Does Pruning Impact Long-Tailed Multi-Label Medical Image Classifiers?" MICCAI 2023
+        csv_key      = {"train": "train_csv", "valid": "valid_csv", "test": "test_csv"}[split]
+        df, paths, _ = utils.dataset.load_split(cfg[csv_key], image_root, verbose=True)
+    
     if filter_mode == "any_positive":
         df_filtered, paths_filtered      = utils.dataset.filter_dataset_any_positive(df, paths, cfg['top_labels'])
     else:
         df_filtered, paths_filtered      = utils.dataset.filter_dataset(df, paths, cfg['top_labels'], cfg['all_labels'])
-    dataset                              = utils.dataset.XrayDataset(image_paths=paths_filtered, df=df_filtered, label_cols=cfg['top_labels'], preprocess=preprocess)
-    loader                               = torch.utils.data.DataLoader(dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers)
+        
+    dataset = utils.dataset.XrayDataset(image_paths=paths_filtered, df=df_filtered, label_cols=cfg['top_labels'], preprocess=preprocess)
+    loader  = torch.utils.data.DataLoader(dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers)
     print(f"Created {split} loader with {len(dataset)} samples.")
 
     Adapter    = utils.models.DualBranchAdapter().to(device)
@@ -142,6 +166,8 @@ def parse_opt():
     parser.add_argument("--context_length", type=int, default=77, help="the length of the prompt text.")
     parser.add_argument("--seed", type=int, default=42, help="Global random seed")
     parser.add_argument("--filter-mode", type=str, default=None, choices=["purity", "any_positive"], help="Omit to use the mode recorded in the checkpoint (recommended). purity: keep only images whose findings are entirely within top_labels. any_positive: keep any image with >=1 top_label")
+    parser.add_argument("--split-source", type=str, default=None, choices=["prunecxr", "official"], help="Omit to use the source recorded in the checkpoint (recommended).")
+
     return parser.parse_args()
 
 
@@ -149,4 +175,4 @@ if __name__ == "__main__":
     opt = parse_opt()
     run(cfg=opt.cfg, weights=opt.weights, clip_model=opt.clip_model, split=opt.split,
         batch_size=opt.batch_size, num_workers=opt.num_workers,
-        context_length=opt.context_length, seed=opt.seed, filter_mode=opt.filter_mode)
+        context_length=opt.context_length, seed=opt.seed, filter_mode=opt.filter_mode, split_source=opt.split_source)

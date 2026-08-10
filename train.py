@@ -30,10 +30,20 @@ def main(opt):
     
     # Load dataset splits (image index built once and reused across all three splits)
     id_to_path = utils.dataset.build_image_index(image_root)
-    train_df, train_paths, train_labels = utils.dataset.load_split(cfg['train_csv'], image_root, id_to_path=id_to_path, verbose=True)
-    valid_df, valid_paths, valid_labels = utils.dataset.load_split(cfg['valid_csv'], image_root, id_to_path=id_to_path)
-    test_df,  test_paths,  test_labels  = utils.dataset.load_split(cfg['test_csv'],  image_root, id_to_path=id_to_path)
-
+    if opt.split_source == "official":
+        splits = utils.dataset.load_official_split(cfg['data_entry_csv'], cfg['train_val_list'],
+                                                   cfg['test_list'], image_root, cfg['top_labels'],
+                                                   id_to_path=id_to_path, val_fraction=0.2, seed=opt.seed, verbose=True)
+        train_df, train_paths = splits['train']
+        valid_df, valid_paths = splits['valid']
+        test_df,  test_paths  = splits['test']
+    else:
+        train_df, train_paths, _ = utils.dataset.load_split(cfg['train_csv'], image_root, id_to_path=id_to_path, verbose=True)
+        valid_df, valid_paths, _ = utils.dataset.load_split(cfg['valid_csv'], image_root, id_to_path=id_to_path)
+        test_df,  test_paths,  _ = utils.dataset.load_split(cfg['test_csv'],  image_root, id_to_path=id_to_path)
+    print(f"Split source: {opt.split_source}")
+    
+    
     # --filter-mode: filtering
     # "purity": keeps only images whose findings are entirely within top_labels (original behaviour); 
     # "any_positive": keeps any image with >=1 top_label regardless of what else co-occurs, 
@@ -53,6 +63,10 @@ def main(opt):
     paths_dict = {'train': train_paths_filtered, 'valid': valid_paths_filtered, 'test' : test_paths_filtered}
     df_dict    = {'train': train_df_filtered,    'valid': valid_df_filtered,    'test' : test_df_filtered}
     train_augment = utils.dataset.build_train_augmentation() if opt.augment else None
+    
+    utils.dataset.summarize_splits({'train': train_df_filtered, 'valid': valid_df_filtered, 'test': test_df_filtered},
+                                   cfg['top_labels'])
+    
     train_loader, valid_loader, test_loader = utils.dataset.create_dataloaders(paths_dict  = paths_dict,
                                                                                df_dict     = df_dict,
                                                                                top_labels  = cfg['top_labels'],
@@ -65,16 +79,17 @@ def main(opt):
     num_labels = len(cfg['top_labels'])
     Adapter    = utils.models.DualBranchAdapter().to(device)
     optimizer  = torch.optim.Adam(Adapter.parameters(), lr=opt.lr)
+    
     # AsymmetricLoss and pos_weight are two alternative answers to the same class-imbalance
     # problem, so exactly one is used -- never both.
-    if opt.pos_weight:
-        pos_weight = utils.loss.compute_pos_weight(train_df_filtered, cfg['top_labels'], device=device)
-        criterion  = torch.nn.BCEWithLogitsLoss(pos_weight=pos_weight)
-        print("Loss: BCEWithLogitsLoss with per-label pos_weight (computed from the train split)")
-        for name, w in zip(cfg['top_labels'], pos_weight.tolist()):
-            print(f"  {name:<15s} pos_weight = {w:6.2f}")
-    else:
-        criterion  = utils.loss.AsymmetricLoss(gamma_neg=4, gamma_pos=1, clip=0.05, disable_torch_grad_focal_loss=True)
+    # if opt.pos_weight:
+    pos_weight = utils.loss.compute_pos_weight(train_df_filtered, cfg['top_labels'], device=device)
+    criterion  = torch.nn.BCEWithLogitsLoss(pos_weight=pos_weight)
+    print("Loss: BCEWithLogitsLoss with per-label pos_weight (computed from the train split)")
+    for name, w in zip(cfg['top_labels'], pos_weight.tolist()):
+        print(f"  {name:<15s} pos_weight = {w:6.2f}")
+    # else:
+    #     criterion  = utils.loss.AsymmetricLoss(gamma_neg=4, gamma_pos=1, clip=0.05, disable_torch_grad_focal_loss=True)
 
     # 6. Pre-compute Text Features
     text_features = utils.models.encode_label_prompts(model, tokenizer, cfg['top_labels'],
@@ -186,20 +201,19 @@ def main(opt):
             best_train_overall, best_train_per_label = train_overall, train_per_label
             best_val_overall,   best_val_per_label   = val_overall,   val_per_label
 
-            torch.save({
-                'epoch': epoch + 1,
-                'model_state_dict': model.state_dict(),
-                'adapter_state_dict': Adapter.state_dict(),
-                'optimizer_state_dict': optimizer.state_dict(),
-                'train_loss': train_losses,
-                'train_acc': train_Accs,
-                'valid_loss': val_losses,
-                'valid_acc': valid_Accs,
-                # Recorded so val.py can reproduce this run's exact data preparation without
-                # the caller having to remember matching flags.
-                'filter_mode': opt.filter_mode,
-                'top_labels': cfg['top_labels'],
-            }, save_path)
+            torch.save({'epoch': epoch + 1,
+                        'model_state_dict': model.state_dict(),
+                        'adapter_state_dict': Adapter.state_dict(),
+                        'optimizer_state_dict': optimizer.state_dict(),
+                        'train_loss': train_losses,
+                        'train_acc': train_Accs,
+                        'valid_loss': val_losses,
+                        'valid_acc': valid_Accs,
+                        # Recorded so val.py can reproduce this run's exact data preparation without
+                        # the caller having to remember matching flags.
+                        'filter_mode': opt.filter_mode,
+                        'top_labels': cfg['top_labels'],
+                        'split_source': opt.split_source}, save_path)
 
             tqdm.write(f"Validation mAP improved to {best_val_map:.4f}. Model saved.")
         else:
@@ -277,14 +291,13 @@ def main(opt):
             tqdm.write(f"Refit Epoch [{refit_epoch+1}/{best_epoch}] Loss: {refit_loss:.4f}")
 
         refit_save_path = exp_dir / f"refit_{opt.save_path}"
-        torch.save({
-            'epoch': best_epoch,
-            'model_state_dict': model.state_dict(),
-            'adapter_state_dict': refit_adapter.state_dict(),
-            'optimizer_state_dict': refit_optimizer.state_dict(),
-            'filter_mode': opt.filter_mode,
-            'top_labels': cfg['top_labels'],
-        }, refit_save_path)
+        torch.save({'epoch': best_epoch,
+                    'model_state_dict': model.state_dict(),
+                    'adapter_state_dict': refit_adapter.state_dict(),
+                    'optimizer_state_dict': refit_optimizer.state_dict(),
+                    'filter_mode': opt.filter_mode,
+                    'top_labels': cfg['top_labels'],
+                    'split_source': opt.split_source}, refit_save_path)
         print(f"Refit model saved to {refit_save_path}")
 
         print(f"\n===== Final Test Set Evaluation (Refit Weights: {refit_save_path}) =====")
@@ -301,7 +314,7 @@ def main(opt):
 
 def parse_opt():
     parser = argparse.ArgumentParser(description="CLIP-Based Chest X-Ray Multi-Label Classification")
-    parser.add_argument("--cfg", type=str, default="config/cxr_dataset.yaml", help="Path to dataset YAML file")
+    parser.add_argument("--cfg", type=str, default="config/cxr_dataset_9class.yaml", help="Path to dataset YAML file")
     parser.add_argument("--clip_model", type=str, default="hf-hub:microsoft/BiomedCLIP-PubMedBERT_256-vit_base_patch16_224", help="Pre-trained CLIP model name")
     parser.add_argument("--epochs", type=int, default=100, help="Total number of training epochs")
     parser.add_argument("--batch-size", type=int, default=1200, help="Total batch size")
@@ -314,7 +327,9 @@ def parse_opt():
     parser.add_argument("--refit", action="store_true", help="After training, retrain a fresh Adapter on train+valid combined for best_epoch epochs (no early stopping) and re-evaluate on the test set")
     parser.add_argument("--augment", action="store_true", help="Apply mild image augmentation (rotation, translation, brightness/contrast jitter) to the train split only")
     parser.add_argument("--pos-weight", action="store_true", help="Use BCEWithLogitsLoss with per-label pos_weight (num_neg/num_pos, computed from the train split) instead of AsymmetricLoss")
-    parser.add_argument("--filter-mode", type=str, default="purity", choices=["purity", "any_positive"], help="purity: keep only images whose findings are entirely within top_labels (original). any_positive: keep any image with >=1 top_label, matching train_resnet_baseline.py and the reference paper")
+    parser.add_argument("--filter-mode", type=str, default="any_positive", choices=["purity", "any_positive"], help="purity: keep only images whose findings are entirely within top_labels (original). any_positive: keep any image with >=1 top_label, matching train_resnet_baseline.py and the reference paper")
+    parser.add_argument("--split-source", type=str, default="prunecxr", choices=["prunecxr", "official"], help="prunecxr: the NIH-CXR-LT CSVs (test = 21081 imgs). official: NIH train_val_list/test_list, matching the reference paper's split exactly (test = 25596 imgs)")
+
     return parser.parse_args()
 
 

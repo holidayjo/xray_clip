@@ -1,10 +1,16 @@
 # Dataset root directory
 image_root: data/nih_images
 
-# CSV file splits
-train_csv: data/cxr8/PruneCXR/miccai2023_nih-cxr-lt_labels_train.csv
-valid_csv: data/cxr8/PruneCXR/miccai2023_nih-cxr-lt_labels_val.csv
-test_csv : data/cxr8/PruneCXR/miccai2023_nih-cxr-lt_labels_test.csv
+# # CSV file splits
+# train_csv: data/cxr8/PruneCXR/miccai2023_nih-cxr-lt_labels_train.csv
+# valid_csv: data/cxr8/PruneCXR/miccai2023_nih-cxr-lt_labels_val.csv
+# test_csv : data/cxr8/PruneCXR/miccai2023_nih-cxr-lt_labels_test.csv
+
+# Original ChestX-ray14 release files. 
+data_entry_csv: data/cxr8/Data_Entry_2017_v2020.csv
+train_val_list: data/cxr8/train_val_list.txt
+test_list     : data/cxr8/test_list.txt
+
 
 # Target classes for training (top_labels).
 # These are the 9 diseases selected by the reference paper (Mezina & Burget, 2024, Detection of post-COVID-19-related pulmonary diseases in X-ray images using Vision Transformer-based neural network"),
