@@ -328,7 +328,7 @@ def parse_opt():
     parser.add_argument("--augment", action="store_true", help="Apply mild image augmentation (rotation, translation, brightness/contrast jitter) to the train split only")
     parser.add_argument("--pos-weight", action="store_true", help="Use BCEWithLogitsLoss with per-label pos_weight (num_neg/num_pos, computed from the train split) instead of AsymmetricLoss")
     parser.add_argument("--filter-mode", type=str, default="any_positive", choices=["purity", "any_positive"], help="purity: keep only images whose findings are entirely within top_labels (original). any_positive: keep any image with >=1 top_label, matching train_resnet_baseline.py and the reference paper")
-    parser.add_argument("--split-source", type=str, default="prunecxr", choices=["prunecxr", "official"], help="prunecxr: the NIH-CXR-LT CSVs (test = 21081 imgs). official: NIH train_val_list/test_list, matching the reference paper's split exactly (test = 25596 imgs)")
+    parser.add_argument("--split-source", type=str, default="official", choices=["prunecxr", "official"], help="prunecxr: the NIH-CXR-LT CSVs (test = 21081 imgs). official: NIH train_val_list/test_list, matching the reference paper's split exactly (test = 25596 imgs)")
 
     return parser.parse_args()
 

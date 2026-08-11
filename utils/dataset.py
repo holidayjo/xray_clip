@@ -12,6 +12,9 @@ import torch.utils.data
 import PIL.Image
 import torchvision.transforms as T
 import matplotlib.pyplot as plt
+import hashlib
+from tqdm import tqdm
+
 
 def download_dataset(cfg_path="data/cxr_dataset.yaml", output_dir="."):
     """Downloads and extracts the NIH Chest X-ray dataset, skipping completed steps."""
@@ -97,6 +100,133 @@ def build_image_index(image_root, cache_path=None, force_rebuild=False):
         pickle.dump(id_to_path, f)
     print(f"[build_image_index] Cached image index to {cache_path} ({len(id_to_path)} images).")
     return id_to_path
+
+
+class _PathDataset(torch.utils.data.Dataset):
+    """Yields only preprocessed images (no labels) -- for the one-off encoding pass."""
+    def __init__(self, image_paths, preprocess):
+        self.image_paths = image_paths
+        self.preprocess  = preprocess
+
+    def __len__(self):
+        return len(self.image_paths)
+
+    def __getitem__(self, idx):
+        return self.preprocess(PIL.Image.open(self.image_paths[idx]).convert("RGB"))
+
+
+def _cache_fingerprint(model_name, preprocess):
+    """Identifies WHICH encoder produced a cache: model name plus the preprocessing pipeline's
+    repr, so a different checkpoint, resolution, or normalisation yields a different
+    fingerprint. Saved into the cache file so a later run can refuse a mismatched one."""
+    h = hashlib.sha256()
+    h.update(str(model_name).encode())
+    h.update(repr(preprocess).encode())
+    return h.hexdigest()[:16]
+
+
+@torch.no_grad()
+def build_embedding_cache(cache_path, model, preprocess, device, id_to_path, model_name,
+                          batch_size=256, num_workers=8, force_rebuild=False):
+    """Runs the FROZEN backbone over every image once and caches the L2-normalized embeddings
+    to an .npz. Same idea as build_image_index, one level further: a frozen backbone returns
+    the identical embedding for an image on every epoch of every run, so re-encoding per epoch
+    is pure waste.
+
+    Entries are keyed by FILENAME, so the cache stays valid when --seed, --split-source or
+    --filter-mode change (those only decide which images land in which split). It is NOT valid
+    across a change of model or preprocessing, which the fingerprint catches.
+
+    Returns {'ids': array[N] filenames, 'emb': float32 [N, D]}."""
+    cache_path  = pathlib.Path(cache_path)
+    fingerprint = _cache_fingerprint(model_name, preprocess)
+
+    if cache_path.exists() and not force_rebuild:
+        z         = np.load(cache_path, allow_pickle=False)
+        cached_fp = str(z['fingerprint']) if 'fingerprint' in z else None
+        if cached_fp != fingerprint:
+            raise RuntimeError(
+                f"Embedding cache {cache_path} was built by a different encoder.\n"
+                f"  cached fingerprint : {cached_fp}\n"
+                f"  current fingerprint: {fingerprint}\n"
+                f"Pass force_rebuild=True, or use a different cache path.")
+        print(f"[build_embedding_cache] Loaded {z['emb'].shape[0]} embeddings "
+              f"(dim {z['emb'].shape[1]}) from {cache_path}; fingerprint OK.")
+        return {'ids': z['ids'], 'emb': z['emb']}
+
+    ids   = np.array(sorted(id_to_path))          # sorted -> deterministic cache
+    paths = [id_to_path[i] for i in ids]
+    print(f"[build_embedding_cache] Encoding {len(ids)} images (one-time)...")
+
+    loader = torch.utils.data.DataLoader(_PathDataset(paths, preprocess), batch_size=batch_size,
+                                         shuffle=False, num_workers=num_workers)
+    model.eval()
+    chunks = []
+    for images in tqdm(loader, desc="Encoding"):
+        feats = model.encode_image(images.to(device))
+        feats = torch.nn.functional.normalize(feats, dim=-1)
+        chunks.append(feats.detach().cpu().numpy().astype(np.float32))
+
+    emb = np.concatenate(chunks, axis=0)
+    cache_path.parent.mkdir(parents=True, exist_ok=True)
+    np.savez(cache_path, ids=ids, emb=emb, fingerprint=np.array(fingerprint))
+    print(f"[build_embedding_cache] Cached {emb.shape[0]} x {emb.shape[1]} to {cache_path} "
+          f"({cache_path.stat().st_size / 1e6:.0f} MB).")
+    return {'ids': ids, 'emb': emb}
+
+def lookup_embeddings(cache, wanted_ids):
+    """Returns [N, D] for wanted_ids in that exact order -- rows must line up with the label
+    rows they get paired with, so this indexes explicitly rather than trusting the cache's own
+    ordering. Raises if any id is absent, so a filter-mode change is caught, not silently
+    mis-scored."""
+    index   = {img_id: i for i, img_id in enumerate(cache['ids'])}
+    missing = [i for i in wanted_ids if i not in index]
+    if missing:
+        raise KeyError(f"{len(missing)} ids missing from the embedding cache "
+                       f"(e.g. {missing[:3]}). Rebuild with force_rebuild=True.")
+    rows = np.fromiter((index[i] for i in wanted_ids), dtype=np.int64, count=len(wanted_ids))
+    return cache['emb'][rows]
+
+
+def feature_batches(source, batch_size, shuffle, model=None, device=None, generator=None):
+    """
+    Yields (image_features, labels) batches from EITHER source, so training code does not need to branch on which one it was given:
+
+      - a DataLoader over images -> encodes each batch with the frozen backbone on the fly
+      - a cached (X, Y) tensor pair -> slices it directly, no backbone involved
+
+    Both paths yield tensors already on `device` and produce identical batches for the same data, 
+    so switching to cached embeddings changes only the speed, not the result.
+
+    model and device are required only for the DataLoader path. generator seeds the shuffle for the cached path; 
+    pass a fresh one per epoch to reshuffle reproducibly.
+    """
+    
+    if isinstance(source, tuple):                     # cached embeddings
+        X, Y  = source
+        order = torch.randperm(X.shape[0], generator=generator) if shuffle else torch.arange(X.shape[0])
+        for i in range(0, X.shape[0], batch_size):
+            idx = order[i:i + batch_size]
+            yield X[idx], Y[idx]
+    else:                                             # DataLoader over images
+        for images, labels in source:
+            with torch.no_grad():
+                feats = model.encode_image(images.to(device))
+                feats = torch.nn.functional.normalize(feats, dim=-1)
+            yield feats, labels.to(device)
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 def load_split(csv_path, image_root, id_to_path=None, verbose=False):
