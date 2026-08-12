@@ -93,25 +93,10 @@ class ImageLinearProbe(torch.nn.Module):
         return self.classifier(image_feature)
 
 
-class DualBranchAdapter_temp(torch.nn.Module):
-    def __init__(self, dim=512, hidden_dim=1024, use_branch_mlp=True):
+class DualBranchAdapter_simple(torch.nn.Module):
+    def __init__(self, dim=512, hidden_dim=256):
         super().__init__()
-        # The two branch MLPs are separately parameterised, so nothing constrains them to
-        # apply the same transformation to each modality -- measured at init, they cut the
-        # image/text cosine-similarity correlation to ~0.10, i.e. they largely discard the
-        # alignment CLIP's contrastive pretraining provides. With use_branch_mlp=False the
-        # mul/diff interaction is computed in CLIP's native shared space instead, at 1/3 the
-        # parameter count.
-        self.use_branch_mlp = use_branch_mlp
-        if use_branch_mlp:
-            self.img_mlp = torch.nn.Sequential(torch.nn.Linear(dim, hidden_dim),
-                                               torch.nn.ReLU(),
-                                               torch.nn.Linear(hidden_dim, dim))
-            self.txt_mlp = torch.nn.Sequential(torch.nn.Linear(dim, hidden_dim),
-                                               torch.nn.ReLU(),
-                                               torch.nn.Linear(hidden_dim, dim))
-
-        self.classifier = torch.nn.Sequential(torch.nn.Linear(dim * 2, hidden_dim),
+        self.classifier = torch.nn.Sequential(torch.nn.Linear(dim*2, hidden_dim),
                                               torch.nn.ReLU(),
                                               torch.nn.Linear(hidden_dim, 1))
 

@@ -106,7 +106,12 @@ def run(cfg            = "data/cxr_dataset.yaml",
     loader  = torch.utils.data.DataLoader(dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers)
     print(f"Created {split} loader with {len(dataset)} samples.")
 
-    Adapter    = utils.models.DualBranchAdapter().to(device)
+    # The checkpoint records which adapter class trained it. Falling back to
+    # DualBranchAdapter keeps older checkpoints (which predate this field) loadable.
+    adapter_class = checkpoint.get('adapter_class', 'DualBranchAdapter')
+    print(f"Adapter class: {adapter_class}")
+    Adapter    = getattr(utils.models, adapter_class)().to(device)
+    # Adapter    = utils.models.DualBranchAdapter().to(device)
     Adapter.load_state_dict(checkpoint['adapter_state_dict'])
     if 'model_state_dict' in checkpoint:
         model.load_state_dict(checkpoint['model_state_dict'])
