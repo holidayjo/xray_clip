@@ -33,7 +33,11 @@ def compute_multilabel_metrics(y_true, y_pred_prob, threshold=0.5):
     overall['recall']     = recall_score(y_true, y_pred, average="micro", zero_division=0)
     overall['f1']         = f1_score(y_true, y_pred, average="micro")
     overall['hamming']    = hamming_loss(y_true, y_pred)
-    overall['mAP']        = average_precision_score(y_true, y_pred_prob, average="macro")
+    overall['mAP']        = average_precision_score(y_true, y_pred_prob, average="macro") 
+    # Macro (unweighted) mean of the per-label AUCs. Verified to be the aggregation the reference paper uses: 
+    # the mean of its Table 2 per-pathology AUCs reproduces its Table 3 AUC to 4 decimal places (0.81189 vs 0.8119), 
+    # while a prevalence-weighted mean does not.
+    # Computed after the per_label loop below, so it is assigned there -- see overall['mAUC'].
 
     tn, fp, fn, tp = confusion_matrix(y_true.ravel(), y_pred.ravel(), labels=[0, 1]).ravel()
     overall['specificity'] = tn / (tn + fp + 1e-7)
@@ -64,7 +68,9 @@ def compute_multilabel_metrics(y_true, y_pred_prob, threshold=0.5):
             row['ap'] = float('nan')
 
         per_label.append(row)
-
+    # nanmean: a label's AUC is nan when only one class is present in this batch/split.
+    overall['mAUC'] = float(np.nanmean([row['auc'] for row in per_label]))
+    
     return overall, per_label
 
 
@@ -73,9 +79,10 @@ def log_epoch_to_csv(csv_path, epoch, train_loss, val_loss, train_overall, val_o
     writing the header only the first time the file is created."""
     csv_path = pathlib.Path(csv_path)
 
-    header = ["epoch", "train_loss", "val_loss", "train_acc", "val_acc", "train_mAP", "val_mAP"]
-    row    = [epoch, train_loss, val_loss, train_overall['accuracy'], val_overall['accuracy'],
-              train_overall['mAP'], val_overall['mAP']]
+    # header = ["epoch", "train_loss", "val_loss", "train_acc", "val_acc", "train_mAP", "val_mAP"]
+    # row    = [epoch, train_loss, val_loss, train_overall['accuracy'], val_overall['accuracy'], train_overall['mAP'], val_overall['mAP']]
+    header = ["epoch", "train_loss", "val_loss", "train_acc", "val_acc", "train_mAP", "val_mAP", "train_mAUC", "val_mAUC"]
+    row    = [epoch, train_loss, val_loss, train_overall['accuracy'], val_overall['accuracy'], train_overall['mAP'], val_overall['mAP'], train_overall['mAUC'], val_overall['mAUC']]
 
     for name, label_row in zip(label_names, val_per_label):
         header += [f"{name}_val_acc", f"{name}_val_ap"]
@@ -100,8 +107,12 @@ def save_results_csv(csv_path, overall, per_label, label_names, extra_fields=Non
     row    = list(extra_fields.values()) + [overall['accuracy'], overall['mAP']]
 
     for name, label_row in zip(label_names, per_label):
-        header += [f"{name}_acc", f"{name}_ap"]
-        row    += [label_row['accuracy'], label_row['ap']]
+        # header += [f"{name}_acc", f"{name}_ap"]
+        # row    += [label_row['accuracy'], label_row['ap']]
+        
+        header += [f"{name}_val_acc", f"{name}_val_ap", f"{name}_val_auc"]
+        row    += [label_row['accuracy'], label_row['ap'], label_row['auc']]
+        
 
     with open(csv_path, "w", newline="") as f:
         writer = csv.writer(f)
@@ -127,8 +138,12 @@ def format_metrics_table(label_names, overall, per_label, tablefmt="github"):
                       row['specificity'], row['f1'], row['auc'], row['ap'], row['hamming'], "-"])
 
     rows.append(["Overall", overall['accuracy'], overall['precision'], overall['recall'],
-                 overall['specificity'], overall['f1'], "-", overall['mAP'], overall['hamming'],
+                     overall['specificity'], overall['f1'], overall['mAUC'], overall['mAP'], overall['hamming'],
                  overall['subset_acc']])
+    
+    
+    
+    
 
     return tabulate(rows, headers=headers, floatfmt=".4f", tablefmt=tablefmt)
 

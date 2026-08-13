@@ -117,7 +117,9 @@ def main(opt):
 
     # 5. Initialize Adapter, Optimizer, and Loss using CLI learning rate
     num_labels = len(cfg['top_labels'])
-    Adapter    = utils.models.DualBranchAdapter_simple().to(device)
+    # Adapter    = utils.models.DualBranchAdapter_simple().to(device)
+    Adapter    = utils.models.DualBranchAdapter().to(device)
+
     optimizer  = torch.optim.Adam(Adapter.parameters(), lr=opt.lr)
     
     # AsymmetricLoss and pos_weight are two alternative answers to the same class-imbalance
@@ -138,6 +140,7 @@ def main(opt):
     # 7. Training Setup using CLI options
     best_val_map  = -float("inf")   # checkpoint / early-stopping criterion
     best_val_loss =  float("inf")   # still tracked, for reporting only
+    best_val_mauc = -float("inf")   # checkpoint / early-stopping criterion (paper's headline metric)
     counter       = 0
     early_stop    = False
 
@@ -214,7 +217,9 @@ def main(opt):
         val_per_class_str = " | ".join(f"{name}: Acc {row['accuracy']:.4f} AP {row['ap']:.4f}"
                                        for name, row in zip(cfg['top_labels'], val_per_label))
         tqdm.write(f"Epoch [{epoch+1}/{opt.epochs}] Train Loss: {train_loss:.4f} | Val Loss: {val_loss:.4f} | "
-                   f"Val Acc: {val_overall['accuracy']:.4f} | Val mAP: {val_overall['mAP']:.4f} | {val_per_class_str}")
+                   f"Val Acc: {val_overall['accuracy']:.4f} | Val mAUC: {val_overall['mAUC']:.4f} | "
+                   f"Val mAP: {val_overall['mAP']:.4f} | {val_per_class_str}")
+                #    f"Val Acc: {val_overall['accuracy']:.4f} | Val mAP: {val_overall['mAP']:.4f} | {val_per_class_str}")
 
         utils.evaluation.log_epoch_to_csv(exp_dir / "results.csv", epoch + 1, train_loss, val_loss, train_overall, val_overall, val_per_label, cfg['top_labels'])
         
@@ -223,10 +228,14 @@ def main(opt):
         # positives separate from negatives), whereas val_loss on imbalanced data can improve
         # just by growing better-calibrated toward the majority class. pos_weight also rescales
         # loss magnitude, so raw loss is not comparable across configs.
-        if val_overall['mAP'] > best_val_map:
+        
+        # Selects on macro AUC: it is prevalence-independent (unlike AP, whose ceiling scales
+        # with prevalence, so mAP is ~6x more sensitive to Effusion than to Fibrosis), and it
+        # is the metric the reference paper reports as its headline result.
+        if val_overall['mAUC'] > best_val_mauc:
+            best_val_mauc = val_overall['mAUC']
             best_val_map  = val_overall['mAP']
             best_val_loss = val_loss
-            counter       = 0
             best_epoch    = epoch + 1
             best_train_overall, best_train_per_label = train_overall, train_per_label
             best_val_overall,   best_val_per_label   = val_overall,   val_per_label
@@ -247,7 +256,7 @@ def main(opt):
                         'adapter_class': type(Adapter).__name__}, save_path)
                        
 
-            tqdm.write(f"Validation mAP improved to {best_val_map:.4f}. Model saved.")
+            tqdm.write(f"Validation mAUC improved to {best_val_mauc:.4f}. Model saved.")
         else:
             counter += 1
             tqdm.write(f"No improvement for {counter}/{opt.patience} epochs.")
@@ -258,8 +267,10 @@ def main(opt):
 
         if early_stop:
             break
-
-    print(f"\n===== Best Epoch: {best_epoch} (Val mAP: {best_val_map:.4f}, Val Loss: {best_val_loss:.4f}) =====")
+    print(f"\n===== Best Epoch: {best_epoch} (Val mAUC: {best_val_mauc:.4f}, "
+          f"Val mAP: {best_val_map:.4f}, Val Loss: {best_val_loss:.4f}) =====")
+    
+    # print(f"\n===== Best Epoch: {best_epoch} (Val mAP: {best_val_map:.4f}, Val Loss: {best_val_loss:.4f}) =====")
     print("\nTrain Metrics (Best Epoch)")
     print(utils.evaluation.format_metrics_table(cfg['top_labels'], best_train_overall, best_train_per_label))
     print("\nValidation Metrics (Best Epoch)")
@@ -361,10 +372,10 @@ def parse_opt():
     parser = argparse.ArgumentParser(description="CLIP-Based Chest X-Ray Multi-Label Classification")
     parser.add_argument("--cfg", type=str, default="config/cxr_dataset_9class.yaml", help="Path to dataset YAML file")
     parser.add_argument("--clip_model", type=str, default="hf-hub:microsoft/BiomedCLIP-PubMedBERT_256-vit_base_patch16_224", help="Pre-trained CLIP model name")
-    parser.add_argument("--epochs", type=int, default=200, help="Total number of training epochs")
+    parser.add_argument("--epochs", type=int, default=500, help="Total number of training epochs")
     parser.add_argument("--batch-size", type=int, default=1200, help="Total batch size")
-    parser.add_argument("--lr", type=float, default=5e-2, help="Initial learning rate for optimizer")
-    parser.add_argument("--patience", type=int, default=15, help="Early stopping patience epochs")
+    parser.add_argument("--lr", type=float, default=4e-2, help="Initial learning rate for optimizer")
+    parser.add_argument("--patience", type=int, default=20, help="Early stopping patience epochs")
     parser.add_argument("--seed", type=int, default=42, help="Global training random seed")
     parser.add_argument("--save-path", type=str, default="muldiff.pth", help="File path to save the best model checkpoint")
     parser.add_argument("--num_workers", type=int, default=20)

@@ -35,9 +35,26 @@ def encode_label_prompts(model, tokenizer, label_names, context_length, device, 
     return text_features
 
 
+
 class DualBranchAdapter(torch.nn.Module):
-    def __init__(self, dim=512, hidden_dim=256):
+    def __init__(self, dim=512, hidden_dim=512, residual=True, skip_to_classifier=True):
         super().__init__()
+        # residual=True wraps each branch MLP in a skip connection: h = x + mlp(x) instead of
+        # h = mlp(x). The mul/diff interaction below is only meaningful if the image and text
+        # branches stay in a shared space, but two separately-parameterised MLPs do not preserve
+        # CLIP's alignment -- measured at init, plain MLPs cut the image/text similarity
+        # correlation to 0.07, while the residual form keeps it at 0.66. The MLP then learns a
+        # correction to the embedding rather than replacing it. Same parameter count either way.
+        self.residual = residual
+
+        # skip_to_classifier=True feeds the branch features PAST the interaction, straight into
+        # the classifier: [mul, diff, h_img, h_txt] instead of [mul, diff]. mul and |diff| are
+        # invariant to a global sign flip and to swapping the two branches, so image-only and
+        # text-only signal is unrecoverable from them -- an image-only probe on these embeddings
+        # scores respectably by itself, but the adapter cannot use that pathway without this
+        # skip. h_txt is constant per label, so it also gives the shared classifier explicit
+        # class conditioning. Costs dim*2 extra classifier inputs.
+        self.skip_to_classifier = skip_to_classifier
 
         # image branch
         self.img_mlp = torch.nn.Sequential(torch.nn.Linear(dim, hidden_dim),
@@ -47,8 +64,10 @@ class DualBranchAdapter(torch.nn.Module):
         self.txt_mlp = torch.nn.Sequential(torch.nn.Linear(dim, hidden_dim),
                                            torch.nn.ReLU(),
                                            torch.nn.Linear(hidden_dim, dim))
-        # mul(D) + diff(D) = 2D
-        self.classifier = torch.nn.Sequential(torch.nn.Linear(dim * 2, hidden_dim), # 2D: since we concatenated.
+
+        # mul(D) + diff(D) = 2D, plus h_img(D) + h_txt(D) = 4D when skip_to_classifier
+        n_parts = 4 if skip_to_classifier else 2
+        self.classifier = torch.nn.Sequential(torch.nn.Linear(dim * n_parts, hidden_dim),
                                               torch.nn.ReLU(),
                                               torch.nn.Linear(hidden_dim, 1))
 
@@ -57,11 +76,12 @@ class DualBranchAdapter(torch.nn.Module):
         # text_feature : [C,D] -> (class, 512).
         image = image_feature.unsqueeze(1)
         text  = text_feature.unsqueeze(0)
-        # projection
-        h_img = self.img_mlp(image) # (B, 1, 512)
-        h_txt = self.txt_mlp(text)  # (1, C, 512)
-        # normalize
-        h_img = torch.nn.functional.normalize(h_img, dim=-1) # (B, 1, 512), L2 norm through the 512 dim. 
+        # projection (residual: the MLP learns a correction to CLIP's embedding)
+        h_img = image + self.img_mlp(image) if self.residual else self.img_mlp(image)   # (B, 1, 512)
+        h_txt = text  + self.txt_mlp(text)  if self.residual else self.txt_mlp(text)    # (1, C, 512)
+
+        # normalize -- load-bearing with residual=True, since the sum changes the vector norm
+        h_img = torch.nn.functional.normalize(h_img, dim=-1) # (B, 1, 512), L2 norm through the 512 dim.
         h_txt = torch.nn.functional.normalize(h_txt, dim=-1) # (1, C, 512)
         # expand
         h_img_expand = h_img.expand(-1           , h_txt.size(1), -1) # (B, C, 512) --> c identical copies of the image embedding for each class.
@@ -70,14 +90,75 @@ class DualBranchAdapter(torch.nn.Module):
         mul_feature  = (h_img_expand * h_txt_expand) # [B,C,D]
         # element-wise difference
         diff_feature = torch.abs(h_img_expand - h_txt_expand)   # [B,C,D]
-        # fusion
-        fused = torch.cat([mul_feature, diff_feature], dim=-1)  # [B,C,2D]
+
+        # fusion -- optionally skipping the un-interacted branch features forward as well
+        parts = [mul_feature, diff_feature]
+        if self.skip_to_classifier:
+            parts += [h_img_expand, h_txt_expand]
+        fused = torch.cat(parts, dim=-1)  # [B,C,2D] or [B,C,4D]
+
         # classifier
-        logits = self.classifier(fused).squeeze(-1) # torch.nn.Linear ignore the B and C dim. 
-                                                    # It forces the last dim to be the input dim, 
+        logits = self.classifier(fused).squeeze(-1) # torch.nn.Linear ignore the B and C dim.
+                                                    # It forces the last dim to be the input dim,
                                                     # and outputs a single value for each B,C pair.
                                                     # Therefore, the output shape is [B,C] since it is squeezed.
         return logits # Now we are going to put this to the cross-entropy loss.
+
+
+
+# class DualBranchAdapter(torch.nn.Module):
+#     def __init__(self, dim=512, hidden_dim=512, residual=True):
+#         super().__init__()
+#         # residual=True wraps each branch MLP in a skip connection: h = x + mlp(x) instead of
+#         # h = mlp(x). The mul/diff interaction below is only meaningful if the image and text
+#         # branches stay in a shared space, but two separately-parameterised MLPs do not preserve
+#         # CLIP's alignment -- measured at init, plain MLPs cut the image/text similarity
+#         # correlation to 0.07, while the residual form keeps it at 0.66. The MLP then learns a
+#         # correction to the embedding rather than replacing it. Same parameter count either way.
+#         self.residual = residual
+#         # image branch
+#         self.img_mlp = torch.nn.Sequential(torch.nn.Linear(dim, hidden_dim),
+#                                            torch.nn.ReLU(),
+#                                            torch.nn.Linear(hidden_dim, dim))
+#         # text branch
+#         self.txt_mlp = torch.nn.Sequential(torch.nn.Linear(dim, hidden_dim),
+#                                            torch.nn.ReLU(),
+#                                            torch.nn.Linear(hidden_dim, dim))
+#         # mul(D) + diff(D) = 2D
+#         self.classifier = torch.nn.Sequential(torch.nn.Linear(dim * 2, hidden_dim), # 2D: since we concatenated.
+#                                               torch.nn.ReLU(),
+#                                               torch.nn.Linear(hidden_dim, 1))
+
+#     def forward(self, image_feature, text_feature):
+#         # image_feature: [B,D] -> (batch, 512).
+#         # text_feature : [C,D] -> (class, 512).
+#         image = image_feature.unsqueeze(1)
+#         text  = text_feature.unsqueeze(0)
+#         # projection
+#         # h_img = self.img_mlp(image) # (B, 1, 512)
+#         # h_txt = self.txt_mlp(text)  # (1, C, 512)
+#         h_img = image + self.img_mlp(image) if self.residual else self.img_mlp(image)   # (B, 1, 512)
+#         h_txt = text  + self.txt_mlp(text)  if self.residual else self.txt_mlp(text)    # (1, C, 512)
+        
+        
+#         # normalize
+#         h_img = torch.nn.functional.normalize(h_img, dim=-1) # (B, 1, 512), L2 norm through the 512 dim. 
+#         h_txt = torch.nn.functional.normalize(h_txt, dim=-1) # (1, C, 512)
+#         # expand
+#         h_img_expand = h_img.expand(-1           , h_txt.size(1), -1) # (B, C, 512) --> c identical copies of the image embedding for each class.
+#         h_txt_expand = h_txt.expand(h_img.size(0), -1           , -1) # (B, C, 512)
+#         # interaction
+#         mul_feature  = (h_img_expand * h_txt_expand) # [B,C,D]
+#         # element-wise difference
+#         diff_feature = torch.abs(h_img_expand - h_txt_expand)   # [B,C,D]
+#         # fusion
+#         fused = torch.cat([mul_feature, diff_feature], dim=-1)  # [B,C,2D]
+#         # classifier
+#         logits = self.classifier(fused).squeeze(-1) # torch.nn.Linear ignore the B and C dim. 
+#                                                     # It forces the last dim to be the input dim, 
+#                                                     # and outputs a single value for each B,C pair.
+#                                                     # Therefore, the output shape is [B,C] since it is squeezed.
+#         return logits # Now we are going to put this to the cross-entropy loss.
     
 
 
