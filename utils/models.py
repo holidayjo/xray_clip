@@ -1,9 +1,49 @@
 import torch
 import open_clip
+import torchvision
 # import torch
 # import torch.nn as nn
 # import torch.nn.functional as F
 
+
+class _ResNetFeatureExtractor(torch.nn.Module):
+    """
+    Wraps torchvision ResNet50 so it exposes .encode_image(), 
+    making it a drop-in for the CLIP model everywhere in this repo -- build_embedding_cache, 
+    lookup_embeddings and the image-only heads all work unchanged. 
+    The final fc is replaced by Identity, 
+    so the output is the 2048-d globally-pooled feature rather than 1000 ImageNet class logits.
+    """
+    
+    def __init__(self, weights):
+        super().__init__()
+        net             = torchvision.models.resnet50(weights=weights)
+        self.output_dim = net.fc.in_features          # 2048
+        net.fc          = torch.nn.Identity()
+        self.net        = net
+
+    def encode_image(self, images):
+        return self.net(images)
+
+
+def load_resnet_feature_extractor(weights="IMAGENET1K_V2", device=None):
+    """
+    Loads an ImageNet-pretrained ResNet50 as a FROZEN feature extractor, 
+    returning the same 4-tuple shape as load_clip_model: (model, preprocess, tokenizer, device). 
+    tokenizer is None because there is no text branch -- 
+    so this backbone only works with image-only heads (XGBoost, linear, mlp), never with DualBranchAdapter.
+
+    preprocess comes from the weights' own transforms(), 
+    so the normalisation matches what the network was trained with (ImageNet mean/std, resize 232 -> centre-crop 224).
+    """
+    device = device or torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    w      = getattr(torchvision.models.ResNet50_Weights, weights)
+    model  = _ResNetFeatureExtractor(w)
+    for p in model.parameters():
+        p.requires_grad = False
+    model = model.to(device).eval()
+    print(f"Loaded ImageNet ResNet50 ({weights}) as frozen feature extractor, dim={model.output_dim}")
+    return model, w.transforms(), None, device
 
 
 def load_clip_model(model_name, freeze_backbone=True, device=None):

@@ -72,8 +72,8 @@ def main(opt):
     # labels                                  = train_df_filtered[cfg['top_labels']].values.astype('float32')
 
     # Create DataLoaders using CLI batch-size option
-    paths_dict = {'train': train_paths_filtered, 'valid': valid_paths_filtered, 'test' : test_paths_filtered}
-    df_dict    = {'train': train_df_filtered,    'valid': valid_df_filtered,    'test' : test_df_filtered}
+    paths_dict    = {'train': train_paths_filtered, 'valid': valid_paths_filtered, 'test' : test_paths_filtered}
+    df_dict       = {'train': train_df_filtered,    'valid': valid_df_filtered,    'test' : test_df_filtered}
     train_augment = utils.dataset.build_train_augmentation() if opt.augment else None
     
     utils.dataset.summarize_splits({'train': train_df_filtered, 'valid': valid_df_filtered, 'test': test_df_filtered},
@@ -97,11 +97,12 @@ def main(opt):
         print(f"Embedding cache: {len(needed_paths):,} of {len(id_to_path):,} images needed")
 
         cache = utils.dataset.build_embedding_cache(opt.embed_cache, model, preprocess, device,
-                                                     needed_paths, opt.clip_model,
-                                                     batch_size=opt.encode_batch_size,
-                                                     num_workers=opt.num_workers,
-                                                     force_rebuild=opt.rebuild_cache)
-        srcs = {}
+                                                     needed_paths, 
+                                                     opt.clip_model,
+                                                     batch_size    = opt.encode_batch_size,
+                                                     num_workers   = opt.num_workers,
+                                                     force_rebuild = opt.rebuild_cache)
+        srcs  = {}
         for name, df in [('train', train_df_filtered), ('valid', valid_df_filtered)]:
             X = torch.from_numpy(utils.dataset.lookup_embeddings(cache, df['id'].values)).to(device)
             Y = torch.from_numpy(df[cfg['top_labels']].values.astype(np.float32)).to(device)

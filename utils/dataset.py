@@ -116,12 +116,16 @@ class _PathDataset(torch.utils.data.Dataset):
 
 
 def _cache_fingerprint(model_name, preprocess):
-    """Identifies WHICH encoder produced a cache: model name plus the preprocessing pipeline's
-    repr, so a different checkpoint, resolution, or normalisation yields a different
-    fingerprint. Saved into the cache file so a later run can refuse a mismatched one."""
+    """
+    Identifies WHICH encoder produced a cache: model name plus the preprocessing pipeline's repr, 
+    so a different checkpoint, resolution, or normalisation yields a different fingerprint. 
+    Saved into the cache file so a later run can refuse a mismatched one.
+    """
+    
     h = hashlib.sha256()
     h.update(str(model_name).encode())
     h.update(repr(preprocess).encode())
+    
     return h.hexdigest()[:16]
 
 
@@ -174,6 +178,7 @@ def build_embedding_cache(cache_path, model, preprocess, device, id_to_path, mod
     print(f"[build_embedding_cache] Cached {emb.shape[0]} x {emb.shape[1]} to {cache_path} "
           f"({cache_path.stat().st_size / 1e6:.0f} MB).")
     return {'ids': ids, 'emb': emb}
+
 
 def lookup_embeddings(cache, wanted_ids):
     """Returns [N, D] for wanted_ids in that exact order -- rows must line up with the label
