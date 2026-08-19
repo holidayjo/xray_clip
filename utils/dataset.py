@@ -128,8 +128,9 @@ def _cache_fingerprint(model_name, preprocess):
 @torch.no_grad()
 def build_embedding_cache(cache_path, model, preprocess, device, id_to_path, model_name,
                           batch_size=256, num_workers=8, force_rebuild=False):
-    """Runs the FROZEN backbone over every image once and caches the L2-normalized embeddings
-    to an .npz. Same idea as build_image_index, one level further: a frozen backbone returns
+    """
+    Runs the FROZEN backbone over every image once and caches the L2-normalized embeddings to an .npz. 
+    Same idea as build_image_index, one level further: a frozen backbone returns
     the identical embedding for an image on every epoch of every run, so re-encoding per epoch
     is pure waste.
 
