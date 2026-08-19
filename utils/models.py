@@ -6,44 +6,63 @@ import torchvision
 # import torch.nn.functional as F
 
 
-class _ResNetFeatureExtractor(torch.nn.Module):
-    """
-    Wraps torchvision ResNet50 so it exposes .encode_image(), 
-    making it a drop-in for the CLIP model everywhere in this repo -- build_embedding_cache, 
-    lookup_embeddings and the image-only heads all work unchanged. 
-    The final fc is replaced by Identity, 
-    so the output is the 2048-d globally-pooled feature rather than 1000 ImageNet class logits.
-    """
-    
-    def __init__(self, weights):
+class _TorchvisionFeatureExtractor(torch.nn.Module):
+    """Strips the classification head off a torchvision backbone, leaving the pooled feature.
+    Exposes .encode_image() so it is a drop-in for the CLIP model everywhere in this repo.
+
+    Families name and wrap the head differently, so this replaces only the FINAL Linear with
+    Identity rather than the whole head module: ResNet's `fc` and Swin's `head` are bare Linears,
+    but ConvNeXt's `classifier` is Sequential(LayerNorm2d, Flatten, Linear) -- dropping the norm
+    and flatten would leave a 4-D feature map instead of a vector."""
+    def __init__(self, arch, weights):
         super().__init__()
-        net             = torchvision.models.resnet50(weights=weights)
-        self.output_dim = net.fc.in_features          # 2048
-        net.fc          = torch.nn.Identity()
-        self.net        = net
+        net = getattr(torchvision.models, arch)(weights=weights)
+        for attr in ("fc", "head", "classifier"):
+            if hasattr(net, attr):
+                head = getattr(net, attr)
+                if isinstance(head, torch.nn.Linear):
+                    self.output_dim = head.in_features
+                    setattr(net, attr, torch.nn.Identity())
+                else:
+                    idx = max(i for i, m in enumerate(head) if isinstance(m, torch.nn.Linear))
+                    self.output_dim = head[idx].in_features
+                    head[idx] = torch.nn.Identity()
+                break
+        else:
+            raise ValueError(f"no classification head found on {arch}")
+        self.net = net
 
     def encode_image(self, images):
         return self.net(images)
 
 
-def load_resnet_feature_extractor(weights="IMAGENET1K_V2", device=None):
-    """
-    Loads an ImageNet-pretrained ResNet50 as a FROZEN feature extractor, 
-    returning the same 4-tuple shape as load_clip_model: (model, preprocess, tokenizer, device). 
-    tokenizer is None because there is no text branch -- 
-    so this backbone only works with image-only heads (XGBoost, linear, mlp), never with DualBranchAdapter.
+# Feature widths differ per architecture, which is why nothing downstream may assume 512/2048.
+TORCHVISION_BACKBONES = {
+    "resnet50":       ("ResNet50_Weights",      "IMAGENET1K_V2"),   # 2048
+    "swin_b":         ("Swin_B_Weights",        "IMAGENET1K_V1"),   # 1024
+    "swin_v2_b":      ("Swin_V2_B_Weights",     "IMAGENET1K_V1"),   # 1024
+    "convnext_base":  ("ConvNeXt_Base_Weights", "IMAGENET1K_V1"),   # 1024
+    "convnext_large": ("ConvNeXt_Large_Weights","IMAGENET1K_V1"),   # 1536
+}
 
-    preprocess comes from the weights' own transforms(), 
-    so the normalisation matches what the network was trained with (ImageNet mean/std, resize 232 -> centre-crop 224).
-    """
+
+def load_torchvision_feature_extractor(arch="resnet50", weights=None, device=None):
+    """Loads an ImageNet-pretrained torchvision backbone as a FROZEN feature extractor,
+    returning the same 4-tuple as load_clip_model: (model, preprocess, tokenizer, device).
+    tokenizer is None -- there is no text branch, so these backbones work only with image-only
+    heads (logistic, xgboost, mlp), never with DualBranchAdapter.
+
+    preprocess comes from the weights' own transforms(), so normalisation matches training."""
     device = device or torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    w      = getattr(torchvision.models.ResNet50_Weights, weights)
-    model  = _ResNetFeatureExtractor(w)
+    weights_cls, default_tag = TORCHVISION_BACKBONES[arch]
+    w = getattr(getattr(torchvision.models, weights_cls), weights or default_tag)
+    model = _TorchvisionFeatureExtractor(arch, w)
     for p in model.parameters():
         p.requires_grad = False
     model = model.to(device).eval()
-    print(f"Loaded ImageNet ResNet50 ({weights}) as frozen feature extractor, dim={model.output_dim}")
+    print(f"Loaded {arch} ({weights or default_tag}) as frozen feature extractor, dim={model.output_dim}")
     return model, w.transforms(), None, device
+
 
 
 def load_clip_model(model_name, freeze_backbone=True, device=None):
