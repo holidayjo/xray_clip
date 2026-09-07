@@ -11,3 +11,10 @@ DONEs
 * code check (inference phase) - Done 
 * training curve check (with loss and val set results) - Done
 * In main.ipynb,what does load_clip_model actually load? - Done
+
+
+Meeting on 20260907
+- train on mimic dataset --> test on chest 14 dataset (our old dataset)
+- after that we can going to the llm
+- svip q2 q3 target
+- 
