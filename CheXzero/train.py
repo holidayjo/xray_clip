@@ -35,12 +35,15 @@ class CXRDataset(data.Dataset):
     """
     def __init__(self, img_path, txt_path, column='report', size=None, transform=None):
         super().__init__()
-        if size != None: 
-            self.img_dset = h5py.File(img_path, 'r')['cxr'][:size]
-            self.txt_dset = pd.read_csv(txt_path)[column][:size]
-        else: 
-            self.img_dset = h5py.File(img_path, 'r')['cxr']
-            self.txt_dset = pd.read_csv(txt_path)[column]
+        # The h5 handle is opened lazily in __getitem__ rather than here: an h5py handle
+        # cannot be shared across forked DataLoader workers (it yields corrupted reads or
+        # crashes), so each worker must open the file itself. Required for num_workers > 0.
+        self.img_path = img_path
+        self.img_dset = None
+        self.size = size
+        self.txt_dset = pd.read_csv(txt_path)[column]
+        if size != None:
+            self.txt_dset = self.txt_dset[:size]
         self.transform = transform
             
     def __len__(self):
@@ -49,7 +52,11 @@ class CXRDataset(data.Dataset):
     def __getitem__(self, idx):
         if torch.is_tensor(idx):
             idx = idx.tolist()
-            
+
+        if self.img_dset is None:  # first access in this process/worker
+            dset = h5py.File(self.img_path, 'r')['cxr']
+            self.img_dset = dset[:self.size] if self.size != None else dset
+
         img = self.img_dset[idx] # np array, (320, 320)
         img = np.expand_dims(img, axis=0)
         img = np.repeat(img, 3, axis=0)
@@ -106,7 +113,11 @@ def load_data(cxr_filepath, txt_filepath, batch_size=4, column='report', pretrai
             if i == 3:
                 break
     
-    loader_params = {'batch_size':batch_size, 'shuffle': True, 'num_workers': 0}
+    # num_workers was 0 upstream, which ran h5 reads and all transforms in the main process
+    # and starved the GPU. Parallelising changes no numerics: the sampler (not the workers)
+    # determines shuffle order, and the transforms are unchanged.
+    loader_params = {'batch_size': batch_size, 'shuffle': True, 'num_workers': 8,
+                     'pin_memory': True, 'persistent_workers': True, 'prefetch_factor': 4}
     data_loader = data.DataLoader(torch_dset, **loader_params)
     return data_loader, device
     

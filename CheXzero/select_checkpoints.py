@@ -112,6 +112,22 @@ def mean_auc(y_true: np.ndarray, y_pred: np.ndarray, labels: List[str]):
     return float(np.mean(aucs)), aucs
 
 
+def pick_spaced(df: pd.DataFrame, k: int, min_gap: int) -> pd.DataFrame:
+    """Best k rows by mean_auc, requiring at least min_gap steps between members.
+
+    df must already be sorted best-first. With min_gap == 0 this is plain top-k.
+    """
+    if min_gap <= 0:
+        return df.head(k)
+    chosen = []
+    for _, row in df.iterrows():
+        if all(abs(row.step - c.step) >= min_gap for c in chosen):
+            chosen.append(row)
+        if len(chosen) == k:
+            break
+    return pd.DataFrame(chosen).reset_index(drop=True)
+
+
 def checkpoint_step(path: str) -> int:
     m = re.search(r"checkpoint_(\d+)\.pt$", os.path.basename(path))
     return int(m.group(1)) if m else -1
@@ -131,6 +147,11 @@ def parse_args():
     p.add_argument("--batch_size", type=int, default=64)
     p.add_argument("--context_length", type=int, default=77)
     p.add_argument("--topk", type=int, default=10, help="How many checkpoints to report as the ensemble.")
+    p.add_argument("--min_gap", type=int, default=0,
+                   help="Minimum step distance between ensemble members. Checkpoints saved a "
+                        "few hundred steps apart are near-identical, so ensembling them adds "
+                        "no diversity; in the 4-epoch run the ensemble scored worse than its "
+                        "own best member. 0 disables spacing (plain top-k).")
     p.add_argument("--verify", action="store_true",
                    help="Cross-check the fast scorer against zero_shot.run_softmax_eval on the "
                         "first checkpoint, then exit.")
@@ -189,10 +210,18 @@ def main():
             torch.cuda.empty_cache()
 
     df = pd.DataFrame(rows).sort_values("mean_auc", ascending=False).reset_index(drop=True)
-    df.to_csv(args.out_csv, index=False)
+
+    # Consumers (eval_nih.py) just take the first `topk` rows, so the spaced selection has to
+    # be reflected in the file order, not only in what is printed: put the chosen members
+    # first, then everything else, still ranked.
+    selected = pick_spaced(df, args.topk, args.min_gap)
+    rest = df[~df["checkpoint"].isin(selected["checkpoint"])]
+    pd.concat([selected, rest], ignore_index=True).to_csv(args.out_csv, index=False)
     print(f"\nWrote ranking to {args.out_csv}")
 
-    top = df.head(args.topk)
+    top = selected
+    if args.min_gap > 0:
+        print(f"(ensemble members spaced >= {args.min_gap} steps apart)")
     print(f"\nTop {args.topk} checkpoints (the ensemble):")
     print(top[["step", "mean_auc"] + CXR_LABELS_5].to_string(index=False))
     print(f"\nEnsemble member mean AUC: {top['mean_auc'].mean():.4f} "

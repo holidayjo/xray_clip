@@ -164,8 +164,13 @@ def write_report_csv(cxr_paths, txt_folder, out_path):
                 imp = " ".join(s_split[begin:])
             else:
                 imp = " ".join(s_split[begin:end])
+
+        elif "FINDINGS:" in s_split:
+            begin = getIndexOfLast(s_split, "FINDINGS:") + 1
+            imp = " ".join(s_split[begin:])
         else:
             imp = 'NO IMPRESSION'
+
             
         imps["impression"].append(imp)
         imps["filename"].append(filename)

@@ -1,0 +1,16 @@
+=== overnight run started Sun Sep 13 11:52:19 PM KST 2026 ===
+[1/6] waiting for prerequisites...
+      prerequisites done
+[2/6] verifying gates...
+      h5 source 38,616,066,048  nvme 38,616,066,048  match=True
+      nvme h5 377,110 rows dtype=uint8 sample range [0,255]
+      text rows 377,110  NO IMPRESSION 4.4% (was 15.1%)  nan=42
+[3/6] verifying DataLoader workers read identical data...
+      images identical: True   texts identical: True
+[4/6] archiving v1 checkpoints...
+      wrote data/checkpoint_ranking_v1.csv
+      v1 archived: 236 checkpoints
+[5/6] launching 8-epoch training Sun Sep 13 11:53:03 PM KST 2026
+[6/6] training exited status=0 at Mon Sep 14 01:26:43 AM KST 2026
+      checkpoints: 236
+=== overnight run finished Mon Sep 14 01:26:43 AM KST 2026 ===

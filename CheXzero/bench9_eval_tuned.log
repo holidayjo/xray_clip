@@ -1,0 +1,32 @@
+Device: cuda:0
+Evaluating 9 of 14 labels: ['Cardiomegaly', 'Consolidation', 'Edema', 'Effusion', 'Emphysema', 'Fibrosis', 'Infiltration', 'Nodule', 'Pneumothorax']
+Prompts from data/prompt_search_results_v2.csv (tuned on held-out train/val)
+Prompt mapping: 'Cardiomegaly'->'enlarged cardiac silhouette', 'Consolidation'->'dense opacity', 'Effusion'->'pleural effusion', 'Emphysema'->'emphysematous changes', 'Fibrosis'->'reticular interstitial opacities', 'Infiltration'->'infiltrate', 'Nodule'->'a chest x-ray with a nodule'
+Ground truth: 13871 images x 9 labels
+Ensembling 10 checkpoints from data/checkpoint_ranking_v2.csv
+  [1/10] checkpoint_27000.pt  mean AUC 0.6625
+  [2/10] checkpoint_29400.pt  mean AUC 0.6248
+  [3/10] checkpoint_22200.pt  mean AUC 0.6181
+  [4/10] checkpoint_26000.pt  mean AUC 0.6254
+  [5/10] checkpoint_32400.pt  mean AUC 0.6517
+  [6/10] checkpoint_18600.pt  mean AUC 0.6175
+  [7/10] checkpoint_24000.pt  mean AUC 0.6188
+  [8/10] checkpoint_31000.pt  mean AUC 0.6351
+  [9/10] checkpoint_38800.pt  mean AUC 0.6473
+  [10/10] checkpoint_41400.pt  mean AUC 0.6183
+Bootstrapping (1000 replicates) ...
+
+Wrote data/bench9_results_tuned.csv
+
+        label                           prompt  n_positive    auc  ci_lower  ci_upper
+ Cardiomegaly      enlarged cardiac silhouette        1069 0.8317    0.8189    0.8450
+Consolidation                    dense opacity        1815 0.6222    0.6085    0.6349
+        Edema                            Edema         925 0.7645    0.7500    0.7793
+     Effusion                 pleural effusion        4658 0.7591    0.7506    0.7675
+    Emphysema            emphysematous changes        1093 0.4338    0.4173    0.4489
+     Fibrosis reticular interstitial opacities         435 0.5039    0.4726    0.5344
+ Infiltration                       infiltrate        6112 0.6011    0.5913    0.6106
+       Nodule      a chest x-ray with a nodule        1623 0.5553    0.5388    0.5705
+ Pneumothorax                     Pneumothorax        2665 0.6616    0.6498    0.6731
+
+Ensemble mean AUC over 9 pathologies: 0.6370

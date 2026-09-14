@@ -51,9 +51,9 @@ def model_pipeline(config, verbose=0):
     return model
 
 def make(config): 
-    pretrained = not config.random_init
+    pretrained          = not config.random_init
     data_loader, device = load_data(config.cxr_filepath, config.txt_filepath, batch_size=config.batch_size, pretrained=pretrained, column="impression")
-    model = load_clip(model_path=None, pretrained=pretrained, context_length=config.context_length)
+    model               = load_clip(model_path=None, pretrained=pretrained, context_length=config.context_length)
     model.to(device)
     print('Model on Device.')
 
@@ -135,9 +135,10 @@ def train_log(loss, example_ct, epoch):
     
 def save(model, path): 
     torch.save(model.state_dict(), path)
+
     
 if __name__ == "__main__":
-    args = parse_args()
+    args  = parse_args()
     model = model_pipeline(args)
     
 

@@ -1,0 +1,404 @@
+=== follow-on started Sun Sep 13 11:55:58 PM KST 2026 ===
+training finished: [6/6] training exited status=0 at Mon Sep 14 01:26:43 AM KST 2026
+checkpoints: 236
+--- [6] checkpoint selection (min_gap 1000) ---
+Device: cuda:0
+Ground truth: 200 images x 5 labels
+Positives per label: Atelectasis=75, Cardiomegaly=66, Consolidation=32, Edema=42, Pleural Effusion=64
+Found 236 checkpoints
+[1/236] step      -1  mean AUC 0.8371
+[2/236] step     200  mean AUC 0.5150
+[3/236] step     400  mean AUC 0.5645
+[4/236] step     600  mean AUC 0.5906
+[5/236] step     800  mean AUC 0.5939
+[6/236] step    1000  mean AUC 0.6530
+[7/236] step    1200  mean AUC 0.6846
+[8/236] step    1400  mean AUC 0.7080
+[9/236] step    1600  mean AUC 0.6826
+[10/236] step    1800  mean AUC 0.7576
+[11/236] step    2000  mean AUC 0.7677
+[12/236] step    2200  mean AUC 0.7537
+[13/236] step    2400  mean AUC 0.7702
+[14/236] step    2600  mean AUC 0.7731
+[15/236] step    2800  mean AUC 0.7717
+[16/236] step    3000  mean AUC 0.7833
+[17/236] step    3200  mean AUC 0.7840
+[18/236] step    3400  mean AUC 0.7772
+[19/236] step    3600  mean AUC 0.7944
+[20/236] step    3800  mean AUC 0.7844
+[21/236] step    4000  mean AUC 0.7996
+[22/236] step    4200  mean AUC 0.7878
+[23/236] step    4400  mean AUC 0.7762
+[24/236] step    4600  mean AUC 0.7985
+[25/236] step    4800  mean AUC 0.8059
+[26/236] step    5000  mean AUC 0.7943
+[27/236] step    5200  mean AUC 0.7967
+[28/236] step    5400  mean AUC 0.8137
+[29/236] step    5600  mean AUC 0.8059
+[30/236] step    5800  mean AUC 0.8021
+[31/236] step    6000  mean AUC 0.8221
+[32/236] step    6200  mean AUC 0.8016
+[33/236] step    6400  mean AUC 0.8157
+[34/236] step    6600  mean AUC 0.8048
+[35/236] step    6800  mean AUC 0.8223
+[36/236] step    7000  mean AUC 0.8279
+[37/236] step    7200  mean AUC 0.8182
+[38/236] step    7400  mean AUC 0.8163
+[39/236] step    7600  mean AUC 0.8123
+[40/236] step    7800  mean AUC 0.8225
+[41/236] step    8000  mean AUC 0.8027
+[42/236] step    8200  mean AUC 0.8261
+[43/236] step    8400  mean AUC 0.8228
+[44/236] step    8600  mean AUC 0.8239
+[45/236] step    8800  mean AUC 0.7876
+[46/236] step    9000  mean AUC 0.8309
+[47/236] step    9200  mean AUC 0.8303
+[48/236] step    9400  mean AUC 0.8307
+[49/236] step    9600  mean AUC 0.8424
+[50/236] step    9800  mean AUC 0.8204
+[51/236] step   10000  mean AUC 0.8351
+[52/236] step   10200  mean AUC 0.8360
+[53/236] step   10400  mean AUC 0.8330
+[54/236] step   10600  mean AUC 0.8496
+[55/236] step   10800  mean AUC 0.8345
+[56/236] step   11000  mean AUC 0.8346
+[57/236] step   11200  mean AUC 0.8366
+[58/236] step   11400  mean AUC 0.8294
+[59/236] step   11600  mean AUC 0.8315
+[60/236] step   11800  mean AUC 0.8305
+[61/236] step   12000  mean AUC 0.8388
+[62/236] step   12200  mean AUC 0.8228
+[63/236] step   12400  mean AUC 0.8312
+[64/236] step   12600  mean AUC 0.8305
+[65/236] step   12800  mean AUC 0.8147
+[66/236] step   13000  mean AUC 0.8299
+[67/236] step   13200  mean AUC 0.8336
+[68/236] step   13400  mean AUC 0.8303
+[69/236] step   13600  mean AUC 0.8254
+[70/236] step   13800  mean AUC 0.8284
+[71/236] step   14000  mean AUC 0.8389
+[72/236] step   14200  mean AUC 0.8352
+[73/236] step   14400  mean AUC 0.8500
+[74/236] step   14600  mean AUC 0.8364
+[75/236] step   14800  mean AUC 0.8293
+[76/236] step   15000  mean AUC 0.8375
+[77/236] step   15200  mean AUC 0.8355
+[78/236] step   15400  mean AUC 0.8345
+[79/236] step   15600  mean AUC 0.8302
+[80/236] step   15800  mean AUC 0.8360
+[81/236] step   16000  mean AUC 0.8449
+[82/236] step   16200  mean AUC 0.8368
+[83/236] step   16400  mean AUC 0.8314
+[84/236] step   16600  mean AUC 0.8412
+[85/236] step   16800  mean AUC 0.8487
+[86/236] step   17000  mean AUC 0.8437
+[87/236] step   17200  mean AUC 0.8365
+[88/236] step   17400  mean AUC 0.8412
+[89/236] step   17600  mean AUC 0.8395
+[90/236] step   17800  mean AUC 0.8433
+[91/236] step   18000  mean AUC 0.8371
+[92/236] step   18200  mean AUC 0.8480
+[93/236] step   18400  mean AUC 0.8481
+[94/236] step   18600  mean AUC 0.8513
+[95/236] step   18800  mean AUC 0.8436
+[96/236] step   19000  mean AUC 0.8445
+[97/236] step   19200  mean AUC 0.8442
+[98/236] step   19400  mean AUC 0.8256
+[99/236] step   19600  mean AUC 0.8438
+[100/236] step   19800  mean AUC 0.8417
+[101/236] step   20000  mean AUC 0.8380
+[102/236] step   20200  mean AUC 0.8461
+[103/236] step   20400  mean AUC 0.8453
+[104/236] step   20600  mean AUC 0.8436
+[105/236] step   20800  mean AUC 0.8393
+[106/236] step   21000  mean AUC 0.8329
+[107/236] step   21200  mean AUC 0.8320
+[108/236] step   21400  mean AUC 0.8469
+[109/236] step   21600  mean AUC 0.8450
+[110/236] step   21800  mean AUC 0.8507
+[111/236] step   22000  mean AUC 0.8478
+[112/236] step   22200  mean AUC 0.8589
+[113/236] step   22400  mean AUC 0.8533
+[114/236] step   22600  mean AUC 0.8433
+[115/236] step   22800  mean AUC 0.8477
+[116/236] step   23000  mean AUC 0.8501
+[117/236] step   23200  mean AUC 0.8422
+[118/236] step   23400  mean AUC 0.8471
+[119/236] step   23600  mean AUC 0.8497
+[120/236] step   23800  mean AUC 0.8411
+[121/236] step   24000  mean AUC 0.8512
+[122/236] step   24200  mean AUC 0.8411
+[123/236] step   24400  mean AUC 0.8494
+[124/236] step   24600  mean AUC 0.8380
+[125/236] step   24800  mean AUC 0.8507
+[126/236] step   25000  mean AUC 0.8377
+[127/236] step   25200  mean AUC 0.8387
+[128/236] step   25400  mean AUC 0.8321
+[129/236] step   25600  mean AUC 0.8421
+[130/236] step   25800  mean AUC 0.8518
+[131/236] step   26000  mean AUC 0.8586
+[132/236] step   26200  mean AUC 0.8474
+[133/236] step   26400  mean AUC 0.8443
+[134/236] step   26600  mean AUC 0.8458
+[135/236] step   26800  mean AUC 0.8464
+[136/236] step   27000  mean AUC 0.8617
+[137/236] step   27200  mean AUC 0.8429
+[138/236] step   27400  mean AUC 0.8477
+[139/236] step   27600  mean AUC 0.8471
+[140/236] step   27800  mean AUC 0.8464
+[141/236] step   28000  mean AUC 0.8434
+[142/236] step   28200  mean AUC 0.8405
+[143/236] step   28400  mean AUC 0.8359
+[144/236] step   28600  mean AUC 0.8336
+[145/236] step   28800  mean AUC 0.8598
+[146/236] step   29000  mean AUC 0.8534
+[147/236] step   29200  mean AUC 0.8427
+[148/236] step   29400  mean AUC 0.8600
+[149/236] step   29600  mean AUC 0.8472
+[150/236] step   29800  mean AUC 0.8461
+[151/236] step   30000  mean AUC 0.8581
+[152/236] step   30200  mean AUC 0.8461
+[153/236] step   30400  mean AUC 0.8423
+[154/236] step   30600  mean AUC 0.8477
+[155/236] step   30800  mean AUC 0.8461
+[156/236] step   31000  mean AUC 0.8509
+[157/236] step   31200  mean AUC 0.8452
+[158/236] step   31400  mean AUC 0.8394
+[159/236] step   31600  mean AUC 0.8439
+[160/236] step   31800  mean AUC 0.8401
+[161/236] step   32000  mean AUC 0.8381
+[162/236] step   32200  mean AUC 0.8476
+[163/236] step   32400  mean AUC 0.8525
+[164/236] step   32600  mean AUC 0.8365
+[165/236] step   32800  mean AUC 0.8386
+[166/236] step   33000  mean AUC 0.8424
+[167/236] step   33200  mean AUC 0.8322
+[168/236] step   33400  mean AUC 0.8408
+[169/236] step   33600  mean AUC 0.8302
+[170/236] step   33800  mean AUC 0.8314
+[171/236] step   34000  mean AUC 0.8273
+[172/236] step   34200  mean AUC 0.8248
+[173/236] step   34400  mean AUC 0.8304
+[174/236] step   34600  mean AUC 0.8205
+[175/236] step   34800  mean AUC 0.8261
+[176/236] step   35000  mean AUC 0.8257
+[177/236] step   35200  mean AUC 0.8289
+[178/236] step   35400  mean AUC 0.8324
+[179/236] step   35600  mean AUC 0.8285
+[180/236] step   35800  mean AUC 0.8381
+[181/236] step   36000  mean AUC 0.8379
+[182/236] step   36200  mean AUC 0.8279
+[183/236] step   36400  mean AUC 0.8379
+[184/236] step   36600  mean AUC 0.8418
+[185/236] step   36800  mean AUC 0.8424
+[186/236] step   37000  mean AUC 0.8370
+[187/236] step   37200  mean AUC 0.8391
+[188/236] step   37400  mean AUC 0.8413
+[189/236] step   37600  mean AUC 0.8389
+[190/236] step   37800  mean AUC 0.8244
+[191/236] step   38000  mean AUC 0.8352
+[192/236] step   38200  mean AUC 0.8362
+[193/236] step   38400  mean AUC 0.8351
+[194/236] step   38600  mean AUC 0.8370
+[195/236] step   38800  mean AUC 0.8508
+[196/236] step   39000  mean AUC 0.8437
+[197/236] step   39200  mean AUC 0.8405
+[198/236] step   39400  mean AUC 0.8289
+[199/236] step   39600  mean AUC 0.8256
+[200/236] step   39800  mean AUC 0.8409
+[201/236] step   40000  mean AUC 0.8376
+[202/236] step   40200  mean AUC 0.8405
+[203/236] step   40400  mean AUC 0.8399
+[204/236] step   40600  mean AUC 0.8474
+[205/236] step   40800  mean AUC 0.8412
+[206/236] step   41000  mean AUC 0.8376
+[207/236] step   41200  mean AUC 0.8414
+[208/236] step   41400  mean AUC 0.8503
+[209/236] step   41600  mean AUC 0.8300
+[210/236] step   41800  mean AUC 0.8402
+[211/236] step   42000  mean AUC 0.8325
+[212/236] step   42200  mean AUC 0.8236
+[213/236] step   42400  mean AUC 0.8313
+[214/236] step   42600  mean AUC 0.8273
+[215/236] step   42800  mean AUC 0.8362
+[216/236] step   43000  mean AUC 0.8405
+[217/236] step   43200  mean AUC 0.8309
+[218/236] step   43400  mean AUC 0.8368
+[219/236] step   43600  mean AUC 0.8379
+[220/236] step   43800  mean AUC 0.8349
+[221/236] step   44000  mean AUC 0.8232
+[222/236] step   44200  mean AUC 0.8334
+[223/236] step   44400  mean AUC 0.8392
+[224/236] step   44600  mean AUC 0.8329
+[225/236] step   44800  mean AUC 0.8402
+[226/236] step   45000  mean AUC 0.8364
+[227/236] step   45200  mean AUC 0.8270
+[228/236] step   45400  mean AUC 0.8350
+[229/236] step   45600  mean AUC 0.8393
+[230/236] step   45800  mean AUC 0.8369
+[231/236] step   46000  mean AUC 0.8416
+[232/236] step   46200  mean AUC 0.8465
+[233/236] step   46400  mean AUC 0.8274
+[234/236] step   46600  mean AUC 0.8394
+[235/236] step   46800  mean AUC 0.8162
+[236/236] step   47000  mean AUC 0.8416
+
+Wrote ranking to data/checkpoint_ranking_v2.csv
+(ensemble members spaced >= 1000 steps apart)
+
+Top 10 checkpoints (the ensemble):
+ step  mean_auc  Atelectasis  Cardiomegaly  Consolidation    Edema  Pleural Effusion
+27000  0.861734     0.807893      0.846336       0.889323 0.866335          0.898782
+29400  0.859974     0.808427      0.850294       0.890253 0.871760          0.879136
+22200  0.858946     0.820160      0.832881       0.877046 0.885624          0.879021
+26000  0.858628     0.785707      0.861149       0.884115 0.882459          0.879710
+32400  0.852509     0.789867      0.856174       0.862537 0.873568          0.880400
+18600  0.851275     0.796373      0.833446       0.890625 0.861965          0.873966
+24000  0.851188     0.830507      0.825418       0.855469 0.843580          0.900965
+31000  0.850919     0.795200      0.839552       0.885603 0.846142          0.888097
+38800  0.850767     0.792960      0.840570       0.871466 0.866486          0.882353
+41400  0.850334     0.786347      0.855721       0.867932 0.869198          0.872472
+
+Ensemble member mean AUC: 0.8546 (best single 0.8617)
+--- [8a] test eval, PAPER BASELINE prompts ---
+Device: cuda:0
+Prompts: paper baseline (bare label names)
+Prompt mapping: 'Effusion'->'Pleural Effusion', 'Pleural_Thickening'->'Pleural Thickening'
+Ground truth: 25596 images x 14 labels
+Ensembling 10 checkpoints from data/checkpoint_ranking_v2.csv
+  [1/10] checkpoint_27000.pt  mean AUC 0.6706
+  [2/10] checkpoint_29400.pt  mean AUC 0.6639
+  [3/10] checkpoint_22200.pt  mean AUC 0.6608
+  [4/10] checkpoint_26000.pt  mean AUC 0.6614
+  [5/10] checkpoint_32400.pt  mean AUC 0.6612
+  [6/10] checkpoint_18600.pt  mean AUC 0.6641
+  [7/10] checkpoint_24000.pt  mean AUC 0.6589
+  [8/10] checkpoint_31000.pt  mean AUC 0.6548
+  [9/10] checkpoint_38800.pt  mean AUC 0.6847
+  [10/10] checkpoint_41400.pt  mean AUC 0.6617
+Bootstrapping (1000 replicates) ...
+
+Wrote data/nih_results_v2_baseline.csv
+
+             label             prompt  n_positive    auc  ci_lower  ci_upper
+       Atelectasis        Atelectasis        3279 0.6869    0.6772    0.6962
+      Cardiomegaly       Cardiomegaly        1069 0.8492    0.8378    0.8606
+          Effusion   Pleural Effusion        4658 0.7958    0.7891    0.8021
+      Infiltration       Infiltration        6112 0.6924    0.6860    0.7000
+              Mass               Mass        1748 0.6619    0.6492    0.6747
+            Nodule             Nodule        1623 0.4669    0.4541    0.4811
+         Pneumonia          Pneumonia         555 0.6849    0.6629    0.7068
+      Pneumothorax       Pneumothorax        2665 0.7128    0.7037    0.7225
+     Consolidation      Consolidation        1815 0.6961    0.6859    0.7079
+             Edema              Edema         925 0.8117    0.7994    0.8241
+         Emphysema          Emphysema        1093 0.5299    0.5144    0.5456
+          Fibrosis           Fibrosis         435 0.5539    0.5252    0.5809
+Pleural_Thickening Pleural Thickening        1143 0.6906    0.6739    0.7055
+            Hernia             Hernia          86 0.5260    0.4618    0.5927
+
+Ensemble mean AUC over 14 pathologies: 0.6685
+--- [7] prompt search on held-out train/val ---
+Device: cuda:0
+Prompt-dev set: 20000 images x 14 labels
+Positives: Atelectasis=1801, Cardiomegaly=409, Effusion=1883, Infiltration=2770, Mass=817, Nodule=1039, Pneumonia=187, Pneumothorax=593, Consolidation=642, Edema=279, Emphysema=322, Fibrosis=294, Pleural_Thickening=491, Hernia=37
+
+Encoding images with 10 checkpoints (once each) ...
+  encoded [1/10] checkpoint_27000.pt -> (20000, 512)
+  encoded [2/10] checkpoint_29400.pt -> (20000, 512)
+  encoded [3/10] checkpoint_22200.pt -> (20000, 512)
+  encoded [4/10] checkpoint_26000.pt -> (20000, 512)
+  encoded [5/10] checkpoint_32400.pt -> (20000, 512)
+  encoded [6/10] checkpoint_18600.pt -> (20000, 512)
+  encoded [7/10] checkpoint_24000.pt -> (20000, 512)
+  encoded [8/10] checkpoint_31000.pt -> (20000, 512)
+  encoded [9/10] checkpoint_38800.pt -> (20000, 512)
+  encoded [10/10] checkpoint_41400.pt -> (20000, 512)
+
+Embedding 72 candidate strings x 10 checkpoints ...
+
+Scoring candidates:
+  Atelectasis          baseline 0.7710 ('Atelectasis')
+                       best     0.7829 ('basilar atelectasis')  <-- improved
+  Cardiomegaly         baseline 0.8381 ('Cardiomegaly')
+                       best     0.8482 ('enlarged cardiac silhouette')  <-- improved
+  Effusion             baseline 0.8548 ('Effusion')
+                       best     0.8582 ('pleural effusion')  <-- improved
+  Infiltration         baseline 0.6531 ('Infiltration')
+                       best     0.6586 ('infiltrate')  <-- improved
+  Mass                 baseline 0.7424 ('Mass')
+                       best     0.7424 ('Mass')
+  Nodule               baseline 0.5275 ('Nodule')
+                       best     0.6209 ('a chest x-ray with a nodule')  <-- improved
+  Pneumonia            baseline 0.6845 ('Pneumonia')
+                       best     0.6845 ('a chest x-ray with pneumonia')  <-- improved
+  Pneumothorax         baseline 0.7077 ('Pneumothorax')
+                       best     0.7077 ('Pneumothorax')
+  Consolidation        baseline 0.7698 ('Consolidation')
+                       best     0.7831 ('dense opacity')  <-- improved
+  Edema                baseline 0.8436 ('Edema')
+                       best     0.8436 ('Edema')
+  Emphysema            baseline 0.6955 ('Emphysema')
+                       best     0.7101 ('emphysematous changes')  <-- improved
+  Fibrosis             baseline 0.5968 ('Fibrosis')
+                       best     0.6178 ('reticular interstitial opacities')  <-- improved
+  Pleural_Thickening   baseline 0.6776 ('Pleural_Thickening')
+                       best     0.7064 ('pleural thickening')  <-- improved
+  Hernia               baseline 0.6434 ('Hernia')
+                       best     0.7034 ('hiatal hernia')  <-- improved
+
+Wrote data/prompt_search_results_v2.csv
+
+prompt-dev mean AUC  baseline 0.7147 -> tuned 0.7334
+
+LABEL_PROMPTS to paste into eval_nih.py:
+LABEL_PROMPTS = {
+    'Atelectasis': 'basilar atelectasis',
+    'Cardiomegaly': 'enlarged cardiac silhouette',
+    'Consolidation': 'dense opacity',
+    'Effusion': 'pleural effusion',
+    'Emphysema': 'emphysematous changes',
+    'Fibrosis': 'reticular interstitial opacities',
+    'Hernia': 'hiatal hernia',
+    'Infiltration': 'infiltrate',
+    'Nodule': 'a chest x-ray with a nodule',
+    'Pleural_Thickening': 'pleural thickening',
+    'Pneumonia': 'a chest x-ray with pneumonia',
+}
+--- [8b] test eval, TUNED prompts ---
+Device: cuda:0
+Prompts from data/prompt_search_results_v2.csv (tuned on held-out train/val)
+Prompt mapping: 'Atelectasis'->'basilar atelectasis', 'Cardiomegaly'->'enlarged cardiac silhouette', 'Effusion'->'pleural effusion', 'Infiltration'->'infiltrate', 'Nodule'->'a chest x-ray with a nodule', 'Pneumonia'->'a chest x-ray with pneumonia', 'Consolidation'->'dense opacity', 'Emphysema'->'emphysematous changes', 'Fibrosis'->'reticular interstitial opacities', 'Pleural_Thickening'->'pleural thickening', 'Hernia'->'hiatal hernia'
+Ground truth: 25596 images x 14 labels
+Ensembling 10 checkpoints from data/checkpoint_ranking_v2.csv
+  [1/10] checkpoint_27000.pt  mean AUC 0.6905
+  [2/10] checkpoint_29400.pt  mean AUC 0.6801
+  [3/10] checkpoint_22200.pt  mean AUC 0.6731
+  [4/10] checkpoint_26000.pt  mean AUC 0.6817
+  [5/10] checkpoint_32400.pt  mean AUC 0.6865
+  [6/10] checkpoint_18600.pt  mean AUC 0.6658
+  [7/10] checkpoint_24000.pt  mean AUC 0.6779
+  [8/10] checkpoint_31000.pt  mean AUC 0.6806
+  [9/10] checkpoint_38800.pt  mean AUC 0.6927
+  [10/10] checkpoint_41400.pt  mean AUC 0.6814
+Bootstrapping (1000 replicates) ...
+
+Wrote data/nih_results_v2_tuned.csv
+
+             label                           prompt  n_positive    auc  ci_lower  ci_upper
+       Atelectasis              basilar atelectasis        3279 0.7058    0.6962    0.7147
+      Cardiomegaly      enlarged cardiac silhouette        1069 0.8538    0.8426    0.8645
+          Effusion                 pleural effusion        4658 0.7958    0.7891    0.8021
+      Infiltration                       infiltrate        6112 0.6884    0.6817    0.6962
+              Mass                             Mass        1748 0.6619    0.6492    0.6747
+            Nodule      a chest x-ray with a nodule        1623 0.6167    0.6033    0.6320
+         Pneumonia     a chest x-ray with pneumonia         555 0.6606    0.6395    0.6822
+      Pneumothorax                     Pneumothorax        2665 0.7128    0.7037    0.7225
+     Consolidation                    dense opacity        1815 0.7029    0.6920    0.7139
+             Edema                            Edema         925 0.8117    0.7994    0.8241
+         Emphysema            emphysematous changes        1093 0.5427    0.5285    0.5577
+          Fibrosis reticular interstitial opacities         435 0.5765    0.5490    0.6037
+Pleural_Thickening               pleural thickening        1143 0.6906    0.6739    0.7055
+            Hernia                    hiatal hernia          86 0.6363    0.5722    0.6961
+
+Ensemble mean AUC over 14 pathologies: 0.6898
+=== follow-on finished Mon Sep 14 01:57:38 AM KST 2026 ===

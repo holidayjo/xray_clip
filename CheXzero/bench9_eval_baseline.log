@@ -1,0 +1,32 @@
+Device: cuda:0
+Evaluating 9 of 14 labels: ['Cardiomegaly', 'Consolidation', 'Edema', 'Effusion', 'Emphysema', 'Fibrosis', 'Infiltration', 'Nodule', 'Pneumothorax']
+Prompts: paper baseline (bare label names)
+Prompt mapping: 'Effusion'->'Pleural Effusion'
+Ground truth: 13871 images x 9 labels
+Ensembling 10 checkpoints from data/checkpoint_ranking_v2.csv
+  [1/10] checkpoint_27000.pt  mean AUC 0.6235
+  [2/10] checkpoint_29400.pt  mean AUC 0.6168
+  [3/10] checkpoint_22200.pt  mean AUC 0.6207
+  [4/10] checkpoint_26000.pt  mean AUC 0.6165
+  [5/10] checkpoint_32400.pt  mean AUC 0.6179
+  [6/10] checkpoint_18600.pt  mean AUC 0.6135
+  [7/10] checkpoint_24000.pt  mean AUC 0.5967
+  [8/10] checkpoint_31000.pt  mean AUC 0.6213
+  [9/10] checkpoint_38800.pt  mean AUC 0.6290
+  [10/10] checkpoint_41400.pt  mean AUC 0.6274
+Bootstrapping (1000 replicates) ...
+
+Wrote data/bench9_results_baseline.csv
+
+        label           prompt  n_positive    auc  ci_lower  ci_upper
+ Cardiomegaly     Cardiomegaly        1069 0.8251    0.8113    0.8397
+Consolidation    Consolidation        1815 0.6086    0.5944    0.6207
+        Edema            Edema         925 0.7645    0.7500    0.7793
+     Effusion Pleural Effusion        4658 0.7591    0.7506    0.7675
+    Emphysema        Emphysema        1093 0.4329    0.4152    0.4485
+     Fibrosis         Fibrosis         435 0.4755    0.4442    0.5064
+ Infiltration     Infiltration        6112 0.6103    0.6007    0.6198
+       Nodule           Nodule        1623 0.4442    0.4302    0.4593
+ Pneumothorax     Pneumothorax        2665 0.6616    0.6498    0.6731
+
+Ensemble mean AUC over 9 pathologies: 0.6202

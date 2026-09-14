@@ -29,11 +29,17 @@ NIH_LABELS: List[str] = [
     "Pleural_Thickening", "Hernia",
 ]
 
-# Dataset label -> prompt text. Only the two that need it.
-LABEL_PROMPTS: Dict[str, str] = {
+# Dataset label -> prompt text.
+#
+# BASELINE (paper-faithful): only the two names that are not usable as-is.
+# The paper's Methods use bare '<label>' / 'no <label>' prompts, so anything richer is a
+# deviation and must be justified by tuning on held-out data -- never on the test set.
+# Override this dict from prompt_search_results.csv to evaluate tuned prompts.
+LABEL_PROMPTS = {
     "Effusion": "Pleural Effusion",
     "Pleural_Thickening": "Pleural Thickening",
 }
+
 
 
 def build_groundtruth(data_entry_csv: str, paths_csv: str, labels: List[str]) -> np.ndarray:
@@ -66,6 +72,14 @@ def parse_args():
     p.add_argument("--data_entry_csv",
                    default="/mnt/My_Doc/github/xray_clip/data/cxr8/Data_Entry_2017_v2020.csv")
     p.add_argument("--out_csv", default="data/nih_zeroshot_results.csv")
+    p.add_argument("--labels", default=None,
+                   help="Comma-separated subset of NIH_LABELS to evaluate, e.g. to match a "
+                        "benchmark that reports only some pathologies. Default: all 14.")
+    p.add_argument("--prompts_csv", default=None,
+                   help="Optional prompt_search_results.csv from search_prompts.py. When given, "
+                        "the best-scoring prompt per label (by held-out AUC) overrides "
+                        "LABEL_PROMPTS. Those prompts must have been selected on train/val "
+                        "data, never on the test set.")
     p.add_argument("--pred_npy", default="data/nih_zeroshot_preds.npy",
                    help="Where to save the ensembled probabilities.")
     p.add_argument("--batch_size", type=int, default=64)
@@ -98,11 +112,25 @@ def main():
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     print(f"Device: {device}")
 
-    prompts = [LABEL_PROMPTS.get(l, l) for l in NIH_LABELS]
-    print("Prompt mapping: " + ", ".join(f"{l!r}->{p!r}" for l, p in zip(NIH_LABELS, prompts)
+    labels = [l.strip() for l in args.labels.split(",")] if args.labels else list(NIH_LABELS)
+    unknown = [l for l in labels if l not in NIH_LABELS]
+    if unknown:
+        raise SystemExit(f"unknown labels: {unknown}")
+    if args.labels:
+        print(f"Evaluating {len(labels)} of {len(NIH_LABELS)} labels: {labels}")
+
+    if args.prompts_csv:
+        sr = pd.read_csv(args.prompts_csv)
+        best = sr.loc[sr.groupby("label")["auc"].idxmax()].set_index("label")["prompt"]
+        prompts = [best.get(l, LABEL_PROMPTS.get(l, l)) for l in labels]
+        print(f"Prompts from {args.prompts_csv} (tuned on held-out train/val)")
+    else:
+        prompts = [LABEL_PROMPTS.get(l, l) for l in labels]
+        print("Prompts: paper baseline (bare label names)")
+    print("Prompt mapping: " + ", ".join(f"{l!r}->{p!r}" for l, p in zip(labels, prompts)
                                          if l != p))
 
-    y_true = build_groundtruth(args.data_entry_csv, args.paths_csv, NIH_LABELS)
+    y_true = build_groundtruth(args.data_entry_csv, args.paths_csv, labels)
     print(f"Ground truth: {y_true.shape[0]} images x {y_true.shape[1]} labels")
 
     ranking = pd.read_csv(args.ranking_csv)
@@ -117,7 +145,7 @@ def main():
         model = load_clip(model_path=ckpt, pretrained=True, context_length=args.context_length).to(device)
         y_pred = score_checkpoint(model, loader, prompts, device, args.context_length)
         total = y_pred if total is None else total + y_pred
-        mean_auc = np.mean([roc_auc_score(y_true[:, j], y_pred[:, j]) for j in range(len(NIH_LABELS))])
+        mean_auc = np.mean([roc_auc_score(y_true[:, j], y_pred[:, j]) for j in range(len(labels))])
         print(f"  [{i}/{len(ckpts)}] {os.path.basename(ckpt)}  mean AUC {mean_auc:.4f}")
         del model
         if device.type == "cuda":
@@ -125,9 +153,9 @@ def main():
     y_pred = total / len(ckpts)
     np.save(args.pred_npy, y_pred)
 
-    aucs = [roc_auc_score(y_true[:, j], y_pred[:, j]) for j in range(len(NIH_LABELS))]
+    aucs = [roc_auc_score(y_true[:, j], y_pred[:, j]) for j in range(len(labels))]
     out = pd.DataFrame({
-        "label": NIH_LABELS,
+        "label": labels,
         "prompt": prompts,
         "n_positive": y_true.sum(axis=0).astype(int),
         "auc": aucs,
@@ -135,13 +163,13 @@ def main():
 
     if args.n_bootstrap:
         print(f"Bootstrapping ({args.n_bootstrap} replicates) ...")
-        lo, hi = bootstrap_ci(y_true, y_pred, NIH_LABELS, args.n_bootstrap, args.seed)
+        lo, hi = bootstrap_ci(y_true, y_pred, labels, args.n_bootstrap, args.seed)
         out["ci_lower"], out["ci_upper"] = lo, hi
 
     out.to_csv(args.out_csv, index=False)
     print(f"\nWrote {args.out_csv}\n")
     print(out.to_string(index=False, float_format=lambda v: f"{v:.4f}"))
-    print(f"\nEnsemble mean AUC over {len(NIH_LABELS)} pathologies: {np.mean(aucs):.4f}")
+    print(f"\nEnsemble mean AUC over {len(labels)} pathologies: {np.mean(aucs):.4f}")
 
 
 if __name__ == "__main__":
