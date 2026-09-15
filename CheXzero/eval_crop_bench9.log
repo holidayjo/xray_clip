@@ -1,0 +1,41 @@
+Device: cuda:0
+Evaluating 9 of 14 labels: ['Cardiomegaly', 'Consolidation', 'Edema', 'Effusion', 'Emphysema', 'Fibrosis', 'Infiltration', 'Nodule', 'Pneumothorax']
+Per-label template pairs from data/prompt_template_search.csv
+  Cardiomegaly        'enlarged cardiac silhouette'  vs  'no enlarged cardiac silhouette'
+  Consolidation       'a chest x-ray with Consolidation'  vs  'a chest x-ray with no Consolidation'
+  Edema               'a chest x-ray with pulmonary edema is present'  vs  'a chest x-ray with pulmonary edema is absent'
+  Effusion            'a chest x-ray with Effusion'  vs  'a chest x-ray with no Effusion'
+  Emphysema           'a chest x-ray with emphysematous changes'  vs  'a chest x-ray with no emphysematous changes'
+  Fibrosis            'there is reticular interstitial opacities'  vs  'there is no reticular interstitial opacities'
+  Infiltration        'findings consistent with infiltrate'  vs  'no evidence of infiltrate'
+  Nodule              'a chest x-ray with small nodular opacity'  vs  'a chest x-ray with no small nodular opacity'
+  Pneumothorax        'findings consistent with Pneumothorax'  vs  'no evidence of Pneumothorax'
+Prompt mapping: 'Cardiomegaly'->'enlarged cardiac silhouette', 'Consolidation'->'a chest x-ray with Consolidation', 'Edema'->'a chest x-ray with pulmonary edema is present', 'Effusion'->'a chest x-ray with Effusion', 'Emphysema'->'a chest x-ray with emphysematous changes', 'Fibrosis'->'there is reticular interstitial opacities', 'Infiltration'->'findings consistent with infiltrate', 'Nodule'->'a chest x-ray with small nodular opacity', 'Pneumothorax'->'findings consistent with Pneumothorax'
+Ground truth: 13871 images x 9 labels
+Ensembling 10 checkpoints from data/checkpoint_ranking_v2.csv
+  [1/10] checkpoint_27000.pt  mean AUC 0.6467
+  [2/10] checkpoint_29400.pt  mean AUC 0.6426
+  [3/10] checkpoint_22200.pt  mean AUC 0.6421
+  [4/10] checkpoint_26000.pt  mean AUC 0.6289
+  [5/10] checkpoint_32400.pt  mean AUC 0.6413
+  [6/10] checkpoint_18600.pt  mean AUC 0.6335
+  [7/10] checkpoint_24000.pt  mean AUC 0.6499
+  [8/10] checkpoint_31000.pt  mean AUC 0.6464
+  [9/10] checkpoint_38800.pt  mean AUC 0.6489
+  [10/10] checkpoint_41400.pt  mean AUC 0.6376
+Bootstrapping (1000 replicates) ...
+
+Wrote data/bench9_results_cropped.csv
+
+        label                                        prompt  n_positive    auc  ci_lower  ci_upper
+ Cardiomegaly                   enlarged cardiac silhouette        1069 0.8639    0.8524    0.8761
+Consolidation              a chest x-ray with Consolidation        1815 0.6128    0.5991    0.6253
+        Edema a chest x-ray with pulmonary edema is present         925 0.7608    0.7461    0.7751
+     Effusion                   a chest x-ray with Effusion        4658 0.7253    0.7159    0.7344
+    Emphysema      a chest x-ray with emphysematous changes        1093 0.4941    0.4768    0.5107
+     Fibrosis     there is reticular interstitial opacities         435 0.5126    0.4813    0.5418
+ Infiltration           findings consistent with infiltrate        6112 0.6039    0.5944    0.6130
+       Nodule      a chest x-ray with small nodular opacity        1623 0.5451    0.5282    0.5618
+ Pneumothorax         findings consistent with Pneumothorax        2665 0.7021    0.6905    0.7136
+
+Ensemble mean AUC over 9 pathologies: 0.6467

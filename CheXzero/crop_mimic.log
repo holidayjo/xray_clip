@@ -1,0 +1,505 @@
+377,110 images from data/cxr_paths.csv
+  0%|          | 0/377110 [00:00<?, ?it/s]  0%|          | 1/377110 [00:00<80:42:13,  1.30it/s]  0%|          | 9/377110 [00:01<19:56:31,  5.25it/s]  0%|          | 17/377110 [00:02<9:35:41, 10.92it/s]  0%|          | 32/377110 [00:03<8:13:34, 12.73it/s]  0%|          | 64/377110 [00:03<4:44:40, 22.07it/s]  0%|          | 96/377110 [00:04<3:48:07, 27.55it/s]  0%|          | 105/377110 [00:06<6:51:14, 15.28it/s]  0%|          | 128/377110 [00:07<5:47:03, 18.10it/s]  0%|          | 160/377110 [00:08<4:30:56, 23.19it/s]  0%|          | 192/377110 [00:09<3:51:42, 27.11it/s]  0%|          | 224/377110 [00:10<3:28:57, 30.06it/s]  0%|          | 256/377110 [00:11<3:14:47, 32.25it/s]  0%|          | 288/377110 [00:11<3:07:21, 33.52it/s]  0%|          | 320/377110 [00:12<3:01:21, 34.63it/s]  0%|          | 352/377110 [00:13<2:56:26, 35.59it/s]  0%|          | 384/377110 [00:14<2:54:13, 36.04it/s]  0%|          | 416/377110 [00:15<2:52:25, 36.41it/s]  0%|          | 448/377110 [00:16<2:51:47, 36.54it/s]  0%|          | 480/377110 [00:17<2:50:11, 36.88it/s]  0%|          | 512/377110 [00:17<2:49:12, 37.09it/s]  0%|          | 544/377110 [00:18<2:49:18, 37.07it/s]  0%|          | 576/377110 [00:19<2:49:10, 37.10it/s]  0%|          | 608/377110 [00:20<2:48:50, 37.17it/s]  0%|          | 640/377110 [00:21<2:48:44, 37.18it/s]  0%|          | 672/377110 [00:22<2:47:47, 37.39it/s]  0%|          | 704/377110 [00:23<2:48:19, 37.27it/s]  0%|          | 736/377110 [00:23<2:48:22, 37.26it/s]  0%|          | 768/377110 [00:24<2:49:14, 37.06it/s]  0%|          | 800/377110 [00:25<2:48:45, 37.16it/s]  0%|          | 832/377110 [00:26<2:49:05, 37.09it/s]  0%|          | 864/377110 [00:27<2:50:13, 36.84it/s]  0%|          | 896/377110 [00:28<2:50:13, 36.83it/s]  0%|          | 928/377110 [00:29<2:49:32, 36.98it/s]  0%|          | 960/377110 [00:29<2:49:53, 36.90it/s]  0%|          | 992/377110 [00:30<2:48:10, 37.27it/s]  0%|          | 1024/377110 [00:31<2:48:29, 37.20it/s]  0%|          | 1056/377110 [00:32<2:48:27, 37.20it/s]  0%|          | 1088/377110 [00:33<2:48:10, 37.26it/s]  0%|          | 1120/377110 [00:34<2:47:50, 37.34it/s]  0%|          | 1152/377110 [00:35<2:48:02, 37.29it/s]  0%|          | 1184/377110 [00:35<2:47:11, 37.47it/s]  0%|          | 1216/377110 [00:36<2:46:59, 37.52it/s]  0%|          | 1248/377110 [00:37<2:47:00, 37.51it/s]  0%|          | 1280/377110 [00:38<2:47:13, 37.46it/s]  0%|          | 1312/377110 [00:39<2:46:44, 37.56it/s]  0%|          | 1344/377110 [00:40<2:46:51, 37.53it/s]  0%|          | 1376/377110 [00:41<2:46:59, 37.50it/s]  0%|          | 1408/377110 [00:41<2:47:07, 37.47it/s]  0%|          | 1440/377110 [00:42<2:46:42, 37.56it/s]  0%|          | 1472/377110 [00:43<2:46:29, 37.60it/s]  0%|          | 1504/377110 [00:44<2:46:01, 37.71it/s]  0%|          | 1536/377110 [00:45<2:46:19, 37.63it/s]  0%|          | 1568/377110 [00:46<2:46:56, 37.49it/s]  0%|          | 1600/377110 [00:47<2:48:26, 37.16it/s]  0%|          | 1632/377110 [00:47<2:47:53, 37.28it/s]  0%|          | 1664/377110 [00:48<2:47:22, 37.39it/s]  0%|          | 1696/377110 [00:49<2:46:38, 37.55it/s]  0%|          | 1728/377110 [00:50<2:46:57, 37.47it/s]  0%|          | 1760/377110 [00:51<2:47:03, 37.45it/s]  0%|          | 1792/377110 [00:52<2:47:41, 37.30it/s]  0%|          | 1824/377110 [00:53<2:48:13, 37.18it/s]  0%|          | 1856/377110 [00:53<2:48:23, 37.14it/s]  1%|          | 1888/377110 [00:54<2:48:20, 37.15it/s]  1%|          | 1920/377110 [00:55<2:48:45, 37.06it/s]  1%|          | 1952/377110 [00:56<2:48:56, 37.01it/s]  1%|          | 1984/377110 [00:57<2:49:30, 36.88it/s]  1%|          | 2016/377110 [00:58<2:48:52, 37.02it/s]  1%|          | 2048/377110 [00:59<2:49:05, 36.97it/s]  1%|          | 2080/377110 [00:59<2:49:24, 36.90it/s]  1%|          | 2112/377110 [01:00<2:50:17, 36.70it/s]  1%|          | 2144/377110 [01:01<2:49:32, 36.86it/s]  1%|          | 2176/377110 [01:02<2:49:15, 36.92it/s]  1%|          | 2208/377110 [01:03<2:49:03, 36.96it/s]  1%|          | 2240/377110 [01:04<2:48:49, 37.01it/s]  1%|          | 2272/377110 [01:05<2:48:08, 37.15it/s]  1%|          | 2304/377110 [01:06<2:48:36, 37.05it/s]  1%|          | 2336/377110 [01:06<2:48:12, 37.13it/s]  1%|          | 2368/377110 [01:07<2:48:13, 37.13it/s]  1%|          | 2400/377110 [01:08<2:47:11, 37.35it/s]  1%|          | 2432/377110 [01:09<2:47:52, 37.20it/s]  1%|          | 2464/377110 [01:10<2:47:26, 37.29it/s]  1%|          | 2496/377110 [01:11<2:47:39, 37.24it/s]  1%|          | 2528/377110 [01:12<2:47:32, 37.26it/s]  1%|          | 2560/377110 [01:12<2:48:09, 37.12it/s]  1%|          | 2592/377110 [01:13<2:47:47, 37.20it/s]  1%|          | 2624/377110 [01:14<2:48:24, 37.06it/s]  1%|          | 2656/377110 [01:15<2:48:14, 37.09it/s]  1%|          | 2688/377110 [01:16<2:47:45, 37.20it/s]  1%|          | 2720/377110 [01:17<2:47:26, 37.27it/s]  1%|          | 2752/377110 [01:18<2:47:33, 37.24it/s]  1%|          | 2784/377110 [01:18<2:47:23, 37.27it/s]  1%|          | 2816/377110 [01:19<2:47:54, 37.15it/s]  1%|          | 2848/377110 [01:20<2:49:07, 36.88it/s]  1%|          | 2880/377110 [01:21<2:48:35, 37.00it/s]  1%|          | 2912/377110 [01:22<2:47:24, 37.25it/s]  1%|          | 2944/377110 [01:23<2:48:08, 37.09it/s]  1%|          | 2976/377110 [01:24<2:47:59, 37.12it/s]  1%|          | 3008/377110 [01:24<2:47:09, 37.30it/s]  1%|          | 3040/377110 [01:25<2:47:21, 37.25it/s]  1%|          | 3072/377110 [01:26<2:48:00, 37.11it/s]  1%|          | 3104/377110 [01:27<2:47:35, 37.20it/s]  1%|          | 3136/377110 [01:28<2:47:50, 37.14it/s]  1%|          | 3168/377110 [01:29<2:48:12, 37.05it/s]  1%|          | 3200/377110 [01:30<2:48:57, 36.88it/s]  1%|          | 3232/377110 [01:31<2:48:12, 37.04it/s]  1%|          | 3264/377110 [01:31<2:47:58, 37.09it/s]  1%|          | 3296/377110 [01:32<2:48:20, 37.01it/s]  1%|          | 3328/377110 [01:33<2:47:55, 37.10it/s]  1%|          | 3360/377110 [01:34<2:48:12, 37.03it/s]  1%|          | 3392/377110 [01:35<2:48:40, 36.93it/s]  1%|          | 3424/377110 [01:36<2:47:50, 37.11it/s]  1%|          | 3456/377110 [01:37<2:47:54, 37.09it/s]  1%|          | 3488/377110 [01:37<2:47:42, 37.13it/s]  1%|          | 3520/377110 [01:38<2:47:48, 37.11it/s]  1%|          | 3552/377110 [01:39<2:47:10, 37.24it/s]  1%|          | 3584/377110 [01:40<2:47:28, 37.17it/s]  1%|          | 3616/377110 [01:41<2:47:52, 37.08it/s]  1%|          | 3648/377110 [01:42<2:47:46, 37.10it/s]  1%|          | 3680/377110 [01:43<2:46:50, 37.30it/s]  1%|          | 3712/377110 [01:43<2:47:12, 37.22it/s]  1%|          | 3744/377110 [01:44<2:46:44, 37.32it/s]  1%|          | 3776/377110 [01:45<2:47:01, 37.25it/s]  1%|          | 3808/377110 [01:46<2:47:00, 37.25it/s]  1%|          | 3840/377110 [01:47<2:47:00, 37.25it/s]  1%|          | 3872/377110 [01:48<2:47:40, 37.10it/s]  1%|          | 3904/377110 [01:49<2:47:54, 37.05it/s]  1%|          | 3936/377110 [01:49<2:47:30, 37.13it/s]  1%|          | 3968/377110 [01:50<2:47:39, 37.09it/s]  1%|          | 4000/377110 [01:51<2:47:49, 37.05it/s]  1%|          | 4032/377110 [01:52<2:47:53, 37.04it/s]  1%|          | 4064/377110 [01:53<2:47:33, 37.11it/s]  1%|          | 4096/377110 [01:54<2:47:47, 37.05it/s]  1%|          | 4128/377110 [01:55<2:46:28, 37.34it/s]  1%|          | 4160/377110 [01:55<2:46:23, 37.36it/s]  1%|          | 4192/377110 [01:56<2:48:01, 36.99it/s]  1%|          | 4224/377110 [01:57<2:48:08, 36.96it/s]  1%|          | 4256/377110 [01:58<2:46:33, 37.31it/s]  1%|          | 4288/377110 [01:59<2:46:13, 37.38it/s]  1%|          | 4320/377110 [02:00<2:46:00, 37.43it/s]  1%|          | 4352/377110 [02:01<2:46:18, 37.35it/s]  1%|          | 4384/377110 [02:01<2:46:04, 37.41it/s]  1%|          | 4416/377110 [02:02<2:46:41, 37.27it/s]  1%|          | 4448/377110 [02:03<2:46:12, 37.37it/s]  1%|          | 4480/377110 [02:04<2:46:19, 37.34it/s]  1%|          | 4512/377110 [02:05<2:45:36, 37.50it/s]  1%|          | 4544/377110 [02:06<2:45:38, 37.49it/s]  1%|          | 4576/377110 [02:07<2:45:13, 37.58it/s]  1%|          | 4608/377110 [02:07<2:43:55, 37.87it/s]  1%|          | 4640/377110 [02:08<2:43:19, 38.01it/s]  1%|          | 4672/377110 [02:09<2:44:16, 37.79it/s]  1%|          | 4704/377110 [02:10<2:44:40, 37.69it/s]  1%|▏         | 4736/377110 [02:11<2:43:58, 37.85it/s]  1%|▏         | 4768/377110 [02:12<2:43:17, 38.00it/s]  1%|▏         | 4800/377110 [02:13<2:43:45, 37.89it/s]  1%|▏         | 4832/377110 [02:13<2:44:38, 37.69it/s]  1%|▏         | 4864/377110 [02:14<2:44:27, 37.72it/s]  1%|▏         | 4896/377110 [02:15<2:44:06, 37.80it/s]  1%|▏         | 4928/377110 [02:16<2:43:41, 37.89it/s]  1%|▏         | 4960/377110 [02:17<2:43:32, 37.93it/s]  1%|▏         | 4992/377110 [02:18<2:44:07, 37.79it/s]  1%|▏         | 5024/377110 [02:18<2:43:14, 37.99it/s]  1%|▏         | 5056/377110 [02:19<2:42:53, 38.07it/s]  1%|▏         | 5088/377110 [02:20<2:43:04, 38.02it/s]  1%|▏         | 5120/377110 [02:21<2:43:04, 38.02it/s]  1%|▏         | 5152/377110 [02:22<2:43:19, 37.96it/s]  1%|▏         | 5184/377110 [02:23<2:44:15, 37.74it/s]  1%|▏         | 5216/377110 [02:23<2:43:59, 37.79it/s]  1%|▏         | 5248/377110 [02:24<2:44:11, 37.75it/s]  1%|▏         | 5280/377110 [02:25<2:43:33, 37.89it/s]  1%|▏         | 5312/377110 [02:26<2:44:04, 37.77it/s]  1%|▏         | 5344/377110 [02:27<2:44:08, 37.75it/s]  1%|▏         | 5376/377110 [02:28<2:44:33, 37.65it/s]  1%|▏         | 5408/377110 [02:29<2:44:28, 37.66it/s]  1%|▏         | 5440/377110 [02:29<2:44:04, 37.75it/s]  1%|▏         | 5472/377110 [02:30<2:43:18, 37.93it/s]  1%|▏         | 5504/377110 [02:31<2:43:13, 37.94it/s]  1%|▏         | 5536/377110 [02:32<2:43:50, 37.80it/s]  1%|▏         | 5568/377110 [02:33<2:43:31, 37.87it/s]  1%|▏         | 5600/377110 [02:34<2:43:50, 37.79it/s]  1%|▏         | 5632/377110 [02:34<2:43:48, 37.79it/s]  2%|▏         | 5664/377110 [02:35<2:44:40, 37.59it/s]  2%|▏         | 5696/377110 [02:36<2:44:40, 37.59it/s]  2%|▏         | 5728/377110 [02:37<2:43:39, 37.82it/s]  2%|▏         | 5760/377110 [02:38<2:44:54, 37.53it/s]Process ForkPoolWorker-12:
+Traceback (most recent call last):
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/pool.py", line 131, in worker
+    put((job, i, result))
+    ~~~^^^^^^^^^^^^^^^^^^
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/queues.py", line 397, in put
+    self._writer.send_bytes(obj)
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/connection.py", line 200, in send_bytes
+    self._send_bytes(m[offset:offset + size])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/connection.py", line 420, in _send_bytes
+    self._send(header)
+    ~~~~~~~~~~^^^^^^^^
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/connection.py", line 384, in _send
+    n = write(self._handle, buf)
+BrokenPipeError: [Errno 32] Broken pipe
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/process.py", line 313, in _bootstrap
+    self.run()
+    ~~~~~~~~^^
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/pool.py", line 136, in worker
+    put((job, i, (False, wrapped)))
+    ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/queues.py", line 397, in put
+    self._writer.send_bytes(obj)
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/connection.py", line 200, in send_bytes
+    self._send_bytes(m[offset:offset + size])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/connection.py", line 427, in _send_bytes
+    self._send(header + buf)
+    ~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/connection.py", line 384, in _send
+    n = write(self._handle, buf)
+BrokenPipeError: [Errno 32] Broken pipe
+Process ForkPoolWorker-2:
+Traceback (most recent call last):
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/pool.py", line 131, in worker
+    put((job, i, result))
+    ~~~^^^^^^^^^^^^^^^^^^
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/queues.py", line 397, in put
+    self._writer.send_bytes(obj)
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/connection.py", line 200, in send_bytes
+    self._send_bytes(m[offset:offset + size])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/connection.py", line 420, in _send_bytes
+    self._send(header)
+    ~~~~~~~~~~^^^^^^^^
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/connection.py", line 384, in _send
+    n = write(self._handle, buf)
+BrokenPipeError: [Errno 32] Broken pipe
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/process.py", line 313, in _bootstrap
+    self.run()
+    ~~~~~~~~^^
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/pool.py", line 136, in worker
+    put((job, i, (False, wrapped)))
+    ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/queues.py", line 397, in put
+    self._writer.send_bytes(obj)
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/connection.py", line 200, in send_bytes
+    self._send_bytes(m[offset:offset + size])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/connection.py", line 427, in _send_bytes
+    self._send(header + buf)
+    ~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/connection.py", line 384, in _send
+    n = write(self._handle, buf)
+BrokenPipeError: [Errno 32] Broken pipe
+Process ForkPoolWorker-11:
+Traceback (most recent call last):
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/pool.py", line 131, in worker
+    put((job, i, result))
+    ~~~^^^^^^^^^^^^^^^^^^
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/queues.py", line 397, in put
+    self._writer.send_bytes(obj)
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/connection.py", line 200, in send_bytes
+    self._send_bytes(m[offset:offset + size])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/connection.py", line 420, in _send_bytes
+    self._send(header)
+    ~~~~~~~~~~^^^^^^^^
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/connection.py", line 384, in _send
+    n = write(self._handle, buf)
+BrokenPipeError: [Errno 32] Broken pipe
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/process.py", line 313, in _bootstrap
+    self.run()
+    ~~~~~~~~^^
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/pool.py", line 136, in worker
+    put((job, i, (False, wrapped)))
+    ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/queues.py", line 397, in put
+    self._writer.send_bytes(obj)
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/connection.py", line 200, in send_bytes
+    self._send_bytes(m[offset:offset + size])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/connection.py", line 427, in _send_bytes
+    self._send(header + buf)
+    ~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/connection.py", line 384, in _send
+    n = write(self._handle, buf)
+BrokenPipeError: [Errno 32] Broken pipe
+Process ForkPoolWorker-1:
+Traceback (most recent call last):
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/pool.py", line 131, in worker
+    put((job, i, result))
+    ~~~^^^^^^^^^^^^^^^^^^
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/queues.py", line 397, in put
+    self._writer.send_bytes(obj)
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/connection.py", line 200, in send_bytes
+    self._send_bytes(m[offset:offset + size])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/connection.py", line 420, in _send_bytes
+    self._send(header)
+    ~~~~~~~~~~^^^^^^^^
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/connection.py", line 384, in _send
+    n = write(self._handle, buf)
+BrokenPipeError: [Errno 32] Broken pipe
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/process.py", line 313, in _bootstrap
+    self.run()
+    ~~~~~~~~^^
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/pool.py", line 136, in worker
+    put((job, i, (False, wrapped)))
+    ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/queues.py", line 397, in put
+    self._writer.send_bytes(obj)
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/connection.py", line 200, in send_bytes
+    self._send_bytes(m[offset:offset + size])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/connection.py", line 427, in _send_bytes
+    self._send(header + buf)
+    ~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/connection.py", line 384, in _send
+    n = write(self._handle, buf)
+BrokenPipeError: [Errno 32] Broken pipe
+Process ForkPoolWorker-8:
+Traceback (most recent call last):
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/pool.py", line 131, in worker
+    put((job, i, result))
+    ~~~^^^^^^^^^^^^^^^^^^
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/queues.py", line 397, in put
+    self._writer.send_bytes(obj)
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/connection.py", line 200, in send_bytes
+    self._send_bytes(m[offset:offset + size])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/connection.py", line 420, in _send_bytes
+    self._send(header)
+    ~~~~~~~~~~^^^^^^^^
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/connection.py", line 384, in _send
+    n = write(self._handle, buf)
+BrokenPipeError: [Errno 32] Broken pipe
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/process.py", line 313, in _bootstrap
+    self.run()
+    ~~~~~~~~^^
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/pool.py", line 136, in worker
+    put((job, i, (False, wrapped)))
+    ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/queues.py", line 397, in put
+    self._writer.send_bytes(obj)
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/connection.py", line 200, in send_bytes
+    self._send_bytes(m[offset:offset + size])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/connection.py", line 427, in _send_bytes
+    self._send(header + buf)
+    ~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/connection.py", line 384, in _send
+    n = write(self._handle, buf)
+BrokenPipeError: [Errno 32] Broken pipe
+Process ForkPoolWorker-7:
+Traceback (most recent call last):
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/pool.py", line 131, in worker
+    put((job, i, result))
+    ~~~^^^^^^^^^^^^^^^^^^
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/queues.py", line 397, in put
+    self._writer.send_bytes(obj)
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/connection.py", line 200, in send_bytes
+    self._send_bytes(m[offset:offset + size])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/connection.py", line 420, in _send_bytes
+    self._send(header)
+    ~~~~~~~~~~^^^^^^^^
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/connection.py", line 384, in _send
+    n = write(self._handle, buf)
+BrokenPipeError: [Errno 32] Broken pipe
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/process.py", line 313, in _bootstrap
+    self.run()
+    ~~~~~~~~^^
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/pool.py", line 136, in worker
+    put((job, i, (False, wrapped)))
+    ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/queues.py", line 397, in put
+    self._writer.send_bytes(obj)
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/connection.py", line 200, in send_bytes
+    self._send_bytes(m[offset:offset + size])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/connection.py", line 427, in _send_bytes
+    self._send(header + buf)
+    ~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/connection.py", line 384, in _send
+    n = write(self._handle, buf)
+BrokenPipeError: [Errno 32] Broken pipe
+Process ForkPoolWorker-10:
+Traceback (most recent call last):
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/pool.py", line 131, in worker
+    put((job, i, result))
+    ~~~^^^^^^^^^^^^^^^^^^
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/queues.py", line 397, in put
+    self._writer.send_bytes(obj)
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/connection.py", line 200, in send_bytes
+    self._send_bytes(m[offset:offset + size])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/connection.py", line 420, in _send_bytes
+    self._send(header)
+    ~~~~~~~~~~^^^^^^^^
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/connection.py", line 384, in _send
+    n = write(self._handle, buf)
+BrokenPipeError: [Errno 32] Broken pipe
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/process.py", line 313, in _bootstrap
+    self.run()
+    ~~~~~~~~^^
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/pool.py", line 136, in worker
+    put((job, i, (False, wrapped)))
+    ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/queues.py", line 397, in put
+    self._writer.send_bytes(obj)
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/connection.py", line 200, in send_bytes
+    self._send_bytes(m[offset:offset + size])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/connection.py", line 427, in _send_bytes
+    self._send(header + buf)
+    ~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/connection.py", line 384, in _send
+    n = write(self._handle, buf)
+BrokenPipeError: [Errno 32] Broken pipe
+Process ForkPoolWorker-4:
+Traceback (most recent call last):
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/pool.py", line 131, in worker
+    put((job, i, result))
+    ~~~^^^^^^^^^^^^^^^^^^
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/queues.py", line 397, in put
+    self._writer.send_bytes(obj)
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/connection.py", line 200, in send_bytes
+    self._send_bytes(m[offset:offset + size])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/connection.py", line 420, in _send_bytes
+    self._send(header)
+    ~~~~~~~~~~^^^^^^^^
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/connection.py", line 384, in _send
+    n = write(self._handle, buf)
+BrokenPipeError: [Errno 32] Broken pipe
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/process.py", line 313, in _bootstrap
+    self.run()
+    ~~~~~~~~^^
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/pool.py", line 136, in worker
+    put((job, i, (False, wrapped)))
+    ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/queues.py", line 397, in put
+    self._writer.send_bytes(obj)
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/connection.py", line 200, in send_bytes
+    self._send_bytes(m[offset:offset + size])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/connection.py", line 427, in _send_bytes
+    self._send(header + buf)
+    ~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/connection.py", line 384, in _send
+    n = write(self._handle, buf)
+BrokenPipeError: [Errno 32] Broken pipe
+Process ForkPoolWorker-3:
+Traceback (most recent call last):
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/pool.py", line 131, in worker
+    put((job, i, result))
+    ~~~^^^^^^^^^^^^^^^^^^
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/queues.py", line 397, in put
+    self._writer.send_bytes(obj)
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/connection.py", line 200, in send_bytes
+    self._send_bytes(m[offset:offset + size])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/connection.py", line 420, in _send_bytes
+    self._send(header)
+    ~~~~~~~~~~^^^^^^^^
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/connection.py", line 384, in _send
+    n = write(self._handle, buf)
+BrokenPipeError: [Errno 32] Broken pipe
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/process.py", line 313, in _bootstrap
+    self.run()
+    ~~~~~~~~^^
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/pool.py", line 136, in worker
+    put((job, i, (False, wrapped)))
+    ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/queues.py", line 397, in put
+    self._writer.send_bytes(obj)
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/connection.py", line 200, in send_bytes
+    self._send_bytes(m[offset:offset + size])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/connection.py", line 427, in _send_bytes
+    self._send(header + buf)
+    ~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/connection.py", line 384, in _send
+    n = write(self._handle, buf)
+BrokenPipeError: [Errno 32] Broken pipe
+Process ForkPoolWorker-5:
+Traceback (most recent call last):
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/pool.py", line 131, in worker
+    put((job, i, result))
+    ~~~^^^^^^^^^^^^^^^^^^
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/queues.py", line 397, in put
+    self._writer.send_bytes(obj)
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/connection.py", line 200, in send_bytes
+    self._send_bytes(m[offset:offset + size])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/connection.py", line 420, in _send_bytes
+    self._send(header)
+    ~~~~~~~~~~^^^^^^^^
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/connection.py", line 384, in _send
+    n = write(self._handle, buf)
+BrokenPipeError: [Errno 32] Broken pipe
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/process.py", line 313, in _bootstrap
+    self.run()
+    ~~~~~~~~^^
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/pool.py", line 136, in worker
+    put((job, i, (False, wrapped)))
+    ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/queues.py", line 397, in put
+    self._writer.send_bytes(obj)
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/connection.py", line 200, in send_bytes
+    self._send_bytes(m[offset:offset + size])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/connection.py", line 427, in _send_bytes
+    self._send(header + buf)
+    ~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/connection.py", line 384, in _send
+    n = write(self._handle, buf)
+BrokenPipeError: [Errno 32] Broken pipe
+Process ForkPoolWorker-6:
+Traceback (most recent call last):
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/pool.py", line 131, in worker
+    put((job, i, result))
+    ~~~^^^^^^^^^^^^^^^^^^
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/queues.py", line 397, in put
+    self._writer.send_bytes(obj)
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/connection.py", line 200, in send_bytes
+    self._send_bytes(m[offset:offset + size])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/connection.py", line 420, in _send_bytes
+    self._send(header)
+    ~~~~~~~~~~^^^^^^^^
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/connection.py", line 384, in _send
+    n = write(self._handle, buf)
+BrokenPipeError: [Errno 32] Broken pipe
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/process.py", line 313, in _bootstrap
+    self.run()
+    ~~~~~~~~^^
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/pool.py", line 136, in worker
+    put((job, i, (False, wrapped)))
+    ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/queues.py", line 397, in put
+    self._writer.send_bytes(obj)
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/connection.py", line 200, in send_bytes
+    self._send_bytes(m[offset:offset + size])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/connection.py", line 427, in _send_bytes
+    self._send(header + buf)
+    ~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/connection.py", line 384, in _send
+    n = write(self._handle, buf)
+BrokenPipeError: [Errno 32] Broken pipe
+Process ForkPoolWorker-9:
+Traceback (most recent call last):
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/pool.py", line 131, in worker
+    put((job, i, result))
+    ~~~^^^^^^^^^^^^^^^^^^
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/queues.py", line 397, in put
+    self._writer.send_bytes(obj)
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/connection.py", line 200, in send_bytes
+    self._send_bytes(m[offset:offset + size])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/connection.py", line 420, in _send_bytes
+    self._send(header)
+    ~~~~~~~~~~^^^^^^^^
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/connection.py", line 384, in _send
+    n = write(self._handle, buf)
+BrokenPipeError: [Errno 32] Broken pipe
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/process.py", line 313, in _bootstrap
+    self.run()
+    ~~~~~~~~^^
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/pool.py", line 136, in worker
+    put((job, i, (False, wrapped)))
+    ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/queues.py", line 397, in put
+    self._writer.send_bytes(obj)
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/connection.py", line 200, in send_bytes
+    self._send_bytes(m[offset:offset + size])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/connection.py", line 427, in _send_bytes
+    self._send(header + buf)
+    ~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/multiprocessing/connection.py", line 384, in _send
+    n = write(self._handle, buf)
+BrokenPipeError: [Errno 32] Broken pipe

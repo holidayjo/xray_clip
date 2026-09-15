@@ -1,0 +1,437 @@
+=== v3 (impression+findings) started Tue Sep 15 02:15:15 PM KST 2026 ===
+[1/6] regenerating text...
+TEXT_DONE
+[2/6] gates...
+      rows v3=377,110  h5=377,110  aligned=True
+      NO IMPRESSION: v2 4.4%  v3 4.4%
+      median words: v2 16 -> v3 48   longer: 59.7%
+[3/6] training 8 epochs Tue Sep 15 02:16:47 PM KST 2026
+      train exit=0  checkpoints=236
+[4/6] checkpoint selection Tue Sep 15 03:55:42 PM KST 2026
+Device: cuda:0
+Ground truth: 200 images x 5 labels
+Positives per label: Atelectasis=75, Cardiomegaly=66, Consolidation=32, Edema=42, Pleural Effusion=64
+Found 236 checkpoints
+[1/236] step      -1  mean AUC 0.8529
+[2/236] step     200  mean AUC 0.7071
+[3/236] step     400  mean AUC 0.7498
+[4/236] step     600  mean AUC 0.7698
+[5/236] step     800  mean AUC 0.7783
+[6/236] step    1000  mean AUC 0.7835
+[7/236] step    1200  mean AUC 0.7979
+[8/236] step    1400  mean AUC 0.8034
+[9/236] step    1600  mean AUC 0.7894
+[10/236] step    1800  mean AUC 0.7819
+[11/236] step    2000  mean AUC 0.7949
+[12/236] step    2200  mean AUC 0.7937
+[13/236] step    2400  mean AUC 0.8006
+[14/236] step    2600  mean AUC 0.7998
+[15/236] step    2800  mean AUC 0.7926
+[16/236] step    3000  mean AUC 0.8071
+[17/236] step    3200  mean AUC 0.7931
+[18/236] step    3400  mean AUC 0.7797
+[19/236] step    3600  mean AUC 0.7812
+[20/236] step    3800  mean AUC 0.7908
+[21/236] step    4000  mean AUC 0.7958
+[22/236] step    4200  mean AUC 0.8122
+[23/236] step    4400  mean AUC 0.8107
+[24/236] step    4600  mean AUC 0.8142
+[25/236] step    4800  mean AUC 0.8021
+[26/236] step    5000  mean AUC 0.8058
+[27/236] step    5200  mean AUC 0.8025
+[28/236] step    5400  mean AUC 0.8057
+[29/236] step    5600  mean AUC 0.7910
+[30/236] step    5800  mean AUC 0.8178
+[31/236] step    6000  mean AUC 0.7985
+[32/236] step    6200  mean AUC 0.7956
+[33/236] step    6400  mean AUC 0.8037
+[34/236] step    6600  mean AUC 0.7973
+[35/236] step    6800  mean AUC 0.7967
+[36/236] step    7000  mean AUC 0.7956
+[37/236] step    7200  mean AUC 0.8225
+[38/236] step    7400  mean AUC 0.8217
+[39/236] step    7600  mean AUC 0.8032
+[40/236] step    7800  mean AUC 0.8110
+[41/236] step    8000  mean AUC 0.8016
+[42/236] step    8200  mean AUC 0.7886
+[43/236] step    8400  mean AUC 0.8137
+[44/236] step    8600  mean AUC 0.8120
+[45/236] step    8800  mean AUC 0.8151
+[46/236] step    9000  mean AUC 0.8181
+[47/236] step    9200  mean AUC 0.8115
+[48/236] step    9400  mean AUC 0.8049
+[49/236] step    9600  mean AUC 0.8262
+[50/236] step    9800  mean AUC 0.8252
+[51/236] step   10000  mean AUC 0.8267
+[52/236] step   10200  mean AUC 0.8161
+[53/236] step   10400  mean AUC 0.8035
+[54/236] step   10600  mean AUC 0.8203
+[55/236] step   10800  mean AUC 0.8223
+[56/236] step   11000  mean AUC 0.8189
+[57/236] step   11200  mean AUC 0.8151
+[58/236] step   11400  mean AUC 0.7997
+[59/236] step   11600  mean AUC 0.8092
+[60/236] step   11800  mean AUC 0.8121
+[61/236] step   12000  mean AUC 0.7906
+[62/236] step   12200  mean AUC 0.8133
+[63/236] step   12400  mean AUC 0.8137
+[64/236] step   12600  mean AUC 0.8160
+[65/236] step   12800  mean AUC 0.8186
+[66/236] step   13000  mean AUC 0.8175
+[67/236] step   13200  mean AUC 0.8267
+[68/236] step   13400  mean AUC 0.8250
+[69/236] step   13600  mean AUC 0.8135
+[70/236] step   13800  mean AUC 0.8181
+[71/236] step   14000  mean AUC 0.8262
+[72/236] step   14200  mean AUC 0.8241
+[73/236] step   14400  mean AUC 0.8326
+[74/236] step   14600  mean AUC 0.8246
+[75/236] step   14800  mean AUC 0.8294
+[76/236] step   15000  mean AUC 0.8245
+[77/236] step   15200  mean AUC 0.8270
+[78/236] step   15400  mean AUC 0.8376
+[79/236] step   15600  mean AUC 0.8189
+[80/236] step   15800  mean AUC 0.8287
+[81/236] step   16000  mean AUC 0.8240
+[82/236] step   16200  mean AUC 0.8289
+[83/236] step   16400  mean AUC 0.8259
+[84/236] step   16600  mean AUC 0.8320
+[85/236] step   16800  mean AUC 0.8359
+[86/236] step   17000  mean AUC 0.8364
+[87/236] step   17200  mean AUC 0.8342
+[88/236] step   17400  mean AUC 0.8220
+[89/236] step   17600  mean AUC 0.8266
+[90/236] step   17800  mean AUC 0.8240
+[91/236] step   18000  mean AUC 0.8310
+[92/236] step   18200  mean AUC 0.8256
+[93/236] step   18400  mean AUC 0.8310
+[94/236] step   18600  mean AUC 0.8136
+[95/236] step   18800  mean AUC 0.8382
+[96/236] step   19000  mean AUC 0.8308
+[97/236] step   19200  mean AUC 0.8260
+[98/236] step   19400  mean AUC 0.8183
+[99/236] step   19600  mean AUC 0.8271
+[100/236] step   19800  mean AUC 0.8329
+[101/236] step   20000  mean AUC 0.8235
+[102/236] step   20200  mean AUC 0.8255
+[103/236] step   20400  mean AUC 0.8348
+[104/236] step   20600  mean AUC 0.8373
+[105/236] step   20800  mean AUC 0.8230
+[106/236] step   21000  mean AUC 0.8423
+[107/236] step   21200  mean AUC 0.8378
+[108/236] step   21400  mean AUC 0.8243
+[109/236] step   21600  mean AUC 0.8408
+[110/236] step   21800  mean AUC 0.8321
+[111/236] step   22000  mean AUC 0.8313
+[112/236] step   22200  mean AUC 0.8390
+[113/236] step   22400  mean AUC 0.8337
+[114/236] step   22600  mean AUC 0.8410
+[115/236] step   22800  mean AUC 0.8298
+[116/236] step   23000  mean AUC 0.8236
+[117/236] step   23200  mean AUC 0.8241
+[118/236] step   23400  mean AUC 0.8324
+[119/236] step   23600  mean AUC 0.8183
+[120/236] step   23800  mean AUC 0.8215
+[121/236] step   24000  mean AUC 0.8066
+[122/236] step   24200  mean AUC 0.8196
+[123/236] step   24400  mean AUC 0.8219
+[124/236] step   24600  mean AUC 0.8156
+[125/236] step   24800  mean AUC 0.8191
+[126/236] step   25000  mean AUC 0.8130
+[127/236] step   25200  mean AUC 0.8084
+[128/236] step   25400  mean AUC 0.7943
+[129/236] step   25600  mean AUC 0.8166
+[130/236] step   25800  mean AUC 0.8073
+[131/236] step   26000  mean AUC 0.8212
+[132/236] step   26200  mean AUC 0.8231
+[133/236] step   26400  mean AUC 0.8142
+[134/236] step   26600  mean AUC 0.8311
+[135/236] step   26800  mean AUC 0.8219
+[136/236] step   27000  mean AUC 0.8192
+[137/236] step   27200  mean AUC 0.8396
+[138/236] step   27400  mean AUC 0.8339
+[139/236] step   27600  mean AUC 0.8406
+[140/236] step   27800  mean AUC 0.8377
+[141/236] step   28000  mean AUC 0.8317
+[142/236] step   28200  mean AUC 0.8471
+[143/236] step   28400  mean AUC 0.8434
+[144/236] step   28600  mean AUC 0.8327
+[145/236] step   28800  mean AUC 0.8417
+[146/236] step   29000  mean AUC 0.8412
+[147/236] step   29200  mean AUC 0.8343
+[148/236] step   29400  mean AUC 0.8356
+[149/236] step   29600  mean AUC 0.8300
+[150/236] step   29800  mean AUC 0.8305
+[151/236] step   30000  mean AUC 0.8155
+[152/236] step   30200  mean AUC 0.8389
+[153/236] step   30400  mean AUC 0.8320
+[154/236] step   30600  mean AUC 0.8377
+[155/236] step   30800  mean AUC 0.8280
+[156/236] step   31000  mean AUC 0.8308
+[157/236] step   31200  mean AUC 0.8163
+[158/236] step   31400  mean AUC 0.8381
+[159/236] step   31600  mean AUC 0.8351
+[160/236] step   31800  mean AUC 0.8344
+[161/236] step   32000  mean AUC 0.8374
+[162/236] step   32200  mean AUC 0.8517
+[163/236] step   32400  mean AUC 0.8351
+[164/236] step   32600  mean AUC 0.8333
+[165/236] step   32800  mean AUC 0.8249
+[166/236] step   33000  mean AUC 0.8282
+[167/236] step   33200  mean AUC 0.8402
+[168/236] step   33400  mean AUC 0.8322
+[169/236] step   33600  mean AUC 0.8293
+[170/236] step   33800  mean AUC 0.8436
+[171/236] step   34000  mean AUC 0.8370
+[172/236] step   34200  mean AUC 0.8315
+[173/236] step   34400  mean AUC 0.8257
+[174/236] step   34600  mean AUC 0.8229
+[175/236] step   34800  mean AUC 0.8337
+[176/236] step   35000  mean AUC 0.8264
+[177/236] step   35200  mean AUC 0.8234
+[178/236] step   35400  mean AUC 0.8335
+[179/236] step   35600  mean AUC 0.8264
+[180/236] step   35800  mean AUC 0.8227
+[181/236] step   36000  mean AUC 0.8261
+[182/236] step   36200  mean AUC 0.8324
+[183/236] step   36400  mean AUC 0.8403
+[184/236] step   36600  mean AUC 0.8333
+[185/236] step   36800  mean AUC 0.8361
+[186/236] step   37000  mean AUC 0.8333
+[187/236] step   37200  mean AUC 0.8372
+[188/236] step   37400  mean AUC 0.8270
+[189/236] step   37600  mean AUC 0.8407
+[190/236] step   37800  mean AUC 0.8268
+[191/236] step   38000  mean AUC 0.8359
+[192/236] step   38200  mean AUC 0.8351
+[193/236] step   38400  mean AUC 0.8410
+[194/236] step   38600  mean AUC 0.8342
+[195/236] step   38800  mean AUC 0.8400
+[196/236] step   39000  mean AUC 0.8390
+[197/236] step   39200  mean AUC 0.8404
+[198/236] step   39400  mean AUC 0.8289
+[199/236] step   39600  mean AUC 0.8254
+[200/236] step   39800  mean AUC 0.8186
+[201/236] step   40000  mean AUC 0.8234
+[202/236] step   40200  mean AUC 0.8307
+[203/236] step   40400  mean AUC 0.8360
+[204/236] step   40600  mean AUC 0.8299
+[205/236] step   40800  mean AUC 0.8273
+[206/236] step   41000  mean AUC 0.8248
+[207/236] step   41200  mean AUC 0.8296
+[208/236] step   41400  mean AUC 0.8264
+[209/236] step   41600  mean AUC 0.8370
+[210/236] step   41800  mean AUC 0.8424
+[211/236] step   42000  mean AUC 0.8338
+[212/236] step   42200  mean AUC 0.8245
+[213/236] step   42400  mean AUC 0.8345
+[214/236] step   42600  mean AUC 0.8216
+[215/236] step   42800  mean AUC 0.8374
+[216/236] step   43000  mean AUC 0.8306
+[217/236] step   43200  mean AUC 0.8424
+[218/236] step   43400  mean AUC 0.8463
+[219/236] step   43600  mean AUC 0.8404
+[220/236] step   43800  mean AUC 0.8328
+[221/236] step   44000  mean AUC 0.8211
+[222/236] step   44200  mean AUC 0.8309
+[223/236] step   44400  mean AUC 0.8460
+[224/236] step   44600  mean AUC 0.8334
+[225/236] step   44800  mean AUC 0.8387
+[226/236] step   45000  mean AUC 0.8314
+[227/236] step   45200  mean AUC 0.8325
+[228/236] step   45400  mean AUC 0.8427
+[229/236] step   45600  mean AUC 0.8463
+[230/236] step   45800  mean AUC 0.8445
+[231/236] step   46000  mean AUC 0.8269
+[232/236] step   46200  mean AUC 0.8399
+[233/236] step   46400  mean AUC 0.8185
+[234/236] step   46600  mean AUC 0.8376
+[235/236] step   46800  mean AUC 0.8332
+[236/236] step   47000  mean AUC 0.8445
+
+Wrote ranking to data/checkpoint_ranking_v3.csv
+(ensemble members spaced >= 1000 steps apart)
+
+Top 10 checkpoints (the ensemble):
+ step  mean_auc  Atelectasis  Cardiomegaly  Consolidation    Edema  Pleural Effusion
+   -1  0.852870     0.755733      0.847467       0.884487 0.867541          0.909122
+32200  0.851725     0.728747      0.880032       0.866443 0.883816          0.899586
+28200  0.847052     0.758293      0.864541       0.848958 0.873418          0.890051
+45600  0.846339     0.735147      0.846450       0.873326 0.874774          0.901999
+43400  0.846251     0.757120      0.847467       0.865327 0.856239          0.905101
+44400  0.845965     0.752320      0.836273       0.856957 0.888939          0.895335
+47000  0.844478     0.718080      0.835369       0.891369 0.882007          0.895565
+33800  0.843589     0.718720      0.849163       0.884115 0.869349          0.896599
+41800  0.842353     0.734293      0.865445       0.851749 0.876432          0.883847
+21000  0.842343     0.736427      0.860810       0.858631 0.864075          0.891774
+
+Ensemble member mean AUC: 0.8463 (best single 0.8529)
+[5/6] prompt template search Tue Sep 15 04:10:14 PM KST 2026
+Device: cuda:0
+prompt-dev 20,000 images -> select on A=10,000, confirm on B=10,000
+
+Encoding images (10 checkpoints, once each)...
+  [1/10] checkpoint.pt -> (20000, 512)
+  [2/10] checkpoint_32200.pt -> (20000, 512)
+  [3/10] checkpoint_28200.pt -> (20000, 512)
+  [4/10] checkpoint_45600.pt -> (20000, 512)
+  [5/10] checkpoint_43400.pt -> (20000, 512)
+  [6/10] checkpoint_44400.pt -> (20000, 512)
+  [7/10] checkpoint_47000.pt -> (20000, 512)
+  [8/10] checkpoint_33800.pt -> (20000, 512)
+  [9/10] checkpoint_41800.pt -> (20000, 512)
+  [10/10] checkpoint_21000.pt -> (20000, 512)
+
+Encoding 709 prompt strings x 10 checkpoints...
+  [1/10] text done
+  [2/10] text done
+  [3/10] text done
+  [4/10] text done
+  [5/10] text done
+  [6/10] text done
+  [7/10] text done
+  [8/10] text done
+  [9/10] text done
+  [10/10] text done
+
+Scoring...
+  Atelectasis          done (25 combos)
+  Cardiomegaly         done (25 combos)
+  Effusion             done (25 combos)
+  Infiltration         done (25 combos)
+  Mass                 done (25 combos)
+  Nodule               done (25 combos)
+  Pneumonia            done (25 combos)
+  Pneumothorax         done (25 combos)
+  Consolidation        done (25 combos)
+  Edema                done (25 combos)
+  Emphysema            done (30 combos)
+  Fibrosis             done (30 combos)
+  Pleural_Thickening   done (25 combos)
+  Hernia               done (25 combos)
+
+Wrote data/prompt_template_search_v3.csv  (360 combinations)
+
+========================================================================================================
+label                baseline  tuned(A)  CONFIRM(B)  d_vs_base  winning positive prompt
+--------------------------------------------------------------------------------------------------------
+Atelectasis            0.7790    0.7774      0.7790    +0.0000  'Atelectasis'
+Cardiomegaly           0.8349    0.8413      0.8349    +0.0000  'Cardiomegaly'
+Effusion               0.8485    0.8505      0.8532    +0.0048  'there is pleural effusion'
+Infiltration           0.6627    0.6453      0.6617    -0.0010  'findings consistent with airspace opacity'
+Mass                   0.7120    0.7628      0.7668    +0.0548  'a chest x-ray with lung mass'
+Nodule                 0.5853    0.6378      0.6561    +0.0708  'there is pulmonary nodule'
+Pneumonia              0.6995    0.6999      0.6987    -0.0009  'there is pneumonia'
+Pneumothorax           0.5820    0.7068      0.7158    +0.1338  'findings consistent with air in the pleural space'
+Consolidation          0.7724    0.7897      0.7745    +0.0021  'dense opacity'
+Edema                  0.8337    0.8458      0.8494    +0.0157  'findings consistent with fluid overload'
+Emphysema              0.6633    0.7335      0.7448    +0.0815  'there is emphysematous changes'
+Fibrosis               0.6073    0.5950      0.5909    -0.0164  'there is a chest x-ray with pulmonary fibrosis'
+Pleural_Thickening     0.6738    0.7007      0.7109    +0.0371  'a chest x-ray with Pleural_Thickening'
+Hernia                 0.6942    0.8600      0.8556    +0.1613  'hiatal hernia'
+--------------------------------------------------------------------------------------------------------
+MEAN                   0.7106    0.7462      0.7494    +0.0388
+========================================================================================================
+Quote the CONFIRM column: auc_select is the split the winner was chosen on and is optimistically biased.
+
+Template pairs chosen:
+template_pos                 template_neg            
+there is {}                  there is no {}              5
+{}                           no {}                       4
+findings consistent with {}  no evidence of {}           3
+a chest x-ray with {}        a chest x-ray with no {}    2
+[6/6] evaluation Tue Sep 15 04:14:18 PM KST 2026
+Device: cuda:0
+Per-label template pairs from data/prompt_template_search_v3.csv
+  Atelectasis         'Atelectasis'  vs  'no Atelectasis'
+  Cardiomegaly        'Cardiomegaly'  vs  'no Cardiomegaly'
+  Effusion            'there is pleural effusion'  vs  'there is no pleural effusion'
+  Infiltration        'findings consistent with airspace opacity'  vs  'no evidence of airspace opacity'
+  Mass                'a chest x-ray with lung mass'  vs  'a chest x-ray with no lung mass'
+  Nodule              'there is pulmonary nodule'  vs  'there is no pulmonary nodule'
+  Pneumonia           'there is pneumonia'  vs  'there is no pneumonia'
+  Pneumothorax        'findings consistent with air in the pleural space'  vs  'no evidence of air in the pleural space'
+  Consolidation       'dense opacity'  vs  'no dense opacity'
+  Edema               'findings consistent with fluid overload'  vs  'no evidence of fluid overload'
+  Emphysema           'there is emphysematous changes'  vs  'there is no emphysematous changes'
+  Fibrosis            'there is a chest x-ray with pulmonary fibrosis'  vs  'there is no a chest x-ray with pulmonary fibrosis'
+  Pleural_Thickening  'a chest x-ray with Pleural_Thickening'  vs  'a chest x-ray with no Pleural_Thickening'
+  Hernia              'hiatal hernia'  vs  'no hiatal hernia'
+Prompt mapping: 'Effusion'->'there is pleural effusion', 'Infiltration'->'findings consistent with airspace opacity', 'Mass'->'a chest x-ray with lung mass', 'Nodule'->'there is pulmonary nodule', 'Pneumonia'->'there is pneumonia', 'Pneumothorax'->'findings consistent with air in the pleural space', 'Consolidation'->'dense opacity', 'Edema'->'findings consistent with fluid overload', 'Emphysema'->'there is emphysematous changes', 'Fibrosis'->'there is a chest x-ray with pulmonary fibrosis', 'Pleural_Thickening'->'a chest x-ray with Pleural_Thickening', 'Hernia'->'hiatal hernia'
+Ground truth: 25596 images x 14 labels
+Ensembling 10 checkpoints from data/checkpoint_ranking_v3.csv
+  [1/10] checkpoint.pt  mean AUC 0.6964
+  [2/10] checkpoint_32200.pt  mean AUC 0.7012
+  [3/10] checkpoint_28200.pt  mean AUC 0.7013
+  [4/10] checkpoint_45600.pt  mean AUC 0.6968
+  [5/10] checkpoint_43400.pt  mean AUC 0.7001
+  [6/10] checkpoint_44400.pt  mean AUC 0.6937
+  [7/10] checkpoint_47000.pt  mean AUC 0.6967
+  [8/10] checkpoint_33800.pt  mean AUC 0.6822
+  [9/10] checkpoint_41800.pt  mean AUC 0.6963
+  [10/10] checkpoint_21000.pt  mean AUC 0.6848
+Bootstrapping (1000 replicates) ...
+
+Wrote data/nih_results_v3.csv
+
+             label                                            prompt  n_positive    auc  ci_lower  ci_upper
+       Atelectasis                                       Atelectasis        3279 0.7181    0.7090    0.7273
+      Cardiomegaly                                      Cardiomegaly        1069 0.8430    0.8316    0.8548
+          Effusion                         there is pleural effusion        4658 0.7820    0.7754    0.7885
+      Infiltration         findings consistent with airspace opacity        6112 0.6898    0.6834    0.6973
+              Mass                      a chest x-ray with lung mass        1748 0.7036    0.6910    0.7165
+            Nodule                         there is pulmonary nodule        1623 0.6153    0.6020    0.6312
+         Pneumonia                                there is pneumonia         555 0.6794    0.6570    0.6999
+      Pneumothorax findings consistent with air in the pleural space        2665 0.6135    0.6041    0.6229
+     Consolidation                                     dense opacity        1815 0.7120    0.7012    0.7231
+             Edema           findings consistent with fluid overload         925 0.7852    0.7728    0.7976
+         Emphysema                    there is emphysematous changes        1093 0.6081    0.5924    0.6234
+          Fibrosis    there is a chest x-ray with pulmonary fibrosis         435 0.5355    0.5075    0.5625
+Pleural_Thickening             a chest x-ray with Pleural_Thickening        1143 0.6831    0.6656    0.6990
+            Hernia                                     hiatal hernia          86 0.8749    0.8400    0.9088
+
+Ensemble mean AUC over 14 pathologies: 0.7031
+Device: cuda:0
+Evaluating 9 of 14 labels: ['Cardiomegaly', 'Consolidation', 'Edema', 'Effusion', 'Emphysema', 'Fibrosis', 'Infiltration', 'Nodule', 'Pneumothorax']
+Per-label template pairs from data/prompt_template_search_v3.csv
+  Cardiomegaly        'Cardiomegaly'  vs  'no Cardiomegaly'
+  Consolidation       'dense opacity'  vs  'no dense opacity'
+  Edema               'findings consistent with fluid overload'  vs  'no evidence of fluid overload'
+  Effusion            'there is pleural effusion'  vs  'there is no pleural effusion'
+  Emphysema           'there is emphysematous changes'  vs  'there is no emphysematous changes'
+  Fibrosis            'there is a chest x-ray with pulmonary fibrosis'  vs  'there is no a chest x-ray with pulmonary fibrosis'
+  Infiltration        'findings consistent with airspace opacity'  vs  'no evidence of airspace opacity'
+  Nodule              'there is pulmonary nodule'  vs  'there is no pulmonary nodule'
+  Pneumothorax        'findings consistent with air in the pleural space'  vs  'no evidence of air in the pleural space'
+Prompt mapping: 'Consolidation'->'dense opacity', 'Edema'->'findings consistent with fluid overload', 'Effusion'->'there is pleural effusion', 'Emphysema'->'there is emphysematous changes', 'Fibrosis'->'there is a chest x-ray with pulmonary fibrosis', 'Infiltration'->'findings consistent with airspace opacity', 'Nodule'->'there is pulmonary nodule', 'Pneumothorax'->'findings consistent with air in the pleural space'
+Ground truth: 13871 images x 9 labels
+Ensembling 10 checkpoints from data/checkpoint_ranking_v3.csv
+  [1/10] checkpoint.pt  mean AUC 0.6169
+  [2/10] checkpoint_32200.pt  mean AUC 0.6366
+  [3/10] checkpoint_28200.pt  mean AUC 0.6151
+  [4/10] checkpoint_45600.pt  mean AUC 0.6132
+  [5/10] checkpoint_43400.pt  mean AUC 0.6236
+  [6/10] checkpoint_44400.pt  mean AUC 0.6158
+  [7/10] checkpoint_47000.pt  mean AUC 0.6162
+  [8/10] checkpoint_33800.pt  mean AUC 0.5898
+  [9/10] checkpoint_41800.pt  mean AUC 0.6255
+  [10/10] checkpoint_21000.pt  mean AUC 0.6034
+Bootstrapping (1000 replicates) ...
+
+Wrote data/bench9_results_v3.csv
+
+        label                                            prompt  n_positive    auc  ci_lower  ci_upper
+ Cardiomegaly                                      Cardiomegaly        1069 0.8218    0.8085    0.8362
+Consolidation                                     dense opacity        1815 0.6349    0.6205    0.6475
+        Edema           findings consistent with fluid overload         925 0.7331    0.7185    0.7489
+     Effusion                         there is pleural effusion        4658 0.7379    0.7287    0.7468
+    Emphysema                    there is emphysematous changes        1093 0.5251    0.5085    0.5412
+     Fibrosis    there is a chest x-ray with pulmonary fibrosis         435 0.4503    0.4178    0.4811
+ Infiltration         findings consistent with airspace opacity        6112 0.6073    0.5977    0.6169
+       Nodule                         there is pulmonary nodule        1623 0.5583    0.5418    0.5744
+ Pneumothorax findings consistent with air in the pleural space        2665 0.4984    0.4862    0.5101
+
+Ensemble mean AUC over 9 pathologies: 0.6186
+=== v3 finished Tue Sep 15 04:22:24 PM KST 2026 ===
+eval_template_bench9.log:Ensemble mean AUC over 9 pathologies: 0.6468
+eval_template_full.log:Ensemble mean AUC over 14 pathologies: 0.7035

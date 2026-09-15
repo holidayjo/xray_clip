@@ -1,0 +1,50 @@
+Device: cuda:0
+Per-label template pairs from data/prompt_template_search.csv
+  Atelectasis         'basilar atelectasis'  vs  'no basilar atelectasis'
+  Cardiomegaly        'enlarged cardiac silhouette'  vs  'no enlarged cardiac silhouette'
+  Effusion            'a chest x-ray with Effusion'  vs  'a chest x-ray with no Effusion'
+  Infiltration        'findings consistent with infiltrate'  vs  'no evidence of infiltrate'
+  Mass                'Mass'  vs  'no Mass'
+  Nodule              'a chest x-ray with small nodular opacity'  vs  'a chest x-ray with no small nodular opacity'
+  Pneumonia           'a chest x-ray with Pneumonia'  vs  'a chest x-ray with no Pneumonia'
+  Pneumothorax        'findings consistent with Pneumothorax'  vs  'no evidence of Pneumothorax'
+  Consolidation       'a chest x-ray with Consolidation'  vs  'a chest x-ray with no Consolidation'
+  Edema               'a chest x-ray with pulmonary edema is present'  vs  'a chest x-ray with pulmonary edema is absent'
+  Emphysema           'a chest x-ray with emphysematous changes'  vs  'a chest x-ray with no emphysematous changes'
+  Fibrosis            'there is reticular interstitial opacities'  vs  'there is no reticular interstitial opacities'
+  Pleural_Thickening  'there is Pleural_Thickening'  vs  'there is no Pleural_Thickening'
+  Hernia              'a chest x-ray with Hernia'  vs  'a chest x-ray with no Hernia'
+Prompt mapping: 'Atelectasis'->'basilar atelectasis', 'Cardiomegaly'->'enlarged cardiac silhouette', 'Effusion'->'a chest x-ray with Effusion', 'Infiltration'->'findings consistent with infiltrate', 'Nodule'->'a chest x-ray with small nodular opacity', 'Pneumonia'->'a chest x-ray with Pneumonia', 'Pneumothorax'->'findings consistent with Pneumothorax', 'Consolidation'->'a chest x-ray with Consolidation', 'Edema'->'a chest x-ray with pulmonary edema is present', 'Emphysema'->'a chest x-ray with emphysematous changes', 'Fibrosis'->'there is reticular interstitial opacities', 'Pleural_Thickening'->'there is Pleural_Thickening', 'Hernia'->'a chest x-ray with Hernia'
+Ground truth: 25596 images x 14 labels
+Ensembling 10 checkpoints from data/checkpoint_ranking_v2.csv
+  [1/10] checkpoint_27000.pt  mean AUC 0.6999
+  [2/10] checkpoint_29400.pt  mean AUC 0.6950
+  [3/10] checkpoint_22200.pt  mean AUC 0.6868
+  [4/10] checkpoint_26000.pt  mean AUC 0.6838
+  [5/10] checkpoint_32400.pt  mean AUC 0.6845
+  [6/10] checkpoint_18600.pt  mean AUC 0.6927
+  [7/10] checkpoint_24000.pt  mean AUC 0.6999
+  [8/10] checkpoint_31000.pt  mean AUC 0.6887
+  [9/10] checkpoint_38800.pt  mean AUC 0.7000
+  [10/10] checkpoint_41400.pt  mean AUC 0.6807
+Bootstrapping (1000 replicates) ...
+
+Wrote data/nih_results_cropped.csv
+
+             label                                        prompt  n_positive    auc  ci_lower  ci_upper
+       Atelectasis                           basilar atelectasis        3279 0.6993    0.6897    0.7085
+      Cardiomegaly                   enlarged cardiac silhouette        1069 0.8740    0.8646    0.8839
+          Effusion                   a chest x-ray with Effusion        4658 0.7750    0.7682    0.7817
+      Infiltration           findings consistent with infiltrate        6112 0.6879    0.6810    0.6956
+              Mass                                          Mass        1748 0.6652    0.6528    0.6782
+            Nodule      a chest x-ray with small nodular opacity        1623 0.6112    0.5978    0.6263
+         Pneumonia                  a chest x-ray with Pneumonia         555 0.6855    0.6645    0.7079
+      Pneumothorax         findings consistent with Pneumothorax        2665 0.7436    0.7340    0.7531
+     Consolidation              a chest x-ray with Consolidation        1815 0.6953    0.6849    0.7074
+             Edema a chest x-ray with pulmonary edema is present         925 0.8023    0.7902    0.8139
+         Emphysema      a chest x-ray with emphysematous changes        1093 0.5924    0.5780    0.6071
+          Fibrosis     there is reticular interstitial opacities         435 0.5850    0.5560    0.6136
+Pleural_Thickening                   there is Pleural_Thickening        1143 0.6954    0.6796    0.7111
+            Hernia                     a chest x-ray with Hernia          86 0.6590    0.5958    0.7193
+
+Ensemble mean AUC over 14 pathologies: 0.6979

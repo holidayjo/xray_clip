@@ -1,0 +1,35 @@
+Device: cuda:0
+prompt-dev 20,000 -> select A=10,000, confirm B=10,000
+candidate pool: 60 checkpoints
+
+Encoding images x 60 checkpoints...
+  encoded 10/60
+  encoded 20/60
+  encoded 30/60
+  encoded 40/60
+  encoded 50/60
+  encoded 60/60
+Encoding 709 prompt strings...
+  text 10/60
+  text 20/60
+  text 30/60
+  text 40/60
+  text 50/60
+  text 60/60
+  Atelectasis          global 0.7762 -> per-label 0.7848  (+0.0086)
+  Cardiomegaly         global 0.8484 -> per-label 0.8621  (+0.0137)
+  Effusion             global 0.8623 -> per-label 0.8635  (+0.0013)
+  Infiltration         global 0.6703 -> per-label 0.6768  (+0.0066)
+  Mass                 global 0.7475 -> per-label 0.7544  (+0.0069)
+  Nodule               global 0.6589 -> per-label 0.6686  (+0.0097)
+  Pneumonia            global 0.6811 -> per-label 0.6872  (+0.0061)
+  Pneumothorax         global 0.7583 -> per-label 0.7681  (+0.0098)
+  Consolidation        global 0.7757 -> per-label 0.7756  (-0.0002)
+  Edema                global 0.8568 -> per-label 0.8590  (+0.0022)
+  Emphysema            global 0.7305 -> per-label 0.7320  (+0.0015)
+  Fibrosis             global 0.6283 -> per-label 0.6425  (+0.0141)
+  Pleural_Thickening   global 0.7327 -> per-label 0.7472  (+0.0145)
+  Hernia               global 0.7062 -> per-label 0.7645  (+0.0583)
+
+Wrote data/per_label_selection.csv
+CONFIRM-split mean: global 0.7452 -> per-label 0.7562 (+0.0109)
