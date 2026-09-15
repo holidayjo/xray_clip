@@ -19,7 +19,7 @@ import pandas as pd
 import torch
 from sklearn.metrics import roc_auc_score
 
-from select_checkpoints import make_loader, score_checkpoint
+from select_checkpoints import make_loader, score_checkpoint, score_checkpoint_explicit
 from zero_shot import load_clip
 
 # The 14 ChestX-ray14 pathologies, in the canonical order used by the benchmark.
@@ -75,6 +75,10 @@ def parse_args():
     p.add_argument("--labels", default=None,
                    help="Comma-separated subset of NIH_LABELS to evaluate, e.g. to match a "
                         "benchmark that reports only some pathologies. Default: all 14.")
+    p.add_argument("--template_csv", default=None,
+                   help="prompt_template_search.csv from search_prompt_templates.py. Uses the "
+                        "per-label winning TEMPLATE PAIR (chosen on split A), giving each label "
+                        "its own positive/negative frame. Overrides --prompts_csv.")
     p.add_argument("--prompts_csv", default=None,
                    help="Optional prompt_search_results.csv from search_prompts.py. When given, "
                         "the best-scoring prompt per label (by held-out AUC) overrides "
@@ -119,7 +123,17 @@ def main():
     if args.labels:
         print(f"Evaluating {len(labels)} of {len(NIH_LABELS)} labels: {labels}")
 
-    if args.prompts_csv:
+    pos_strings = neg_strings = None
+    if args.template_csv:
+        ts = pd.read_csv(args.template_csv)
+        win = ts.loc[ts.groupby("label")["auc_select"].idxmax()].set_index("label")
+        pos_strings = [win.loc[l, "prompt_pos"] for l in labels]
+        neg_strings = [win.loc[l, "prompt_neg"] for l in labels]
+        prompts = pos_strings
+        print(f"Per-label template pairs from {args.template_csv}")
+        for l, pp, nn in zip(labels, pos_strings, neg_strings):
+            print(f"  {l:<20}{pp!r}  vs  {nn!r}")
+    elif args.prompts_csv:
         sr = pd.read_csv(args.prompts_csv)
         best = sr.loc[sr.groupby("label")["auc"].idxmax()].set_index("label")["prompt"]
         prompts = [best.get(l, LABEL_PROMPTS.get(l, l)) for l in labels]
@@ -143,7 +157,11 @@ def main():
     total = None
     for i, ckpt in enumerate(ckpts, 1):
         model = load_clip(model_path=ckpt, pretrained=True, context_length=args.context_length).to(device)
-        y_pred = score_checkpoint(model, loader, prompts, device, args.context_length)
+        if pos_strings is not None:
+            y_pred = score_checkpoint_explicit(model, loader, pos_strings, neg_strings,
+                                               device, args.context_length)
+        else:
+            y_pred = score_checkpoint(model, loader, prompts, device, args.context_length)
         total = y_pred if total is None else total + y_pred
         mean_auc = np.mean([roc_auc_score(y_true[:, j], y_pred[:, j]) for j in range(len(labels))])
         print(f"  [{i}/{len(ckpts)}] {os.path.basename(ckpt)}  mean AUC {mean_auc:.4f}")

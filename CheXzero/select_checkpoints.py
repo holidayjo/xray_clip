@@ -107,6 +107,32 @@ def score_checkpoint(model, loader, labels, device, context_length: int) -> np.n
     return np.exp(pos) / (np.exp(pos) + np.exp(neg))
 
 
+def score_checkpoint_explicit(model, loader, pos_strings, neg_strings, device, context_length):
+    """Like score_checkpoint, but each label carries its own positive/negative prompt STRING.
+
+    score_checkpoint applies one shared template pair to every label; a per-label template
+    search produces a different frame per label, so the fully-formed strings are passed in.
+    """
+    import clip
+    model.eval()
+    def embed(strings):
+        with torch.no_grad():
+            toks = clip.tokenize(list(strings), context_length=context_length).to(device)
+            e = model.encode_text(toks)
+            return (e / e.norm(dim=-1, keepdim=True)).t()      # (D, num_labels)
+    pos_w, neg_w = embed(pos_strings), embed(neg_strings)
+
+    pos_l, neg_l = [], []
+    with torch.no_grad():
+        for batch in loader:
+            f = model.encode_image(batch["img"].to(device))
+            f = f / f.norm(dim=-1, keepdim=True)
+            pos_l.append((f @ pos_w).cpu().numpy())
+            neg_l.append((f @ neg_w).cpu().numpy())
+    pos, neg = np.concatenate(pos_l), np.concatenate(neg_l)
+    return np.exp(pos) / (np.exp(pos) + np.exp(neg))
+
+
 def mean_auc(y_true: np.ndarray, y_pred: np.ndarray, labels: List[str]):
     aucs = [roc_auc_score(y_true[:, i], y_pred[:, i]) for i in range(len(labels))]
     return float(np.mean(aucs)), aucs
