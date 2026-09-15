@@ -5,4 +5,4 @@ files/
 *.npz
 *.pkl
 runs/
-__pycache__/
+__pycache__/CheXzero/*.log

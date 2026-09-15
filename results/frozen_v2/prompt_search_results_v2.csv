@@ -1,0 +1,73 @@
+label,prompt,auc,is_baseline
+Atelectasis,Atelectasis,0.7709760764140076,True
+Atelectasis,atelectasis,0.7709760764140076,False
+Atelectasis,basilar atelectasis,0.7829237281374322,False
+Atelectasis,a chest x-ray with atelectasis,0.6875392107595468,False
+Atelectasis,lung collapse,0.6409932341865865,False
+Cardiomegaly,Cardiomegaly,0.8381270452639109,True
+Cardiomegaly,cardiomegaly,0.8381270452639109,False
+Cardiomegaly,enlarged heart,0.8046384130031266,False
+Cardiomegaly,a chest x-ray with cardiomegaly,0.5651200297926334,False
+Cardiomegaly,enlarged cardiac silhouette,0.8481505466496454,False
+Effusion,Effusion,0.8547988262169502,True
+Effusion,pleural effusion,0.8582215833114728,False
+Effusion,Pleural Effusion,0.8582215833114728,False
+Effusion,a chest x-ray with pleural effusion,0.7953966152211018,False
+Effusion,fluid in the pleural space,0.8233882402021837,False
+Infiltration,Infiltration,0.6530858045010068,True
+Infiltration,infiltrate,0.6586432236611904,False
+Infiltration,pulmonary infiltrate,0.6455356705100457,False
+Infiltration,a chest x-ray with pulmonary infiltrate,0.6387415325884036,False
+Infiltration,airspace opacity,0.6556151222261566,False
+Mass,Mass,0.7424257031945934,True
+Mass,mass,0.7424257031945934,False
+Mass,lung mass,0.7162683439813825,False
+Mass,a chest x-ray with a lung mass,0.6659145110824934,False
+Mass,pulmonary mass,0.7204052050115007,False
+Nodule,Nodule,0.527469687412169,True
+Nodule,nodule,0.527469687412169,False
+Nodule,pulmonary nodule,0.5939674360202105,False
+Nodule,a chest x-ray with a nodule,0.6209375670510346,False
+Nodule,small nodular opacity,0.5547150909376366,False
+Pneumonia,Pneumonia,0.6844914388030762,True
+Pneumonia,pneumonia,0.6844914388030762,False
+Pneumonia,a chest x-ray with pneumonia,0.6844915737547135,False
+Pneumonia,infectious consolidation,0.6713557862268899,False
+Pneumonia,focal pneumonia,0.6842814540553102,False
+Pneumothorax,Pneumothorax,0.7076863574981334,True
+Pneumothorax,pneumothorax,0.7076863574981334,False
+Pneumothorax,a chest x-ray with pneumothorax,0.6729879458838194,False
+Pneumothorax,collapsed lung,0.6425612583418772,False
+Pneumothorax,air in the pleural space,0.6890278633315928,False
+Consolidation,Consolidation,0.7698202245346656,True
+Consolidation,consolidation,0.7698202245346656,False
+Consolidation,a chest x-ray with consolidation,0.7794302644482918,False
+Consolidation,airspace consolidation,0.7744649189126731,False
+Consolidation,dense opacity,0.7830851646256033,False
+Edema,Edema,0.8435799474351795,True
+Edema,edema,0.8435799474351795,False
+Edema,pulmonary edema,0.8430030829716116,False
+Edema,a chest x-ray with pulmonary edema,0.832206957305305,False
+Edema,fluid overload,0.8350023145459808,False
+Emphysema,Emphysema,0.6955451716738876,True
+Emphysema,emphysema,0.6955451716738876,False
+Emphysema,pulmonary emphysema,0.6775673751119735,False
+Emphysema,a chest x-ray with emphysema,0.6789730815192929,False
+Emphysema,hyperinflated lungs,0.6626345655740654,False
+Emphysema,emphysematous changes,0.7100597571206992,False
+Fibrosis,Fibrosis,0.5968423754359148,True
+Fibrosis,fibrosis,0.5968423754359148,False
+Fibrosis,pulmonary fibrosis,0.5493658998157265,False
+Fibrosis,a chest x-ray with pulmonary fibrosis,0.5397045756290946,False
+Fibrosis,interstitial fibrosis,0.5483146470807951,False
+Fibrosis,reticular interstitial opacities,0.6178318734374904,False
+Pleural_Thickening,Pleural_Thickening,0.6776081413779572,True
+Pleural_Thickening,pleural thickening,0.706407320074426,False
+Pleural_Thickening,Pleural Thickening,0.706407320074426,False
+Pleural_Thickening,a chest x-ray with pleural thickening,0.6037157219932645,False
+Pleural_Thickening,thickened pleura,0.6547751369439495,False
+Hernia,Hernia,0.6434099029149873,True
+Hernia,hernia,0.6434099029149873,False
+Hernia,hiatal hernia,0.7033938461830062,False
+Hernia,a chest x-ray with a hiatal hernia,0.5191584160426519,False
+Hernia,diaphragmatic hernia,0.6729848869056403,False

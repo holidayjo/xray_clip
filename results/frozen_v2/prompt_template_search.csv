@@ -1,0 +1,361 @@
+label,template_pos,template_neg,label_string,prompt_pos,prompt_neg,auc_select,auc_confirm,is_baseline
+Atelectasis,{},no {},Atelectasis,Atelectasis,no Atelectasis,0.7704481121815406,0.7715709321273208,True
+Atelectasis,{},no {},atelectasis,atelectasis,no atelectasis,0.7704481121815406,0.7715709321273208,False
+Atelectasis,{},no {},basilar atelectasis,basilar atelectasis,no basilar atelectasis,0.7819095228349509,0.783985969388524,False
+Atelectasis,{},no {},a chest x-ray with atelectasis,a chest x-ray with atelectasis,no a chest x-ray with atelectasis,0.6870402557957431,0.6880341076783498,False
+Atelectasis,{},no {},lung collapse,lung collapse,no lung collapse,0.6452982009665504,0.6367624825662986,False
+Atelectasis,a chest x-ray with {},a chest x-ray with no {},Atelectasis,a chest x-ray with Atelectasis,a chest x-ray with no Atelectasis,0.7148319783238023,0.7120241824466449,False
+Atelectasis,a chest x-ray with {},a chest x-ray with no {},atelectasis,a chest x-ray with atelectasis,a chest x-ray with no atelectasis,0.7148319783238023,0.7120241824466449,False
+Atelectasis,a chest x-ray with {},a chest x-ray with no {},basilar atelectasis,a chest x-ray with basilar atelectasis,a chest x-ray with no basilar atelectasis,0.737262737386201,0.7366000512750603,False
+Atelectasis,a chest x-ray with {},a chest x-ray with no {},a chest x-ray with atelectasis,a chest x-ray with a chest x-ray with atelectasis,a chest x-ray with no a chest x-ray with atelectasis,0.6810117981238482,0.691763301593179,False
+Atelectasis,a chest x-ray with {},a chest x-ray with no {},lung collapse,a chest x-ray with lung collapse,a chest x-ray with no lung collapse,0.6667943321943541,0.662862741822357,False
+Atelectasis,findings consistent with {},no evidence of {},Atelectasis,findings consistent with Atelectasis,no evidence of Atelectasis,0.7472950480111367,0.7406988016895458,False
+Atelectasis,findings consistent with {},no evidence of {},atelectasis,findings consistent with atelectasis,no evidence of atelectasis,0.7472950480111367,0.7406988016895458,False
+Atelectasis,findings consistent with {},no evidence of {},basilar atelectasis,findings consistent with basilar atelectasis,no evidence of basilar atelectasis,0.75989778601033,0.7578252021863378,False
+Atelectasis,findings consistent with {},no evidence of {},a chest x-ray with atelectasis,findings consistent with a chest x-ray with atelectasis,no evidence of a chest x-ray with atelectasis,0.6317052827080812,0.635885961083748,False
+Atelectasis,findings consistent with {},no evidence of {},lung collapse,findings consistent with lung collapse,no evidence of lung collapse,0.6293341396159109,0.6256546941690951,False
+Atelectasis,there is {},there is no {},Atelectasis,there is Atelectasis,there is no Atelectasis,0.7710316907117829,0.7693253882301919,False
+Atelectasis,there is {},there is no {},atelectasis,there is atelectasis,there is no atelectasis,0.7710316289182071,0.7693255087639492,False
+Atelectasis,there is {},there is no {},basilar atelectasis,there is basilar atelectasis,there is no basilar atelectasis,0.7563918038978399,0.7603424894391335,False
+Atelectasis,there is {},there is no {},a chest x-ray with atelectasis,there is a chest x-ray with atelectasis,there is no a chest x-ray with atelectasis,0.6368729558685111,0.6481481615407878,False
+Atelectasis,there is {},there is no {},lung collapse,there is lung collapse,there is no lung collapse,0.6459328827840132,0.6456418428598997,False
+Atelectasis,{} is present,{} is absent,Atelectasis,Atelectasis is present,Atelectasis is absent,0.6413025665590963,0.6338388157510139,False
+Atelectasis,{} is present,{} is absent,atelectasis,atelectasis is present,atelectasis is absent,0.6413025665590963,0.6338388157510139,False
+Atelectasis,{} is present,{} is absent,basilar atelectasis,basilar atelectasis is present,basilar atelectasis is absent,0.5606621972609133,0.5528002944880757,False
+Atelectasis,{} is present,{} is absent,a chest x-ray with atelectasis,a chest x-ray with atelectasis is present,a chest x-ray with atelectasis is absent,0.6227719708294774,0.6172091348677522,False
+Atelectasis,{} is present,{} is absent,lung collapse,lung collapse is present,lung collapse is absent,0.5604262693883524,0.5529463211349555,False
+Cardiomegaly,{},no {},Cardiomegaly,Cardiomegaly,no Cardiomegaly,0.8345689064853894,0.8416500532430204,True
+Cardiomegaly,{},no {},cardiomegaly,cardiomegaly,no cardiomegaly,0.8345689064853894,0.8416500532430204,False
+Cardiomegaly,{},no {},enlarged heart,enlarged heart,no enlarged heart,0.8004549359429276,0.8089901640525543,False
+Cardiomegaly,{},no {},a chest x-ray with cardiomegaly,a chest x-ray with cardiomegaly,no a chest x-ray with cardiomegaly,0.5571580821474371,0.5730179985428225,False
+Cardiomegaly,{},no {},enlarged cardiac silhouette,enlarged cardiac silhouette,no enlarged cardiac silhouette,0.8462682553318641,0.8499052234205238,False
+Cardiomegaly,a chest x-ray with {},a chest x-ray with no {},Cardiomegaly,a chest x-ray with Cardiomegaly,a chest x-ray with no Cardiomegaly,0.7948898766169898,0.798679332900984,False
+Cardiomegaly,a chest x-ray with {},a chest x-ray with no {},cardiomegaly,a chest x-ray with cardiomegaly,a chest x-ray with no cardiomegaly,0.7948898766169898,0.798679332900984,False
+Cardiomegaly,a chest x-ray with {},a chest x-ray with no {},enlarged heart,a chest x-ray with enlarged heart,a chest x-ray with no enlarged heart,0.7681858588876853,0.7695583031089119,False
+Cardiomegaly,a chest x-ray with {},a chest x-ray with no {},a chest x-ray with cardiomegaly,a chest x-ray with a chest x-ray with cardiomegaly,a chest x-ray with no a chest x-ray with cardiomegaly,0.8068265292147562,0.8342525760814739,False
+Cardiomegaly,a chest x-ray with {},a chest x-ray with no {},enlarged cardiac silhouette,a chest x-ray with enlarged cardiac silhouette,a chest x-ray with no enlarged cardiac silhouette,0.811946114866968,0.8118724929743233,False
+Cardiomegaly,findings consistent with {},no evidence of {},Cardiomegaly,findings consistent with Cardiomegaly,no evidence of Cardiomegaly,0.8091266076519875,0.8161619588627611,False
+Cardiomegaly,findings consistent with {},no evidence of {},cardiomegaly,findings consistent with cardiomegaly,no evidence of cardiomegaly,0.8091266076519875,0.8161619588627611,False
+Cardiomegaly,findings consistent with {},no evidence of {},enlarged heart,findings consistent with enlarged heart,no evidence of enlarged heart,0.7764093178450926,0.7831325210770302,False
+Cardiomegaly,findings consistent with {},no evidence of {},a chest x-ray with cardiomegaly,findings consistent with a chest x-ray with cardiomegaly,no evidence of a chest x-ray with cardiomegaly,0.6959307262291612,0.7352670958134172,False
+Cardiomegaly,findings consistent with {},no evidence of {},enlarged cardiac silhouette,findings consistent with enlarged cardiac silhouette,no evidence of enlarged cardiac silhouette,0.7964105628805139,0.8019930103523647,False
+Cardiomegaly,there is {},there is no {},Cardiomegaly,there is Cardiomegaly,there is no Cardiomegaly,0.8374504164643484,0.8450908333933819,False
+Cardiomegaly,there is {},there is no {},cardiomegaly,there is cardiomegaly,there is no cardiomegaly,0.8374504164643484,0.8450908333933819,False
+Cardiomegaly,there is {},there is no {},enlarged heart,there is enlarged heart,there is no enlarged heart,0.7950280755487493,0.8018523967365632,False
+Cardiomegaly,there is {},there is no {},a chest x-ray with cardiomegaly,there is a chest x-ray with cardiomegaly,there is no a chest x-ray with cardiomegaly,0.6573513116448163,0.6672711550933154,False
+Cardiomegaly,there is {},there is no {},enlarged cardiac silhouette,there is enlarged cardiac silhouette,there is no enlarged cardiac silhouette,0.8177415057458384,0.8222723960960456,False
+Cardiomegaly,{} is present,{} is absent,Cardiomegaly,Cardiomegaly is present,Cardiomegaly is absent,0.7752621422079458,0.7586825154725018,False
+Cardiomegaly,{} is present,{} is absent,cardiomegaly,cardiomegaly is present,cardiomegaly is absent,0.7752621422079458,0.7586825154725018,False
+Cardiomegaly,{} is present,{} is absent,enlarged heart,enlarged heart is present,enlarged heart is absent,0.6048364645974178,0.5919170189513128,False
+Cardiomegaly,{} is present,{} is absent,a chest x-ray with cardiomegaly,a chest x-ray with cardiomegaly is present,a chest x-ray with cardiomegaly is absent,0.7570445349170183,0.7498418722327641,False
+Cardiomegaly,{} is present,{} is absent,enlarged cardiac silhouette,enlarged cardiac silhouette is present,enlarged cardiac silhouette is absent,0.7417836377444939,0.7186526713584576,False
+Effusion,{},no {},Effusion,Effusion,no Effusion,0.8519329657788828,0.8574899045908997,True
+Effusion,{},no {},pleural effusion,pleural effusion,no pleural effusion,0.8546662494063174,0.8616569190000906,False
+Effusion,{},no {},Pleural Effusion,Pleural Effusion,no Pleural Effusion,0.8546662494063174,0.8616569190000906,False
+Effusion,{},no {},a chest x-ray with pleural effusion,a chest x-ray with pleural effusion,no a chest x-ray with pleural effusion,0.7928784282167985,0.7977934177005352,False
+Effusion,{},no {},fluid in the pleural space,fluid in the pleural space,no fluid in the pleural space,0.822631723035271,0.8239749666596488,False
+Effusion,a chest x-ray with {},a chest x-ray with no {},Effusion,a chest x-ray with Effusion,a chest x-ray with no Effusion,0.856960460255471,0.8607179283223377,False
+Effusion,a chest x-ray with {},a chest x-ray with no {},pleural effusion,a chest x-ray with pleural effusion,a chest x-ray with no pleural effusion,0.854525099556012,0.8595690900571282,False
+Effusion,a chest x-ray with {},a chest x-ray with no {},Pleural Effusion,a chest x-ray with Pleural Effusion,a chest x-ray with no Pleural Effusion,0.854525099556012,0.8595690900571282,False
+Effusion,a chest x-ray with {},a chest x-ray with no {},a chest x-ray with pleural effusion,a chest x-ray with a chest x-ray with pleural effusion,a chest x-ray with no a chest x-ray with pleural effusion,0.835750186517299,0.8378752800114391,False
+Effusion,a chest x-ray with {},a chest x-ray with no {},fluid in the pleural space,a chest x-ray with fluid in the pleural space,a chest x-ray with no fluid in the pleural space,0.8446939433795011,0.846328199566086,False
+Effusion,findings consistent with {},no evidence of {},Effusion,findings consistent with Effusion,no evidence of Effusion,0.8350399305655705,0.8417512782900707,False
+Effusion,findings consistent with {},no evidence of {},pleural effusion,findings consistent with pleural effusion,no evidence of pleural effusion,0.8346999451023825,0.8406369566902285,False
+Effusion,findings consistent with {},no evidence of {},Pleural Effusion,findings consistent with Pleural Effusion,no evidence of Pleural Effusion,0.8346999451023825,0.8406369566902285,False
+Effusion,findings consistent with {},no evidence of {},a chest x-ray with pleural effusion,findings consistent with a chest x-ray with pleural effusion,no evidence of a chest x-ray with pleural effusion,0.7630612584341392,0.7625094863588192,False
+Effusion,findings consistent with {},no evidence of {},fluid in the pleural space,findings consistent with fluid in the pleural space,no evidence of fluid in the pleural space,0.81358262956703,0.81570281597603,False
+Effusion,there is {},there is no {},Effusion,there is Effusion,there is no Effusion,0.8475431393361137,0.8532349098920412,False
+Effusion,there is {},there is no {},pleural effusion,there is pleural effusion,there is no pleural effusion,0.850469429910837,0.8560391742972538,False
+Effusion,there is {},there is no {},Pleural Effusion,there is Pleural Effusion,there is no Pleural Effusion,0.850469309732165,0.8560392315388216,False
+Effusion,there is {},there is no {},a chest x-ray with pleural effusion,there is a chest x-ray with pleural effusion,there is no a chest x-ray with pleural effusion,0.7811612480507019,0.79149518524001,False
+Effusion,there is {},there is no {},fluid in the pleural space,there is fluid in the pleural space,there is no fluid in the pleural space,0.8353593053865043,0.8372775063191829,False
+Effusion,{} is present,{} is absent,Effusion,Effusion is present,Effusion is absent,0.7934974685564522,0.7962872775692849,False
+Effusion,{} is present,{} is absent,pleural effusion,pleural effusion is present,pleural effusion is absent,0.7900882399881552,0.7970844808836632,False
+Effusion,{} is present,{} is absent,Pleural Effusion,Pleural Effusion is present,Pleural Effusion is absent,0.7900882399881552,0.7970844808836632,False
+Effusion,{} is present,{} is absent,a chest x-ray with pleural effusion,a chest x-ray with pleural effusion is present,a chest x-ray with pleural effusion is absent,0.7799406533681755,0.7875262266553145,False
+Effusion,{} is present,{} is absent,fluid in the pleural space,fluid in the pleural space is present,fluid in the pleural space is absent,0.775113076112518,0.7754923891039072,False
+Infiltration,{},no {},Infiltration,Infiltration,no Infiltration,0.6418093665064335,0.6640786717783521,True
+Infiltration,{},no {},infiltrate,infiltrate,no infiltrate,0.6464508183027062,0.6705740317685004,False
+Infiltration,{},no {},pulmonary infiltrate,pulmonary infiltrate,no pulmonary infiltrate,0.6355229812732354,0.6553451976651149,False
+Infiltration,{},no {},a chest x-ray with pulmonary infiltrate,a chest x-ray with pulmonary infiltrate,no a chest x-ray with pulmonary infiltrate,0.6312554416552684,0.646072543582128,False
+Infiltration,{},no {},airspace opacity,airspace opacity,no airspace opacity,0.6420266506976864,0.6688809735595742,False
+Infiltration,a chest x-ray with {},a chest x-ray with no {},Infiltration,a chest x-ray with Infiltration,a chest x-ray with no Infiltration,0.6440351393403321,0.6621881487332292,False
+Infiltration,a chest x-ray with {},a chest x-ray with no {},infiltrate,a chest x-ray with infiltrate,a chest x-ray with no infiltrate,0.6391325560057537,0.6586502508779986,False
+Infiltration,a chest x-ray with {},a chest x-ray with no {},pulmonary infiltrate,a chest x-ray with pulmonary infiltrate,a chest x-ray with no pulmonary infiltrate,0.6388667553404624,0.654217968075249,False
+Infiltration,a chest x-ray with {},a chest x-ray with no {},a chest x-ray with pulmonary infiltrate,a chest x-ray with a chest x-ray with pulmonary infiltrate,a chest x-ray with no a chest x-ray with pulmonary infiltrate,0.6453507719849665,0.6591946860938079,False
+Infiltration,a chest x-ray with {},a chest x-ray with no {},airspace opacity,a chest x-ray with airspace opacity,a chest x-ray with no airspace opacity,0.6415846966052221,0.6592769493155931,False
+Infiltration,findings consistent with {},no evidence of {},Infiltration,findings consistent with Infiltration,no evidence of Infiltration,0.6426285011660933,0.6630877889268076,False
+Infiltration,findings consistent with {},no evidence of {},infiltrate,findings consistent with infiltrate,no evidence of infiltrate,0.6530430313534423,0.6735353836131,False
+Infiltration,findings consistent with {},no evidence of {},pulmonary infiltrate,findings consistent with pulmonary infiltrate,no evidence of pulmonary infiltrate,0.6433508151107211,0.6628651237374581,False
+Infiltration,findings consistent with {},no evidence of {},a chest x-ray with pulmonary infiltrate,findings consistent with a chest x-ray with pulmonary infiltrate,no evidence of a chest x-ray with pulmonary infiltrate,0.6439898912551836,0.6657830680772023,False
+Infiltration,findings consistent with {},no evidence of {},airspace opacity,findings consistent with airspace opacity,no evidence of airspace opacity,0.6342469088681493,0.6551325877890923,False
+Infiltration,there is {},there is no {},Infiltration,there is Infiltration,there is no Infiltration,0.6382782755538772,0.6564575304944964,False
+Infiltration,there is {},there is no {},infiltrate,there is infiltrate,there is no infiltrate,0.6437471815451653,0.6629586836692773,False
+Infiltration,there is {},there is no {},pulmonary infiltrate,there is pulmonary infiltrate,there is no pulmonary infiltrate,0.6387972277949903,0.6584044129501181,False
+Infiltration,there is {},there is no {},a chest x-ray with pulmonary infiltrate,there is a chest x-ray with pulmonary infiltrate,there is no a chest x-ray with pulmonary infiltrate,0.6049950405382094,0.6216754982387064,False
+Infiltration,there is {},there is no {},airspace opacity,there is airspace opacity,there is no airspace opacity,0.6359201117466405,0.6590345459186021,False
+Infiltration,{} is present,{} is absent,Infiltration,Infiltration is present,Infiltration is absent,0.6004490087188731,0.6153463612676283,False
+Infiltration,{} is present,{} is absent,infiltrate,infiltrate is present,infiltrate is absent,0.5926056394225088,0.6098946434890729,False
+Infiltration,{} is present,{} is absent,pulmonary infiltrate,pulmonary infiltrate is present,pulmonary infiltrate is absent,0.5482986380411263,0.5563074787365296,False
+Infiltration,{} is present,{} is absent,a chest x-ray with pulmonary infiltrate,a chest x-ray with pulmonary infiltrate is present,a chest x-ray with pulmonary infiltrate is absent,0.5958087454276513,0.6107875801404334,False
+Infiltration,{} is present,{} is absent,airspace opacity,airspace opacity is present,airspace opacity is absent,0.5799860503464322,0.599421682930067,False
+Mass,{},no {},Mass,Mass,no Mass,0.7384159577978417,0.7472794907677615,True
+Mass,{},no {},mass,mass,no mass,0.7384159577978417,0.7472794907677615,False
+Mass,{},no {},lung mass,lung mass,no lung mass,0.7163565150578137,0.7162906397569905,False
+Mass,{},no {},a chest x-ray with a lung mass,a chest x-ray with a lung mass,no a chest x-ray with a lung mass,0.6636252855223757,0.6687981398454219,False
+Mass,{},no {},pulmonary mass,pulmonary mass,no pulmonary mass,0.7189831192790259,0.7220432407456536,False
+Mass,a chest x-ray with {},a chest x-ray with no {},Mass,a chest x-ray with Mass,a chest x-ray with no Mass,0.7203693068397985,0.7240265913231106,False
+Mass,a chest x-ray with {},a chest x-ray with no {},mass,a chest x-ray with mass,a chest x-ray with no mass,0.7203693068397985,0.7240265913231106,False
+Mass,a chest x-ray with {},a chest x-ray with no {},lung mass,a chest x-ray with lung mass,a chest x-ray with no lung mass,0.7246932109664315,0.7177329006826905,False
+Mass,a chest x-ray with {},a chest x-ray with no {},a chest x-ray with a lung mass,a chest x-ray with a chest x-ray with a lung mass,a chest x-ray with no a chest x-ray with a lung mass,0.6387399748405831,0.628762618055924,False
+Mass,a chest x-ray with {},a chest x-ray with no {},pulmonary mass,a chest x-ray with pulmonary mass,a chest x-ray with no pulmonary mass,0.69614808995049,0.6900258219698979,False
+Mass,findings consistent with {},no evidence of {},Mass,findings consistent with Mass,no evidence of Mass,0.7368431977177662,0.7378287990131055,False
+Mass,findings consistent with {},no evidence of {},mass,findings consistent with mass,no evidence of mass,0.7368431977177662,0.7378287990131055,False
+Mass,findings consistent with {},no evidence of {},lung mass,findings consistent with lung mass,no evidence of lung mass,0.723105150279242,0.7205263658230312,False
+Mass,findings consistent with {},no evidence of {},a chest x-ray with a lung mass,findings consistent with a chest x-ray with a lung mass,no evidence of a chest x-ray with a lung mass,0.7013381982147394,0.697540004156276,False
+Mass,findings consistent with {},no evidence of {},pulmonary mass,findings consistent with pulmonary mass,no evidence of pulmonary mass,0.7361163595751793,0.7320958187421517,False
+Mass,there is {},there is no {},Mass,there is Mass,there is no Mass,0.7128061811606117,0.7217411922321855,False
+Mass,there is {},there is no {},mass,there is mass,there is no mass,0.7128060625512541,0.7217413304062539,False
+Mass,there is {},there is no {},lung mass,there is lung mass,there is no lung mass,0.7192331478045764,0.7210011319219681,False
+Mass,there is {},there is no {},a chest x-ray with a lung mass,there is a chest x-ray with a lung mass,there is no a chest x-ray with a lung mass,0.6758635176356695,0.660624038308484,False
+Mass,there is {},there is no {},pulmonary mass,there is pulmonary mass,there is no pulmonary mass,0.7057065808504245,0.7073013112166393,False
+Mass,{} is present,{} is absent,Mass,Mass is present,Mass is absent,0.7328770194132679,0.7429521552943881,False
+Mass,{} is present,{} is absent,mass,mass is present,mass is absent,0.7328770194132679,0.7429521552943881,False
+Mass,{} is present,{} is absent,lung mass,lung mass is present,lung mass is absent,0.6867544660574416,0.684889477326188,False
+Mass,{} is present,{} is absent,a chest x-ray with a lung mass,a chest x-ray with a lung mass is present,a chest x-ray with a lung mass is absent,0.5851243939358356,0.5807838835977432,False
+Mass,{} is present,{} is absent,pulmonary mass,pulmonary mass is present,pulmonary mass is absent,0.708713209452976,0.7138095861852461,False
+Nodule,{},no {},Nodule,Nodule,no Nodule,0.5216486842948864,0.532921409037932,True
+Nodule,{},no {},nodule,nodule,no nodule,0.5216486842948864,0.532921409037932,False
+Nodule,{},no {},pulmonary nodule,pulmonary nodule,no pulmonary nodule,0.5914944408409388,0.5964111336882477,False
+Nodule,{},no {},a chest x-ray with a nodule,a chest x-ray with a nodule,no a chest x-ray with a nodule,0.6105080096353761,0.630910850389553,False
+Nodule,{},no {},small nodular opacity,small nodular opacity,no small nodular opacity,0.5528859083873234,0.556328777895607,False
+Nodule,a chest x-ray with {},a chest x-ray with no {},Nodule,a chest x-ray with Nodule,a chest x-ray with no Nodule,0.580543068182859,0.5931890197825526,False
+Nodule,a chest x-ray with {},a chest x-ray with no {},nodule,a chest x-ray with nodule,a chest x-ray with no nodule,0.580543068182859,0.5931890197825526,False
+Nodule,a chest x-ray with {},a chest x-ray with no {},pulmonary nodule,a chest x-ray with pulmonary nodule,a chest x-ray with no pulmonary nodule,0.6251945268532404,0.6428532924976283,False
+Nodule,a chest x-ray with {},a chest x-ray with no {},a chest x-ray with a nodule,a chest x-ray with a chest x-ray with a nodule,a chest x-ray with no a chest x-ray with a nodule,0.5659284707379156,0.5865861486657216,False
+Nodule,a chest x-ray with {},a chest x-ray with no {},small nodular opacity,a chest x-ray with small nodular opacity,a chest x-ray with no small nodular opacity,0.6355846963049682,0.6598217844111797,False
+Nodule,findings consistent with {},no evidence of {},Nodule,findings consistent with Nodule,no evidence of Nodule,0.6286238822772194,0.6533182016091842,False
+Nodule,findings consistent with {},no evidence of {},nodule,findings consistent with nodule,no evidence of nodule,0.6286238822772194,0.6533182016091842,False
+Nodule,findings consistent with {},no evidence of {},pulmonary nodule,findings consistent with pulmonary nodule,no evidence of pulmonary nodule,0.6190482484881236,0.6341128489979312,False
+Nodule,findings consistent with {},no evidence of {},a chest x-ray with a nodule,findings consistent with a chest x-ray with a nodule,no evidence of a chest x-ray with a nodule,0.5766824022827814,0.5819256423666608,False
+Nodule,findings consistent with {},no evidence of {},small nodular opacity,findings consistent with small nodular opacity,no evidence of small nodular opacity,0.6200270235164127,0.6374255312866199,False
+Nodule,there is {},there is no {},Nodule,there is Nodule,there is no Nodule,0.5580605932933719,0.5758700460630399,False
+Nodule,there is {},there is no {},nodule,there is nodule,there is no nodule,0.5580606973740853,0.5758701451531746,False
+Nodule,there is {},there is no {},pulmonary nodule,there is pulmonary nodule,there is no pulmonary nodule,0.6143937589873696,0.6195475901180183,False
+Nodule,there is {},there is no {},a chest x-ray with a nodule,there is a chest x-ray with a nodule,there is no a chest x-ray with a nodule,0.5372291507596643,0.5561089959771387,False
+Nodule,there is {},there is no {},small nodular opacity,there is small nodular opacity,there is no small nodular opacity,0.5728082058899692,0.5561698373197624,False
+Nodule,{} is present,{} is absent,Nodule,Nodule is present,Nodule is absent,0.5516927270895452,0.577044165067517,False
+Nodule,{} is present,{} is absent,nodule,nodule is present,nodule is absent,0.5516927270895452,0.577044165067517,False
+Nodule,{} is present,{} is absent,pulmonary nodule,pulmonary nodule is present,pulmonary nodule is absent,0.5325549900040883,0.5450484560667044,False
+Nodule,{} is present,{} is absent,a chest x-ray with a nodule,a chest x-ray with a nodule is present,a chest x-ray with a nodule is absent,0.48039129768666045,0.4947375211334485,False
+Nodule,{} is present,{} is absent,small nodular opacity,small nodular opacity is present,small nodular opacity is absent,0.4748401528404459,0.46797129398437665,False
+Pneumonia,{},no {},Pneumonia,Pneumonia,no Pneumonia,0.689512838057865,0.6790378186080839,True
+Pneumonia,{},no {},pneumonia,pneumonia,no pneumonia,0.689512838057865,0.6790378186080839,False
+Pneumonia,{},no {},a chest x-ray with pneumonia,a chest x-ray with pneumonia,no a chest x-ray with pneumonia,0.6909689446370348,0.6779092348871246,False
+Pneumonia,{},no {},infectious consolidation,infectious consolidation,no infectious consolidation,0.682066393513576,0.6593462717058222,False
+Pneumonia,{},no {},focal pneumonia,focal pneumonia,no focal pneumonia,0.6702057716643515,0.699933339304076,False
+Pneumonia,a chest x-ray with {},a chest x-ray with no {},Pneumonia,a chest x-ray with Pneumonia,a chest x-ray with no Pneumonia,0.6948158277651599,0.6835192766180808,False
+Pneumonia,a chest x-ray with {},a chest x-ray with no {},pneumonia,a chest x-ray with pneumonia,a chest x-ray with no pneumonia,0.6948158277651599,0.6835192766180808,False
+Pneumonia,a chest x-ray with {},a chest x-ray with no {},a chest x-ray with pneumonia,a chest x-ray with a chest x-ray with pneumonia,a chest x-ray with no a chest x-ray with pneumonia,0.6872436613506239,0.7034613679727099,False
+Pneumonia,a chest x-ray with {},a chest x-ray with no {},infectious consolidation,a chest x-ray with infectious consolidation,a chest x-ray with no infectious consolidation,0.6927888202342136,0.6745801679894885,False
+Pneumonia,a chest x-ray with {},a chest x-ray with no {},focal pneumonia,a chest x-ray with focal pneumonia,a chest x-ray with no focal pneumonia,0.664254077716726,0.7062111216795774,False
+Pneumonia,findings consistent with {},no evidence of {},Pneumonia,findings consistent with Pneumonia,no evidence of Pneumonia,0.6805618530991472,0.6622337681772268,False
+Pneumonia,findings consistent with {},no evidence of {},pneumonia,findings consistent with pneumonia,no evidence of pneumonia,0.6805618530991472,0.6622337681772268,False
+Pneumonia,findings consistent with {},no evidence of {},a chest x-ray with pneumonia,findings consistent with a chest x-ray with pneumonia,no evidence of a chest x-ray with pneumonia,0.6163607434490662,0.6419339991089233,False
+Pneumonia,findings consistent with {},no evidence of {},infectious consolidation,findings consistent with infectious consolidation,no evidence of infectious consolidation,0.6789351975894377,0.6544680238391345,False
+Pneumonia,findings consistent with {},no evidence of {},focal pneumonia,findings consistent with focal pneumonia,no evidence of focal pneumonia,0.6875682710975726,0.6868693166938562,False
+Pneumonia,there is {},there is no {},Pneumonia,there is Pneumonia,there is no Pneumonia,0.682387911739125,0.673107510778513,False
+Pneumonia,there is {},there is no {},pneumonia,there is pneumonia,there is no pneumonia,0.682387911739125,0.673107510778513,False
+Pneumonia,there is {},there is no {},a chest x-ray with pneumonia,there is a chest x-ray with pneumonia,there is no a chest x-ray with pneumonia,0.6161396996690012,0.6502291744843716,False
+Pneumonia,there is {},there is no {},infectious consolidation,there is infectious consolidation,there is no infectious consolidation,0.6682055573188677,0.6474947255291192,False
+Pneumonia,there is {},there is no {},focal pneumonia,there is focal pneumonia,there is no focal pneumonia,0.661713877633461,0.6921165791272664,False
+Pneumonia,{} is present,{} is absent,Pneumonia,Pneumonia is present,Pneumonia is absent,0.6444384560529929,0.6301181640193225,False
+Pneumonia,{} is present,{} is absent,pneumonia,pneumonia is present,pneumonia is absent,0.6444384560529929,0.6301181640193225,False
+Pneumonia,{} is present,{} is absent,a chest x-ray with pneumonia,a chest x-ray with pneumonia is present,a chest x-ray with pneumonia is absent,0.6423053062873301,0.6203542993314657,False
+Pneumonia,{} is present,{} is absent,infectious consolidation,infectious consolidation is present,infectious consolidation is absent,0.6242333026929212,0.6060171481239209,False
+Pneumonia,{} is present,{} is absent,focal pneumonia,focal pneumonia is present,focal pneumonia is absent,0.6516483992102193,0.6445709511279601,False
+Pneumothorax,{},no {},Pneumothorax,Pneumothorax,no Pneumothorax,0.7022883980739112,0.7128209833872005,True
+Pneumothorax,{},no {},pneumothorax,pneumothorax,no pneumothorax,0.7022883980739112,0.7128209833872005,False
+Pneumothorax,{},no {},a chest x-ray with pneumothorax,a chest x-ray with pneumothorax,no a chest x-ray with pneumothorax,0.6693765973502414,0.6763721514005177,False
+Pneumothorax,{},no {},collapsed lung,collapsed lung,no collapsed lung,0.6462419302340178,0.6391668345347378,False
+Pneumothorax,{},no {},air in the pleural space,air in the pleural space,no air in the pleural space,0.6833181534886639,0.6942760693583303,False
+Pneumothorax,a chest x-ray with {},a chest x-ray with no {},Pneumothorax,a chest x-ray with Pneumothorax,a chest x-ray with no Pneumothorax,0.7235184690542811,0.7332686419013972,False
+Pneumothorax,a chest x-ray with {},a chest x-ray with no {},pneumothorax,a chest x-ray with pneumothorax,a chest x-ray with no pneumothorax,0.7235184690542811,0.7332686419013972,False
+Pneumothorax,a chest x-ray with {},a chest x-ray with no {},a chest x-ray with pneumothorax,a chest x-ray with a chest x-ray with pneumothorax,a chest x-ray with no a chest x-ray with pneumothorax,0.7343049163721922,0.7341084247426142,False
+Pneumothorax,a chest x-ray with {},a chest x-ray with no {},collapsed lung,a chest x-ray with collapsed lung,a chest x-ray with no collapsed lung,0.678167223504238,0.6949321652591745,False
+Pneumothorax,a chest x-ray with {},a chest x-ray with no {},air in the pleural space,a chest x-ray with air in the pleural space,a chest x-ray with no air in the pleural space,0.6993483978695672,0.7146009380478874,False
+Pneumothorax,findings consistent with {},no evidence of {},Pneumothorax,findings consistent with Pneumothorax,no evidence of Pneumothorax,0.7404746474700017,0.7482991120304493,False
+Pneumothorax,findings consistent with {},no evidence of {},pneumothorax,findings consistent with pneumothorax,no evidence of pneumothorax,0.7404746474700017,0.7482991120304493,False
+Pneumothorax,findings consistent with {},no evidence of {},a chest x-ray with pneumothorax,findings consistent with a chest x-ray with pneumothorax,no evidence of a chest x-ray with pneumothorax,0.6441335373854762,0.6745160338621151,False
+Pneumothorax,findings consistent with {},no evidence of {},collapsed lung,findings consistent with collapsed lung,no evidence of collapsed lung,0.6291089577139154,0.645193657805998,False
+Pneumothorax,findings consistent with {},no evidence of {},air in the pleural space,findings consistent with air in the pleural space,no evidence of air in the pleural space,0.7127646802964156,0.7313509635184794,False
+Pneumothorax,there is {},there is no {},Pneumothorax,there is Pneumothorax,there is no Pneumothorax,0.727697305139691,0.7345819952284538,False
+Pneumothorax,there is {},there is no {},pneumothorax,there is pneumothorax,there is no pneumothorax,0.7276969402395789,0.7345818292962584,False
+Pneumothorax,there is {},there is no {},a chest x-ray with pneumothorax,there is a chest x-ray with pneumothorax,there is no a chest x-ray with pneumothorax,0.6789114372831581,0.6821389589214939,False
+Pneumothorax,there is {},there is no {},collapsed lung,there is collapsed lung,there is no collapsed lung,0.658285458438607,0.6498829016496648,False
+Pneumothorax,there is {},there is no {},air in the pleural space,there is air in the pleural space,there is no air in the pleural space,0.7230897114223953,0.7286643553418054,False
+Pneumothorax,{} is present,{} is absent,Pneumothorax,Pneumothorax is present,Pneumothorax is absent,0.5477183525781653,0.5643061926890938,False
+Pneumothorax,{} is present,{} is absent,pneumothorax,pneumothorax is present,pneumothorax is absent,0.5477183525781653,0.5643061926890938,False
+Pneumothorax,{} is present,{} is absent,a chest x-ray with pneumothorax,a chest x-ray with pneumothorax is present,a chest x-ray with pneumothorax is absent,0.5016767160157578,0.5129378992121207,False
+Pneumothorax,{} is present,{} is absent,collapsed lung,collapsed lung is present,collapsed lung is absent,0.4671927431584878,0.47343475330362705,False
+Pneumothorax,{} is present,{} is absent,air in the pleural space,air in the pleural space is present,air in the pleural space is absent,0.6435675773113868,0.6550870330958402,False
+Consolidation,{},no {},Consolidation,Consolidation,no Consolidation,0.7782240986645775,0.7615279819229455,True
+Consolidation,{},no {},consolidation,consolidation,no consolidation,0.7782240986645775,0.7615279819229455,False
+Consolidation,{},no {},a chest x-ray with consolidation,a chest x-ray with consolidation,no a chest x-ray with consolidation,0.7866640293405776,0.7723465593883811,False
+Consolidation,{},no {},airspace consolidation,airspace consolidation,no airspace consolidation,0.7839243931876438,0.7650440634585253,False
+Consolidation,{},no {},dense opacity,dense opacity,no dense opacity,0.7889434326033267,0.7773736341412378,False
+Consolidation,a chest x-ray with {},a chest x-ray with no {},Consolidation,a chest x-ray with Consolidation,a chest x-ray with no Consolidation,0.7901087929491152,0.7724441662966535,False
+Consolidation,a chest x-ray with {},a chest x-ray with no {},consolidation,a chest x-ray with consolidation,a chest x-ray with no consolidation,0.7901087929491152,0.7724441662966535,False
+Consolidation,a chest x-ray with {},a chest x-ray with no {},a chest x-ray with consolidation,a chest x-ray with a chest x-ray with consolidation,a chest x-ray with no a chest x-ray with consolidation,0.7732292563909686,0.754700601973063,False
+Consolidation,a chest x-ray with {},a chest x-ray with no {},airspace consolidation,a chest x-ray with airspace consolidation,a chest x-ray with no airspace consolidation,0.7865466163625946,0.7678245844369931,False
+Consolidation,a chest x-ray with {},a chest x-ray with no {},dense opacity,a chest x-ray with dense opacity,a chest x-ray with no dense opacity,0.7835255463357407,0.7663119963355942,False
+Consolidation,findings consistent with {},no evidence of {},Consolidation,findings consistent with Consolidation,no evidence of Consolidation,0.7803230789417958,0.76236258478404,False
+Consolidation,findings consistent with {},no evidence of {},consolidation,findings consistent with consolidation,no evidence of consolidation,0.7803230789417958,0.76236258478404,False
+Consolidation,findings consistent with {},no evidence of {},a chest x-ray with consolidation,findings consistent with a chest x-ray with consolidation,no evidence of a chest x-ray with consolidation,0.5794072252341439,0.5740345209478461,False
+Consolidation,findings consistent with {},no evidence of {},airspace consolidation,findings consistent with airspace consolidation,no evidence of airspace consolidation,0.7782448854711915,0.7588350200827808,False
+Consolidation,findings consistent with {},no evidence of {},dense opacity,findings consistent with dense opacity,no evidence of dense opacity,0.7792697724754098,0.7603621216296909,False
+Consolidation,there is {},there is no {},Consolidation,there is Consolidation,there is no Consolidation,0.7854397189104076,0.7678821597538009,False
+Consolidation,there is {},there is no {},consolidation,there is consolidation,there is no consolidation,0.7854397189104075,0.7678820002653887,False
+Consolidation,there is {},there is no {},a chest x-ray with consolidation,there is a chest x-ray with consolidation,there is no a chest x-ray with consolidation,0.7560119342253471,0.7481995353145622,False
+Consolidation,there is {},there is no {},airspace consolidation,there is airspace consolidation,there is no airspace consolidation,0.7802996937843552,0.759227999530466,False
+Consolidation,there is {},there is no {},dense opacity,there is dense opacity,there is no dense opacity,0.7820115197883902,0.7696923532323836,False
+Consolidation,{} is present,{} is absent,Consolidation,Consolidation is present,Consolidation is absent,0.7560744570421154,0.7248397460434115,False
+Consolidation,{} is present,{} is absent,consolidation,consolidation is present,consolidation is absent,0.7560744570421154,0.7248397460434115,False
+Consolidation,{} is present,{} is absent,a chest x-ray with consolidation,a chest x-ray with consolidation is present,a chest x-ray with consolidation is absent,0.7404872752264138,0.7292338112882071,False
+Consolidation,{} is present,{} is absent,airspace consolidation,airspace consolidation is present,airspace consolidation is absent,0.7473758280619291,0.721532913304651,False
+Consolidation,{} is present,{} is absent,dense opacity,dense opacity is present,dense opacity is absent,0.6695958200330251,0.6619584092498175,False
+Edema,{},no {},Edema,Edema,no Edema,0.8397933111891922,0.8470108793869953,True
+Edema,{},no {},edema,edema,no edema,0.8397933111891922,0.8470108793869953,False
+Edema,{},no {},pulmonary edema,pulmonary edema,no pulmonary edema,0.8457690288353903,0.8406491627070295,False
+Edema,{},no {},a chest x-ray with pulmonary edema,a chest x-ray with pulmonary edema,no a chest x-ray with pulmonary edema,0.8321670701533401,0.8324305406885737,False
+Edema,{},no {},fluid overload,fluid overload,no fluid overload,0.832097726834569,0.837621395664371,False
+Edema,a chest x-ray with {},a chest x-ray with no {},Edema,a chest x-ray with Edema,a chest x-ray with no Edema,0.8517196000033529,0.8617837551540157,False
+Edema,a chest x-ray with {},a chest x-ray with no {},edema,a chest x-ray with edema,a chest x-ray with no edema,0.8517196000033529,0.8617837551540157,False
+Edema,a chest x-ray with {},a chest x-ray with no {},pulmonary edema,a chest x-ray with pulmonary edema,a chest x-ray with no pulmonary edema,0.8539145827475347,0.8532613833197561,False
+Edema,a chest x-ray with {},a chest x-ray with no {},a chest x-ray with pulmonary edema,a chest x-ray with a chest x-ray with pulmonary edema,a chest x-ray with no a chest x-ray with pulmonary edema,0.832737438000596,0.844247590158784,False
+Edema,a chest x-ray with {},a chest x-ray with no {},fluid overload,a chest x-ray with fluid overload,a chest x-ray with no fluid overload,0.8025772854148141,0.819686602478376,False
+Edema,findings consistent with {},no evidence of {},Edema,findings consistent with Edema,no evidence of Edema,0.8552294387534661,0.8518444634123963,False
+Edema,findings consistent with {},no evidence of {},edema,findings consistent with edema,no evidence of edema,0.8552294387534661,0.8518444634123963,False
+Edema,findings consistent with {},no evidence of {},pulmonary edema,findings consistent with pulmonary edema,no evidence of pulmonary edema,0.8527993745385051,0.8487562244384451,False
+Edema,findings consistent with {},no evidence of {},a chest x-ray with pulmonary edema,findings consistent with a chest x-ray with pulmonary edema,no evidence of a chest x-ray with pulmonary edema,0.8370873977281299,0.8461823444203174,False
+Edema,findings consistent with {},no evidence of {},fluid overload,findings consistent with fluid overload,no evidence of fluid overload,0.8385424644005879,0.839304531085353,False
+Edema,there is {},there is no {},Edema,there is Edema,there is no Edema,0.8577608508958623,0.8580362331130394,False
+Edema,there is {},there is no {},edema,there is edema,there is no edema,0.8577608508958623,0.8580362331130393,False
+Edema,there is {},there is no {},pulmonary edema,there is pulmonary edema,there is no pulmonary edema,0.8560421272091752,0.8512004720981118,False
+Edema,there is {},there is no {},a chest x-ray with pulmonary edema,there is a chest x-ray with pulmonary edema,there is no a chest x-ray with pulmonary edema,0.8349789036287891,0.8254863472451213,False
+Edema,there is {},there is no {},fluid overload,there is fluid overload,there is no fluid overload,0.8217465219753548,0.8323645081199206,False
+Edema,{} is present,{} is absent,Edema,Edema is present,Edema is absent,0.8468499463922804,0.8235050226456957,False
+Edema,{} is present,{} is absent,edema,edema is present,edema is absent,0.8468499463922804,0.8235050226456957,False
+Edema,{} is present,{} is absent,pulmonary edema,pulmonary edema is present,pulmonary edema is absent,0.7956063768420748,0.7521926288191152,False
+Edema,{} is present,{} is absent,a chest x-ray with pulmonary edema,a chest x-ray with pulmonary edema is present,a chest x-ray with pulmonary edema is absent,0.8620433723408552,0.8356240842325346,False
+Edema,{} is present,{} is absent,fluid overload,fluid overload is present,fluid overload is absent,0.7972092743259791,0.775065963060686,False
+Emphysema,{},no {},Emphysema,Emphysema,no Emphysema,0.6860111392169157,0.7046990494677328,True
+Emphysema,{},no {},emphysema,emphysema,no emphysema,0.6860111392169157,0.7046990494677328,False
+Emphysema,{},no {},pulmonary emphysema,pulmonary emphysema,no pulmonary emphysema,0.668971644629602,0.6857660488977215,False
+Emphysema,{},no {},a chest x-ray with emphysema,a chest x-ray with emphysema,no a chest x-ray with emphysema,0.6636333752008443,0.6936060143889325,False
+Emphysema,{},no {},hyperinflated lungs,hyperinflated lungs,no hyperinflated lungs,0.6697996118681129,0.6556035186640168,False
+Emphysema,{},no {},emphysematous changes,emphysematous changes,no emphysematous changes,0.6993077947987221,0.720379596678529,False
+Emphysema,a chest x-ray with {},a chest x-ray with no {},Emphysema,a chest x-ray with Emphysema,a chest x-ray with no Emphysema,0.6871739818332534,0.7145494600298872,False
+Emphysema,a chest x-ray with {},a chest x-ray with no {},emphysema,a chest x-ray with emphysema,a chest x-ray with no emphysema,0.6871739818332534,0.7145494600298872,False
+Emphysema,a chest x-ray with {},a chest x-ray with no {},pulmonary emphysema,a chest x-ray with pulmonary emphysema,a chest x-ray with no pulmonary emphysema,0.6755449085676977,0.7105649273620804,False
+Emphysema,a chest x-ray with {},a chest x-ray with no {},a chest x-ray with emphysema,a chest x-ray with a chest x-ray with emphysema,a chest x-ray with no a chest x-ray with emphysema,0.5636395873817663,0.587664648518741,False
+Emphysema,a chest x-ray with {},a chest x-ray with no {},hyperinflated lungs,a chest x-ray with hyperinflated lungs,a chest x-ray with no hyperinflated lungs,0.6801826898872814,0.688190291321964,False
+Emphysema,a chest x-ray with {},a chest x-ray with no {},emphysematous changes,a chest x-ray with emphysematous changes,a chest x-ray with no emphysematous changes,0.708237804874103,0.7396838748440171,False
+Emphysema,findings consistent with {},no evidence of {},Emphysema,findings consistent with Emphysema,no evidence of Emphysema,0.6998982755374022,0.7280658131903683,False
+Emphysema,findings consistent with {},no evidence of {},emphysema,findings consistent with emphysema,no evidence of emphysema,0.6998982755374022,0.7280658131903683,False
+Emphysema,findings consistent with {},no evidence of {},pulmonary emphysema,findings consistent with pulmonary emphysema,no evidence of pulmonary emphysema,0.6753235996223512,0.7122983777788049,False
+Emphysema,findings consistent with {},no evidence of {},a chest x-ray with emphysema,findings consistent with a chest x-ray with emphysema,no evidence of a chest x-ray with emphysema,0.6393803090689429,0.6898195991434426,False
+Emphysema,findings consistent with {},no evidence of {},hyperinflated lungs,findings consistent with hyperinflated lungs,no evidence of hyperinflated lungs,0.6387568261191147,0.6243154473047712,False
+Emphysema,findings consistent with {},no evidence of {},emphysematous changes,findings consistent with emphysematous changes,no evidence of emphysematous changes,0.7000037531926405,0.7235220532729429,False
+Emphysema,there is {},there is no {},Emphysema,there is Emphysema,there is no Emphysema,0.6714371039330225,0.7059823450570781,False
+Emphysema,there is {},there is no {},emphysema,there is emphysema,there is no emphysema,0.6714371039330225,0.7059823450570781,False
+Emphysema,there is {},there is no {},pulmonary emphysema,there is pulmonary emphysema,there is no pulmonary emphysema,0.6780148975863736,0.7060908012509435,False
+Emphysema,there is {},there is no {},a chest x-ray with emphysema,there is a chest x-ray with emphysema,there is no a chest x-ray with emphysema,0.6523288236782453,0.694049390704195,False
+Emphysema,there is {},there is no {},hyperinflated lungs,there is hyperinflated lungs,there is no hyperinflated lungs,0.6525556329921163,0.6387632296529094,False
+Emphysema,there is {},there is no {},emphysematous changes,there is emphysematous changes,there is no emphysematous changes,0.700166822941843,0.7194306049822063,False
+Emphysema,{} is present,{} is absent,Emphysema,Emphysema is present,Emphysema is absent,0.6253006598500923,0.6114760210133876,False
+Emphysema,{} is present,{} is absent,emphysema,emphysema is present,emphysema is absent,0.6253006598500923,0.6114760210133876,False
+Emphysema,{} is present,{} is absent,pulmonary emphysema,pulmonary emphysema is present,pulmonary emphysema is absent,0.5969854097871616,0.5930683551324121,False
+Emphysema,{} is present,{} is absent,a chest x-ray with emphysema,a chest x-ray with emphysema is present,a chest x-ray with emphysema is absent,0.5732875573251643,0.5623114726317573,False
+Emphysema,{} is present,{} is absent,hyperinflated lungs,hyperinflated lungs is present,hyperinflated lungs is absent,0.5811343183522707,0.5705396619987367,False
+Emphysema,{} is present,{} is absent,emphysematous changes,emphysematous changes is present,emphysematous changes is absent,0.6042374839114222,0.6189305356565145,False
+Fibrosis,{},no {},Fibrosis,Fibrosis,no Fibrosis,0.5786902894339051,0.6140653726110564,True
+Fibrosis,{},no {},fibrosis,fibrosis,no fibrosis,0.5786902894339051,0.6140653726110564,False
+Fibrosis,{},no {},pulmonary fibrosis,pulmonary fibrosis,no pulmonary fibrosis,0.5415173634625771,0.5567360725127196,False
+Fibrosis,{},no {},a chest x-ray with pulmonary fibrosis,a chest x-ray with pulmonary fibrosis,no a chest x-ray with pulmonary fibrosis,0.5345018987938587,0.5444192515712515,False
+Fibrosis,{},no {},interstitial fibrosis,interstitial fibrosis,no interstitial fibrosis,0.5421031463685746,0.5539459655179785,False
+Fibrosis,{},no {},reticular interstitial opacities,reticular interstitial opacities,no reticular interstitial opacities,0.5993198488965851,0.6351991053486682,False
+Fibrosis,a chest x-ray with {},a chest x-ray with no {},Fibrosis,a chest x-ray with Fibrosis,a chest x-ray with no Fibrosis,0.5541545581053781,0.5850747146094318,False
+Fibrosis,a chest x-ray with {},a chest x-ray with no {},fibrosis,a chest x-ray with fibrosis,a chest x-ray with no fibrosis,0.5541545581053781,0.5850747146094318,False
+Fibrosis,a chest x-ray with {},a chest x-ray with no {},pulmonary fibrosis,a chest x-ray with pulmonary fibrosis,a chest x-ray with no pulmonary fibrosis,0.5582300355184464,0.5801578733592714,False
+Fibrosis,a chest x-ray with {},a chest x-ray with no {},a chest x-ray with pulmonary fibrosis,a chest x-ray with a chest x-ray with pulmonary fibrosis,a chest x-ray with no a chest x-ray with pulmonary fibrosis,0.5316608516997705,0.5405135026080636,False
+Fibrosis,a chest x-ray with {},a chest x-ray with no {},interstitial fibrosis,a chest x-ray with interstitial fibrosis,a chest x-ray with no interstitial fibrosis,0.5669657016964844,0.5883401385266578,False
+Fibrosis,a chest x-ray with {},a chest x-ray with no {},reticular interstitial opacities,a chest x-ray with reticular interstitial opacities,a chest x-ray with no reticular interstitial opacities,0.5855018016396206,0.6118053625635983,False
+Fibrosis,findings consistent with {},no evidence of {},Fibrosis,findings consistent with Fibrosis,no evidence of Fibrosis,0.5935809623413029,0.6129777887040917,False
+Fibrosis,findings consistent with {},no evidence of {},fibrosis,findings consistent with fibrosis,no evidence of fibrosis,0.5935809623413029,0.6129777887040917,False
+Fibrosis,findings consistent with {},no evidence of {},pulmonary fibrosis,findings consistent with pulmonary fibrosis,no evidence of pulmonary fibrosis,0.5611246603173514,0.5752396960109454,False
+Fibrosis,findings consistent with {},no evidence of {},a chest x-ray with pulmonary fibrosis,findings consistent with a chest x-ray with pulmonary fibrosis,no evidence of a chest x-ray with pulmonary fibrosis,0.530107098260082,0.5279231155671469,False
+Fibrosis,findings consistent with {},no evidence of {},interstitial fibrosis,findings consistent with interstitial fibrosis,no evidence of interstitial fibrosis,0.5668831920310665,0.5811809905297362,False
+Fibrosis,findings consistent with {},no evidence of {},reticular interstitial opacities,findings consistent with reticular interstitial opacities,no evidence of reticular interstitial opacities,0.5863601164707866,0.6070729028603189,False
+Fibrosis,there is {},there is no {},Fibrosis,there is Fibrosis,there is no Fibrosis,0.5933227178040856,0.6227680480140236,False
+Fibrosis,there is {},there is no {},fibrosis,there is fibrosis,there is no fibrosis,0.5933223606193868,0.6227680480140236,False
+Fibrosis,there is {},there is no {},pulmonary fibrosis,there is pulmonary fibrosis,there is no pulmonary fibrosis,0.5488689389328464,0.5627401636453033,False
+Fibrosis,there is {},there is no {},a chest x-ray with pulmonary fibrosis,there is a chest x-ray with pulmonary fibrosis,there is no a chest x-ray with pulmonary fibrosis,0.5180121099900273,0.5331148590149216,False
+Fibrosis,there is {},there is no {},interstitial fibrosis,there is interstitial fibrosis,there is no interstitial fibrosis,0.5686205384059276,0.58572572844072,False
+Fibrosis,there is {},there is no {},reticular interstitial opacities,there is reticular interstitial opacities,there is no reticular interstitial opacities,0.6114873456604917,0.6304676477190132,False
+Fibrosis,{} is present,{} is absent,Fibrosis,Fibrosis is present,Fibrosis is absent,0.5460178906671924,0.5502489818931976,False
+Fibrosis,{} is present,{} is absent,fibrosis,fibrosis is present,fibrosis is absent,0.5460178906671924,0.5502489818931976,False
+Fibrosis,{} is present,{} is absent,pulmonary fibrosis,pulmonary fibrosis is present,pulmonary fibrosis is absent,0.46877027023165574,0.48076786897686946,False
+Fibrosis,{} is present,{} is absent,a chest x-ray with pulmonary fibrosis,a chest x-ray with pulmonary fibrosis is present,a chest x-ray with pulmonary fibrosis is absent,0.48835363571161194,0.4929691174269956,False
+Fibrosis,{} is present,{} is absent,interstitial fibrosis,interstitial fibrosis is present,interstitial fibrosis is absent,0.45264159515829006,0.470065054619693,False
+Fibrosis,{} is present,{} is absent,reticular interstitial opacities,reticular interstitial opacities is present,reticular interstitial opacities is absent,0.5221279492740578,0.5551668252169824,False
+Pleural_Thickening,{},no {},Pleural_Thickening,Pleural_Thickening,no Pleural_Thickening,0.6690181313404217,0.6857541951211676,True
+Pleural_Thickening,{},no {},pleural thickening,pleural thickening,no pleural thickening,0.6870006216556366,0.7253110483159178,False
+Pleural_Thickening,{},no {},Pleural Thickening,Pleural Thickening,no Pleural Thickening,0.6870006216556366,0.7253110483159178,False
+Pleural_Thickening,{},no {},a chest x-ray with pleural thickening,a chest x-ray with pleural thickening,no a chest x-ray with pleural thickening,0.6058347547848004,0.6016446052901998,False
+Pleural_Thickening,{},no {},thickened pleura,thickened pleura,no thickened pleura,0.6306694316509107,0.6779319101861245,False
+Pleural_Thickening,a chest x-ray with {},a chest x-ray with no {},Pleural_Thickening,a chest x-ray with Pleural_Thickening,a chest x-ray with no Pleural_Thickening,0.6460579494849743,0.6564784417127025,False
+Pleural_Thickening,a chest x-ray with {},a chest x-ray with no {},pleural thickening,a chest x-ray with pleural thickening,a chest x-ray with no pleural thickening,0.6648727723300567,0.683537554998993,False
+Pleural_Thickening,a chest x-ray with {},a chest x-ray with no {},Pleural Thickening,a chest x-ray with Pleural Thickening,a chest x-ray with no Pleural Thickening,0.6648727723300567,0.683537554998993,False
+Pleural_Thickening,a chest x-ray with {},a chest x-ray with no {},a chest x-ray with pleural thickening,a chest x-ray with a chest x-ray with pleural thickening,a chest x-ray with no a chest x-ray with pleural thickening,0.6287544951461738,0.6342652941784572,False
+Pleural_Thickening,a chest x-ray with {},a chest x-ray with no {},thickened pleura,a chest x-ray with thickened pleura,a chest x-ray with no thickened pleura,0.6570203469414373,0.6643386179318854,False
+Pleural_Thickening,findings consistent with {},no evidence of {},Pleural_Thickening,findings consistent with Pleural_Thickening,no evidence of Pleural_Thickening,0.6837326948517767,0.7133960928319987,False
+Pleural_Thickening,findings consistent with {},no evidence of {},pleural thickening,findings consistent with pleural thickening,no evidence of pleural thickening,0.6859908547172144,0.7126852193925944,False
+Pleural_Thickening,findings consistent with {},no evidence of {},Pleural Thickening,findings consistent with Pleural Thickening,no evidence of Pleural Thickening,0.6859908547172144,0.7126852193925944,False
+Pleural_Thickening,findings consistent with {},no evidence of {},a chest x-ray with pleural thickening,findings consistent with a chest x-ray with pleural thickening,no evidence of a chest x-ray with pleural thickening,0.5878484532293062,0.5946808462441706,False
+Pleural_Thickening,findings consistent with {},no evidence of {},thickened pleura,findings consistent with thickened pleura,no evidence of thickened pleura,0.6553749498186697,0.6787867293190812,False
+Pleural_Thickening,there is {},there is no {},Pleural_Thickening,there is Pleural_Thickening,there is no Pleural_Thickening,0.707508693862548,0.7408367960612834,False
+Pleural_Thickening,there is {},there is no {},pleural thickening,there is pleural thickening,there is no pleural thickening,0.6848229213072046,0.7152035482716426,False
+Pleural_Thickening,there is {},there is no {},Pleural Thickening,there is Pleural Thickening,there is no Pleural Thickening,0.6848229213072046,0.7152033423407504,False
+Pleural_Thickening,there is {},there is no {},a chest x-ray with pleural thickening,there is a chest x-ray with pleural thickening,there is no a chest x-ray with pleural thickening,0.6275359569346788,0.6449638158829555,False
+Pleural_Thickening,there is {},there is no {},thickened pleura,there is thickened pleura,there is no thickened pleura,0.6554450342926931,0.6768305917753673,False
+Pleural_Thickening,{} is present,{} is absent,Pleural_Thickening,Pleural_Thickening is present,Pleural_Thickening is absent,0.5376938015681982,0.5303012892509429,False
+Pleural_Thickening,{} is present,{} is absent,pleural thickening,pleural thickening is present,pleural thickening is absent,0.5407580387526911,0.5349689188504608,False
+Pleural_Thickening,{} is present,{} is absent,Pleural Thickening,Pleural Thickening is present,Pleural Thickening is absent,0.5407580387526911,0.5349689188504608,False
+Pleural_Thickening,{} is present,{} is absent,a chest x-ray with pleural thickening,a chest x-ray with pleural thickening is present,a chest x-ray with pleural thickening is absent,0.5591411327683664,0.5547763817036169,False
+Pleural_Thickening,{} is present,{} is absent,thickened pleura,thickened pleura is present,thickened pleura is absent,0.4268074595288629,0.4249495160418105,False
+Hernia,{},no {},Hernia,Hernia,no Hernia,0.6726302605210421,0.6096864669938896,True
+Hernia,{},no {},hernia,hernia,no hernia,0.6726302605210421,0.6096864669938896,False
+Hernia,{},no {},hiatal hernia,hiatal hernia,no hiatal hernia,0.7043937875751504,0.7029597374359942,False
+Hernia,{},no {},a chest x-ray with a hiatal hernia,a chest x-ray with a hiatal hernia,no a chest x-ray with a hiatal hernia,0.5271543086172344,0.5104294948471225,False
+Hernia,{},no {},diaphragmatic hernia,diaphragmatic hernia,no diaphragmatic hernia,0.6988401803607215,0.6425982994620266,False
+Hernia,a chest x-ray with {},a chest x-ray with no {},Hernia,a chest x-ray with Hernia,a chest x-ray with no Hernia,0.7458466933867736,0.6974621562538669,False
+Hernia,a chest x-ray with {},a chest x-ray with no {},hernia,a chest x-ray with hernia,a chest x-ray with no hernia,0.7458466933867736,0.6974621562538669,False
+Hernia,a chest x-ray with {},a chest x-ray with no {},hiatal hernia,a chest x-ray with hiatal hernia,a chest x-ray with no hiatal hernia,0.6918537074148297,0.6423920665130722,False
+Hernia,a chest x-ray with {},a chest x-ray with no {},a chest x-ray with a hiatal hernia,a chest x-ray with a chest x-ray with a hiatal hernia,a chest x-ray with no a chest x-ray with a hiatal hernia,0.5590230460921843,0.5259676744583439,False
+Hernia,a chest x-ray with {},a chest x-ray with no {},diaphragmatic hernia,a chest x-ray with diaphragmatic hernia,a chest x-ray with no diaphragmatic hernia,0.6272595190380762,0.5705463994673298,False
+Hernia,findings consistent with {},no evidence of {},Hernia,findings consistent with Hernia,no evidence of Hernia,0.6489779559118236,0.6013929562609378,False
+Hernia,findings consistent with {},no evidence of {},hernia,findings consistent with hernia,no evidence of hernia,0.6489779559118236,0.6013929562609378,False
+Hernia,findings consistent with {},no evidence of {},hiatal hernia,findings consistent with hiatal hernia,no evidence of hiatal hernia,0.7183867735470942,0.7128058876560741,False
+Hernia,findings consistent with {},no evidence of {},a chest x-ray with a hiatal hernia,findings consistent with a chest x-ray with a hiatal hernia,no evidence of a chest x-ray with a hiatal hernia,0.2881462925851704,0.3208071368385078,False
+Hernia,findings consistent with {},no evidence of {},diaphragmatic hernia,findings consistent with diaphragmatic hernia,no evidence of diaphragmatic hernia,0.6496492985971944,0.5770987148741095,False
+Hernia,there is {},there is no {},Hernia,there is Hernia,there is no Hernia,0.6962675350701402,0.6428281018908614,False
+Hernia,there is {},there is no {},hernia,there is hernia,there is no hernia,0.6962675350701403,0.6428281018908615,False
+Hernia,there is {},there is no {},hiatal hernia,there is hiatal hernia,there is no hiatal hernia,0.698875250501002,0.665637466045218,False
+Hernia,there is {},there is no {},a chest x-ray with a hiatal hernia,there is a chest x-ray with a hiatal hernia,there is no a chest x-ray with a hiatal hernia,0.31856212424849706,0.24167555432470494,False
+Hernia,there is {},there is no {},diaphragmatic hernia,there is diaphragmatic hernia,there is no diaphragmatic hernia,0.7028982965931864,0.6341898875146572,False
+Hernia,{} is present,{} is absent,Hernia,Hernia is present,Hernia is absent,0.5978757515030061,0.5837423620154263,False
+Hernia,{} is present,{} is absent,hernia,hernia is present,hernia is absent,0.5978757515030061,0.5837423620154263,False
+Hernia,{} is present,{} is absent,hiatal hernia,hiatal hernia is present,hiatal hernia is absent,0.5076127254509017,0.492914425110924,False
+Hernia,{} is present,{} is absent,a chest x-ray with a hiatal hernia,a chest x-ray with a hiatal hernia is present,a chest x-ray with a hiatal hernia is absent,0.5674549098196393,0.597886996128713,False
+Hernia,{} is present,{} is absent,diaphragmatic hernia,diaphragmatic hernia is present,diaphragmatic hernia is absent,0.6080360721442886,0.5839220792995151,False
