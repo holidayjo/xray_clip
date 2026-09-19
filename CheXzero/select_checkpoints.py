@@ -167,7 +167,7 @@ def parse_args():
                    help="h5 of the CheXpert validation images (chexpert-valid preprocessing).")
     p.add_argument("--paths_csv", default="data/chexpert_valid_paths.csv",
                    help="Ordered image paths written alongside the validation h5.")
-    p.add_argument("--valid_csv", default="/mnt/My_Doc/dataset/CheXpert/kaggle/valid.csv",
+    p.add_argument("--valid_csv", default="/mnt/My_Doc/dataset/CXR_dataset/CheXpert/kaggle/valid.csv",
                    help="CheXpert valid.csv with radiologist labels.")
     p.add_argument("--out_csv", default="data/checkpoint_ranking.csv")
     p.add_argument("--batch_size", type=int, default=64)

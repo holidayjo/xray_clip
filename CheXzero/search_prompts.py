@@ -97,7 +97,7 @@ def parse_args():
     p.add_argument("--cxr_filepath", default="data/nih_promptdev.h5")
     p.add_argument("--paths_csv", default="data/nih_promptdev_paths.csv")
     p.add_argument("--data_entry_csv",
-                   default="/mnt/My_Doc/github/xray_clip/data/cxr8/Data_Entry_2017_v2020.csv")
+                   default="/mnt/My_Doc/dataset/CXR_dataset/ChestXray14/cxr8/Data_Entry_2017_v2020.csv")
     p.add_argument("--out_csv", default="data/prompt_search_results.csv")
     p.add_argument("--batch_size", type=int, default=64)
     p.add_argument("--context_length", type=int, default=77)

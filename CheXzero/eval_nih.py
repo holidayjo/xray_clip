@@ -70,7 +70,7 @@ def parse_args():
     p.add_argument("--cxr_filepath", default="data/nih_test.h5")
     p.add_argument("--paths_csv", default="data/nih_test_paths.csv")
     p.add_argument("--data_entry_csv",
-                   default="/mnt/My_Doc/github/xray_clip/data/cxr8/Data_Entry_2017_v2020.csv")
+                   default="/mnt/My_Doc/dataset/CXR_dataset/ChestXray14/cxr8/Data_Entry_2017_v2020.csv")
     p.add_argument("--out_csv", default="data/nih_zeroshot_results.csv")
     p.add_argument("--labels", default=None,
                    help="Comma-separated subset of NIH_LABELS to evaluate, e.g. to match a "
