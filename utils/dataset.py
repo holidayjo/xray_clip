@@ -15,6 +15,42 @@ import matplotlib.pyplot as plt
 import hashlib
 from tqdm import tqdm
 
+# ── CheXzero dataset locations (from config/clip_dataset.yaml) ──────────────────
+# One source of truth for where the three raw datasets live. Relocating them means
+# editing that yaml, or exporting CXR_DATA_ROOT -- not editing code.
+_REPO = pathlib.Path(__file__).resolve().parent.parent
+_CFG  = yaml.safe_load(open(_REPO/"config/clip_dataset.yaml"))
+
+ROOT = pathlib.Path(os.environ.get("CXR_DATA_ROOT", _CFG["root"]))
+
+MIMIC_JPG     = ROOT/_CFG["mimic"]["images"]
+MIMIC_REPORTS = ROOT/_CFG["mimic"]["reports"]
+MIMIC_META    = ROOT/_CFG["mimic"]["metadata"]
+MIMIC_SPLIT   = ROOT/_CFG["mimic"]["split"]
+CHEX_VAL_DIR  = ROOT/_CFG["chexpert"]["valid_images"]
+CHEX_VAL_CSV  = ROOT/_CFG["chexpert"]["valid_csv"]
+CHEX_TEST_CSV = ROOT/_CFG["chexpert"]["test_csv"]
+NIH_IMAGES    = ROOT/_CFG["nih"]["images"]
+NIH_ENTRY     = ROOT/_CFG["nih"]["labels"]
+NIH_TEST      = ROOT/_CFG["nih"]["test_list"]
+NIH_TRAINVAL  = ROOT/_CFG["nih"]["trainval_list"]
+DERIVED       = _REPO/_CFG["derived"]
+
+REQUIRED = {
+    "MIMIC-CXR (train)": [
+        (MIMIC_JPG, "JPG images"), (MIMIC_REPORTS, "radiology reports"),
+        (MIMIC_META, "metadata (ViewPosition)"), (MIMIC_SPLIT, "official split")],
+    "CheXpert (selection)": [
+        (CHEX_VAL_DIR, "validation images"), (CHEX_VAL_CSV, "radiologist labels"),
+        (CHEX_TEST_CSV, "test labels (unused)")],
+    "ChestX-ray14 (test)": [
+        (NIH_IMAGES, "PNG images"), (NIH_ENTRY, "labels"),
+        (NIH_TEST, "official test split"), (NIH_TRAINVAL, "official train/val split")],
+}
+
+
+
+
 
 def download_dataset(cfg_path="data/cxr_dataset.yaml", output_dir="."):
     """Downloads and extracts the NIH Chest X-ray dataset, skipping completed steps."""
@@ -233,6 +269,42 @@ def feature_batches(source, batch_size, shuffle, model=None, device=None, genera
 
 
 
+
+def load_dataset_config(cfg_path="config/clip_dataset.yaml"):
+    """Resolve the dataset layout in `cfg_path` into absolute paths.
+
+    Relocating datasets means editing that yaml (or exporting CXR_DATA_ROOT),
+    never editing code. Returns a dict of pathlib.Path.
+    """
+    cfg_path = pathlib.Path(cfg_path)
+    if not cfg_path.is_absolute():                       # tolerate any cwd
+        cfg_path = pathlib.Path(__file__).resolve().parent.parent/cfg_path
+    cfg  = yaml.safe_load(open(cfg_path))
+    root = pathlib.Path(os.environ.get("CXR_DATA_ROOT", cfg["root"]))
+    repo = pathlib.Path(__file__).resolve().parent.parent
+    return {
+        "root":          root,
+        "mimic_jpg":     root/cfg["mimic"]["images"],
+        "mimic_reports": root/cfg["mimic"]["reports"],
+        "mimic_meta":    root/cfg["mimic"]["metadata"],
+        "mimic_split":   root/cfg["mimic"]["split"],
+        "chex_val_dir":  root/cfg["chexpert"]["valid_images"],
+        "chex_val_csv":  root/cfg["chexpert"]["valid_csv"],
+        "chex_test_csv": root/cfg["chexpert"]["test_csv"],
+        "nih_images":    root/cfg["nih"]["images"],
+        "nih_entry":     root/cfg["nih"]["labels"],
+        "nih_test":      root/cfg["nih"]["test_list"],
+        "nih_trainval":  root/cfg["nih"]["trainval_list"],
+        "derived":       repo/cfg["derived"],
+    }
+
+
+# How to obtain each dataset, shown only when something is missing.
+_HOWTO = {
+    "MIMIC-CXR (train)":    "PhysioNet credentialed access: physionet.org/content/mimic-cxr-jpg/",
+    "CheXpert (selection)": "Stanford AIMI data use agreement: aimi.stanford.edu/datasets/chexpert",
+    "ChestX-ray14 (test)":  "download_nih_dataset() in this module, or nihcc.box.com",
+}
 
 
 def load_split(csv_path, image_root, id_to_path=None, verbose=False):
@@ -516,3 +588,120 @@ def summarize_splits(df_dict, label_cols, pos_weight=None, tablefmt="github"):
                             headers  = ["Split", "Mean labels/image", "Images with >=2 labels"],
                             tablefmt = tablefmt))
     print()
+    
+    
+    
+
+def check_availability(P, verbose=True):
+    """Report which raw dataset files are present. Returns {group: [missing descriptions]}."""
+    groups = {
+        "MIMIC-CXR (train)": [
+            (P["mimic_jpg"], "JPG images"), (P["mimic_reports"], "radiology reports"),
+            (P["mimic_meta"], "metadata (ViewPosition)"), (P["mimic_split"], "official split")],
+        "CheXpert (selection)": [
+            (P["chex_val_dir"], "validation images"), (P["chex_val_csv"], "radiologist labels"),
+            (P["chex_test_csv"], "test labels (unused)")],
+        "ChestX-ray14 (test)": [
+            (P["nih_images"], "PNG images"), (P["nih_entry"], "labels"),
+            (P["nih_test"], "official test split"), (P["nih_trainval"], "official train/val split")],
+    }
+    missing = {}
+    if verbose:
+        print("=" * 78); print(f"DATASET AVAILABILITY   root = {P['root']}"); print("=" * 78)
+    for group, items in groups.items():
+        gone = [d for path, d in items if not path.exists()]
+        if gone:
+            missing[group] = gone
+        if verbose:
+            print(f"\n{group}")
+            for path, desc in items:
+                print(f"  [{'OK' if path.exists() else '--'}]  {desc:<26} "
+                      f"{path.relative_to(P['root'])}")
+            if gone:
+                print(f"       -> get it from: {_HOWTO[group]}")
+    if verbose:
+        print("\n" + ("All present." if not missing else
+                      f"MISSING in {len(missing)} dataset(s): "
+                      + "; ".join(f"{g}: {', '.join(v)}" for g, v in missing.items())))
+    return missing
+
+
+
+def summarize_mimic(P):
+    if not P["mimic_meta"].exists():
+        print("\nMIMIC-CXR: metadata not found, skipping"); return
+    m = pd.read_csv(P["mimic_meta"])
+    front = m["ViewPosition"].isin(["AP", "PA"]).sum()
+    print(f"\nMIMIC-CXR  (TRAIN)")
+    print(f"  images {len(m):,}   studies {m.study_id.nunique():,}   patients {m.subject_id.nunique():,}")
+    print(f"  view position:")
+    for k, n in m["ViewPosition"].fillna("(missing)").value_counts().head(5).items():
+        print(f"    {k:<12}{n:>9,}  {100*n/len(m):>5.1f}%")
+    print(f"    {'-'*30}")
+    print(f"    {'FRONTAL':<12}{front:>9,}  {100*front/len(m):>5.1f}%   <- what ChestX-ray14 contains")
+    print(f"    {'non-frontal':<12}{len(m)-front:>9,}  {100*(len(m)-front)/len(m):>5.1f}%"
+          f"   <- paper excludes these; our run did not")
+
+
+def summarize_chexpert(P):
+    if not P["chex_val_csv"].exists():
+        print("\nCheXpert: valid.csv not found, skipping"); return
+    v = pd.read_csv(P["chex_val_csv"])
+    comp = ["Atelectasis", "Cardiomegaly", "Consolidation", "Edema", "Pleural Effusion"]
+    print(f"\nCheXpert validation  (CHECKPOINT SELECTION)")
+    print(f"  images {len(v):,}   patients {v.Path.str.split('/').str[2].nunique():,}"
+          f"   frontal {int((v['Frontal/Lateral']=='Frontal').sum())}"
+          f"   view1-only {int(v.Path.str.contains('view1').sum())}")
+    print("  positives over the 5 competition tasks:")
+    print("    " + "  ".join(f"{c.split()[-1][:5]}={int(v[c].sum())}" for c in comp))
+
+
+def summarize_nih(P):
+    if not P["nih_entry"].exists():
+        print("\nChestX-ray14: Data_Entry not found, skipping"); return
+    d = pd.read_csv(P["nih_entry"])
+    te = set(P["nih_test"].read_text().split())
+    tv = set(P["nih_trainval"].read_text().split())
+    lab = {x for s in d["Finding Labels"] for x in s.split("|")} - {"No Finding"}
+    ndf = (d["Finding Labels"] == "No Finding").sum()
+    print(f"\nChestX-ray14  (TEST)")
+    print(f"  images {len(d):,}   patients {d['Patient ID'].nunique():,}   pathologies {len(lab)}")
+    print(f"  official split: test {len(te):,}   train/val {len(tv):,}")
+    print("  view position: " + "  ".join(f"{k}={100*n/len(d):.0f}%"
+          for k, n in d["View Position"].value_counts().items()) + "   <- all frontal, no laterals")
+    print(f"  'No Finding': {ndf:,} ({100*ndf/len(d):.0f}%)")
+
+def summarize_derived(P):
+    """Preprocessed artefacts: what has been built, and whether the manifests still resolve."""
+    import h5py
+    derived = P["derived"]
+    print(f"\nDerived artefacts  ({derived})")
+    if not derived.exists():
+        print("  none yet - run the preprocessing cells"); return
+    for h5 in sorted(derived.glob("*.h5")):
+        try:
+            with h5py.File(h5, "r") as f:
+                d = f["cxr"]
+                print(f"  {h5.name:<26}{d.shape[0]:>8,} x {d.shape[1]}  {d.dtype}  "
+                      f"{h5.stat().st_size/1e9:>5.1f} GB")
+        except Exception as e:
+            print(f"  {h5.name:<26}UNREADABLE ({type(e).__name__})")
+    stale = []
+    for csv in sorted(derived.glob("*paths*.csv")):
+        try:
+            if not pathlib.Path(pd.read_csv(csv)["Path"].iloc[0]).exists():
+                stale.append(csv.name)
+        except Exception:
+            pass
+    print(f"  path manifests: {'all resolve' if not stale else 'STALE -> ' + ', '.join(stale)}")
+
+
+def check_datasets(cfg_path="config/clip_dataset.yaml", derived=True):
+    """One call: raw dataset availability, per-dataset summaries, derived-artefact status."""
+    P = load_dataset_config(cfg_path)
+    missing = check_availability(P)
+    print("\n" + "=" * 78); print("DATASET SUMMARY"); print("=" * 78)
+    summarize_mimic(P); summarize_chexpert(P); summarize_nih(P)
+    if derived:
+        summarize_derived(P)
+    return missing

@@ -1,0 +1,21 @@
+# Raw dataset locations. Override the root with:  export CXR_DATA_ROOT=/some/other/place
+root: /mnt/My_Doc/dataset/CXR_dataset
+
+mimic:                                    # TRAINING - image-report pairs, no labels
+  images:   MIMIC_CXR/mimic-cxr-jpg/2.1.0/files
+  reports:  MIMIC_CXR/mimic-cxr-reports/files
+  metadata: MIMIC_CXR/mimic-cxr-jpg/2.1.0/mimic-cxr-2.0.0-metadata.csv.gz   # ViewPosition
+  split:    MIMIC_CXR/mimic-cxr-jpg/2.1.0/mimic-cxr-2.0.0-split.csv.gz
+
+chexpert:                                 # CHECKPOINT SELECTION - radiologist labels
+  valid_images: CheXpert/kaggle/valid
+  valid_csv:    CheXpert/kaggle/valid.csv
+  test_csv:     CheXpert/test_set_labels/groundtruth.csv
+
+nih:                                      # TEST - zero-shot evaluation
+  images:     ChestXray14/images
+  labels:     ChestXray14/cxr8/Data_Entry_2017_v2020.csv
+  test_list:  ChestXray14/cxr8/test_list.txt
+  trainval_list: ChestXray14/cxr8/train_val_list.txt
+
+derived: CheXzero/data                    # h5, manifests, results (relative to repo root)
