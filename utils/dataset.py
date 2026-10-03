@@ -13,104 +13,148 @@ import PIL.Image
 import torchvision.transforms as T
 import matplotlib.pyplot as plt
 import hashlib
-from tqdm import tqdm
+import tqdm
+import h5py
 
-# ── CheXzero dataset locations (from config/clip_dataset.yaml) ──────────────────
-# One source of truth for where the three raw datasets live. Relocating them means
-# editing that yaml, or exporting CXR_DATA_ROOT -- not editing code.
-_REPO = pathlib.Path(__file__).resolve().parent.parent
-_CFG  = yaml.safe_load(open(_REPO/"config/clip_dataset.yaml"))
+# # ── CheXzero dataset locations (from config/clip_dataset.yaml) ──────────────────
+# # One source of truth for where the three raw datasets live. Relocating them means
+# # editing that yaml, or exporting CXR_DATA_ROOT -- not editing code.
+# _REPO = pathlib.Path(__file__).resolve().parent.parent
+# _CFG  = yaml.safe_load(open(_REPO/"config/clip_dataset.yaml"))
 
-ROOT = pathlib.Path(os.environ.get("CXR_DATA_ROOT", _CFG["root"]))
+# ROOT = pathlib.Path(os.environ.get("CXR_DATA_ROOT", _CFG["root"]))
 
-MIMIC_JPG     = ROOT/_CFG["mimic"]["images"]
-MIMIC_REPORTS = ROOT/_CFG["mimic"]["reports"]
-MIMIC_META    = ROOT/_CFG["mimic"]["metadata"]
-MIMIC_SPLIT   = ROOT/_CFG["mimic"]["split"]
-CHEX_VAL_DIR  = ROOT/_CFG["chexpert"]["valid_images"]
-CHEX_VAL_CSV  = ROOT/_CFG["chexpert"]["valid_csv"]
-CHEX_TEST_CSV = ROOT/_CFG["chexpert"]["test_csv"]
-NIH_IMAGES    = ROOT/_CFG["nih"]["images"]
-NIH_ENTRY     = ROOT/_CFG["nih"]["labels"]
-NIH_TEST      = ROOT/_CFG["nih"]["test_list"]
-NIH_TRAINVAL  = ROOT/_CFG["nih"]["trainval_list"]
-DERIVED       = _REPO/_CFG["derived"]
+# MIMIC_JPG     = ROOT/_CFG["mimic"]["images"]
+# MIMIC_REPORTS = ROOT/_CFG["mimic"]["reports"]
+# MIMIC_META    = ROOT/_CFG["mimic"]["metadata"]
+# MIMIC_SPLIT   = ROOT/_CFG["mimic"]["split"]
+# CHEX_VAL_DIR  = ROOT/_CFG["chexpert"]["valid_images"]
+# CHEX_VAL_CSV  = ROOT/_CFG["chexpert"]["valid_csv"]
+# CHEX_TEST_CSV = ROOT/_CFG["chexpert"]["test_csv"]
+# NIH_IMAGES    = ROOT/_CFG["nih"]["images"]
+# NIH_ENTRY     = ROOT/_CFG["nih"]["labels"]
+# NIH_TEST      = ROOT/_CFG["nih"]["test_list"]
+# NIH_TRAINVAL  = ROOT/_CFG["nih"]["trainval_list"]
+# DERIVED       = _REPO/_CFG["derived"]
 
-REQUIRED = {
-    "MIMIC-CXR (train)": [
-        (MIMIC_JPG, "JPG images"), (MIMIC_REPORTS, "radiology reports"),
-        (MIMIC_META, "metadata (ViewPosition)"), (MIMIC_SPLIT, "official split")],
-    "CheXpert (selection)": [
-        (CHEX_VAL_DIR, "validation images"), (CHEX_VAL_CSV, "radiologist labels"),
-        (CHEX_TEST_CSV, "test labels (unused)")],
-    "ChestX-ray14 (test)": [
-        (NIH_IMAGES, "PNG images"), (NIH_ENTRY, "labels"),
-        (NIH_TEST, "official test split"), (NIH_TRAINVAL, "official train/val split")],
-}
-
-
-
+# REQUIRED = {
+#     "MIMIC-CXR (train)": [
+#         (MIMIC_JPG, "JPG images"), (MIMIC_REPORTS, "radiology reports"),
+#         (MIMIC_META, "metadata (ViewPosition)"), (MIMIC_SPLIT, "official split")],
+#     "CheXpert (selection)": [
+#         (CHEX_VAL_DIR, "validation images"), (CHEX_VAL_CSV, "radiologist labels"),
+#         (CHEX_TEST_CSV, "test labels (unused)")],
+#     "ChestX-ray14 (test)": [
+#         (NIH_IMAGES, "PNG images"), (NIH_ENTRY, "labels"),
+#         (NIH_TEST, "official test split"), (NIH_TRAINVAL, "official train/val split")],
+# }
 
 
-def download_dataset(cfg_path="data/cxr_dataset.yaml", output_dir="."):
-    """Downloads and extracts the NIH Chest X-ray dataset, skipping completed steps."""
-    root_dir  = pathlib.Path(output_dir)
-    image_dir = root_dir / "nih_images"
-    
-    root_dir.mkdir(parents=True, exist_ok=True)
-    image_dir.mkdir(parents=True, exist_ok=True)
-    
-    with open(cfg_path, "r") as f:
-        config = yaml.safe_load(f)
-    links = config.get("dataset_links", [])
+
+
+def download_nih_dataset(cfg_path="config/clip_dataset.yaml"):
+    """Download and extract ChestX-ray14 images into the configured location.
+
+    ChestX-ray14 is the only one of the three datasets that can be fetched by script.
+    MIMIC-CXR needs PhysioNet credentialed access and CheXpert a Stanford data-use
+    agreement, so both are manual. This also fetches only the IMAGES -- the labels and
+    split lists under cxr8/ come from the NIH Box folder separately.
+
+    Resumable: a per-tarball marker file means re-running skips completed work.
+    """
+    P = load_dataset_config(cfg_path)
+    cfg = yaml.safe_load(open(
+        pathlib.Path(__file__).resolve().parent.parent/cfg_path))
+    links = cfg["nih"].get("image_tarballs", [])
     if not links:
-        print(f"Error: No download links found in {cfg_path}. Aborting.")
-        return
+        print(f"No 'nih.image_tarballs' in {cfg_path}. Aborting."); return
 
-    print("--- Phase 1: Downloading ---")
-    for idx, link in enumerate(links):
-        fn_name = f'images_{idx+1:02d}.tar.gz'
-        tar_path = root_dir / fn_name
-        marker_path = image_dir / f'images_{idx+1:02d}.extracted'
-        
-        # Skip if already extracted OR already downloaded
-        if marker_path.exists():
-            print(f'{fn_name} is already extracted. Skipping download...')
-            continue
-        if tar_path.exists():
-            print(f'{fn_name} already exists on disk. Skipping download...')
-            continue
-            
-        print(f'Downloading {fn_name}...')
-        urllib.request.urlretrieve(link, tar_path)
+    dest = P["nih_images"].parent          # tarballs contain images/, so extract one level up
+    dest.mkdir(parents=True, exist_ok=True)
+    print(f"Destination: {P['nih_images']}  ({len(links)} tarballs, ~43 GB)")
 
-    print("\n--- Phase 2: Extracting ---")
-    for i in range(1, len(links) + 1):
-        fn_name = f'images_{i:02d}.tar.gz'
-        tar_path = root_dir / fn_name
-        marker_path = image_dir / f'images_{i:02d}.extracted'
-
-        # Skip if already extracted
-        if marker_path.exists():
-            print(f"{fn_name} is already extracted. Skipping...")
-            continue
-        
-        # Safety check if tar file is missing
+    for idx, link in enumerate(links, 1):
+        tar_path = dest/f"images_{idx:02d}.tar.gz"
+        marker   = dest/f"images_{idx:02d}.extracted"
+        if marker.exists():
+            print(f"[{idx:02d}/{len(links)}] already extracted, skipping"); continue
         if not tar_path.exists():
-            print(f"Warning: {tar_path} not found. Cannot extract.")
-            continue
-
-        print(f"Extracting {tar_path}...")
+            print(f"[{idx:02d}/{len(links)}] downloading...")
+            urllib.request.urlretrieve(link, tar_path)
+        print(f"[{idx:02d}/{len(links)}] extracting...")
         with tarfile.open(tar_path, "r:gz") as tar:
-            tar.extractall(image_dir)
+            tar.extractall(dest)
+        marker.touch()
+        tar_path.unlink()
 
-        # Create a marker file so future runs know extraction is finished
-        marker_path.touch()
+    n = len(list(P["nih_images"].glob("*.png")))
+    print(f"\nDone: {n:,} PNGs in {P['nih_images']}  (expect 112,120)")
+    if not P["nih_entry"].exists():
+        print(f"\nStill missing: {P['nih_entry'].parent}")
+        print("  Data_Entry_2017_v2020.csv, test_list.txt, train_val_list.txt")
+        print("  -> download from the NIH Box folder and place in cxr8/")
 
-        tar_path.unlink()  # Modern pathlib equivalent of os.remove
-        print(f"Deleted {tar_path}")
 
-    print("\nAll done. Please check the checksums and extracted files.")
+
+# def download_dataset(cfg_path="config/cxr_dataset.yaml", output_dir="."):
+#     """Downloads and extracts the NIH Chest X-ray dataset, skipping completed steps."""
+#     root_dir  = pathlib.Path(output_dir)
+#     image_dir = root_dir / "nih_images"
+    
+#     root_dir.mkdir(parents=True, exist_ok=True)
+#     image_dir.mkdir(parents=True, exist_ok=True)
+    
+#     with open(cfg_path, "r") as f:
+#         config = yaml.safe_load(f)
+#     links = config.get("dataset_links", [])
+#     if not links:
+#         print(f"Error: No download links found in {cfg_path}. Aborting.")
+#         return
+
+#     print("--- Phase 1: Downloading ---")
+#     for idx, link in enumerate(links):
+#         fn_name = f'images_{idx+1:02d}.tar.gz'
+#         tar_path = root_dir / fn_name
+#         marker_path = image_dir / f'images_{idx+1:02d}.extracted'
+        
+#         # Skip if already extracted OR already downloaded
+#         if marker_path.exists():
+#             print(f'{fn_name} is already extracted. Skipping download...')
+#             continue
+#         if tar_path.exists():
+#             print(f'{fn_name} already exists on disk. Skipping download...')
+#             continue
+            
+#         print(f'Downloading {fn_name}...')
+#         urllib.request.urlretrieve(link, tar_path)
+
+#     print("\n--- Phase 2: Extracting ---")
+#     for i in range(1, len(links) + 1):
+#         fn_name = f'images_{i:02d}.tar.gz'
+#         tar_path = root_dir / fn_name
+#         marker_path = image_dir / f'images_{i:02d}.extracted'
+
+#         # Skip if already extracted
+#         if marker_path.exists():
+#             print(f"{fn_name} is already extracted. Skipping...")
+#             continue
+        
+#         # Safety check if tar file is missing
+#         if not tar_path.exists():
+#             print(f"Warning: {tar_path} not found. Cannot extract.")
+#             continue
+
+#         print(f"Extracting {tar_path}...")
+#         with tarfile.open(tar_path, "r:gz") as tar:
+#             tar.extractall(image_dir)
+
+#         # Create a marker file so future runs know extraction is finished
+#         marker_path.touch()
+
+#         tar_path.unlink()  # Modern pathlib equivalent of os.remove
+#         print(f"Deleted {tar_path}")
+
+#     print("\nAll done. Please check the checksums and extracted files.")
 
 
 def build_image_index(image_root, cache_path=None, force_rebuild=False):
@@ -203,7 +247,7 @@ def build_embedding_cache(cache_path, model, preprocess, device, id_to_path, mod
                                          shuffle=False, num_workers=num_workers)
     model.eval()
     chunks = []
-    for images in tqdm(loader, desc="Encoding"):
+    for images in tqdm.tqdm(loader, desc="Encoding"):
         feats = model.encode_image(images.to(device))
         feats = torch.nn.functional.normalize(feats, dim=-1)
         chunks.append(feats.detach().cpu().numpy().astype(np.float32))
@@ -282,21 +326,19 @@ def load_dataset_config(cfg_path="config/clip_dataset.yaml"):
     cfg  = yaml.safe_load(open(cfg_path))
     root = pathlib.Path(os.environ.get("CXR_DATA_ROOT", cfg["root"]))
     repo = pathlib.Path(__file__).resolve().parent.parent
-    return {
-        "root":          root,
-        "mimic_jpg":     root/cfg["mimic"]["images"],
-        "mimic_reports": root/cfg["mimic"]["reports"],
-        "mimic_meta":    root/cfg["mimic"]["metadata"],
-        "mimic_split":   root/cfg["mimic"]["split"],
-        "chex_val_dir":  root/cfg["chexpert"]["valid_images"],
-        "chex_val_csv":  root/cfg["chexpert"]["valid_csv"],
-        "chex_test_csv": root/cfg["chexpert"]["test_csv"],
-        "nih_images":    root/cfg["nih"]["images"],
-        "nih_entry":     root/cfg["nih"]["labels"],
-        "nih_test":      root/cfg["nih"]["test_list"],
-        "nih_trainval":  root/cfg["nih"]["trainval_list"],
-        "derived":       repo/cfg["derived"],
-    }
+    return {"root":          root,
+            "mimic_jpg":     root/cfg["mimic"]["images"],
+            "mimic_reports": root/cfg["mimic"]["reports"],
+            "mimic_meta":    root/cfg["mimic"]["metadata"],
+            "mimic_split":   root/cfg["mimic"]["split"],
+            "chex_val_dir":  root/cfg["chexpert"]["valid_images"],
+            "chex_val_csv":  root/cfg["chexpert"]["valid_csv"],
+            "chex_test_csv": root/cfg["chexpert"]["test_csv"],
+            "nih_images":    root/cfg["nih"]["images"],
+            "nih_entry":     root/cfg["nih"]["labels"],
+            "nih_test":      root/cfg["nih"]["test_list"],
+            "nih_trainval":  root/cfg["nih"]["trainval_list"],
+            "derived":       repo/cfg["derived"]}
 
 
 # How to obtain each dataset, shown only when something is missing.
@@ -593,22 +635,32 @@ def summarize_splits(df_dict, label_cols, pos_weight=None, tablefmt="github"):
     
 
 def check_availability(P, verbose=True):
-    """Report which raw dataset files are present. Returns {group: [missing descriptions]}."""
-    groups = {
-        "MIMIC-CXR (train)": [
-            (P["mimic_jpg"], "JPG images"), (P["mimic_reports"], "radiology reports"),
-            (P["mimic_meta"], "metadata (ViewPosition)"), (P["mimic_split"], "official split")],
-        "CheXpert (selection)": [
-            (P["chex_val_dir"], "validation images"), (P["chex_val_csv"], "radiologist labels"),
-            (P["chex_test_csv"], "test labels (unused)")],
-        "ChestX-ray14 (test)": [
-            (P["nih_images"], "PNG images"), (P["nih_entry"], "labels"),
-            (P["nih_test"], "official test split"), (P["nih_trainval"], "official train/val split")],
-    }
+    """
+    Report which raw dataset files are present. 
+    Returns {group: [missing descriptions]}.
+    """
+    groups = {"MIMIC-CXR (train)": [(P["mimic_jpg"],     "JPG images"), 
+                                    (P["mimic_reports"], "radiology reports"),
+                                    (P["mimic_meta"],    "metadata (ViewPosition)"),
+                                    (P["mimic_split"],   "official split")],
+              "CheXpert (selection)": [(P["chex_val_dir"],  "validation images"),
+                                       (P["chex_val_csv"],  "radiologist labels"),
+                                       (P["chex_test_csv"], "test labels (unused)")],
+              "ChestX-ray14 (test)": [(P["nih_images"],   "PNG images"),
+                                      (P["nih_entry"],    "labels"),
+                                      (P["nih_test"],     "official test split"),
+                                      (P["nih_trainval"], "official train/val split")]}
+    
     missing = {}
     if verbose:
-        print("=" * 78); print(f"DATASET AVAILABILITY   root = {P['root']}"); print("=" * 78)
+        print("=" * 78); 
+        print(f"DATASET AVAILABILITY, root = {P['root']}"); 
+        print("=" * 78)
+    
+    # print("groups.items() =", groups.items())
     for group, items in groups.items():
+        print(f"\n* group = {group}, items = {items}")
+        
         gone = [d for path, d in items if not path.exists()]
         if gone:
             missing[group] = gone
@@ -628,10 +680,14 @@ def check_availability(P, verbose=True):
 
 
 def summarize_mimic(P):
+    # print("This is utils.dataset.summarize_mimic(P) function")
+    
     if not P["mimic_meta"].exists():
         print("\nMIMIC-CXR: metadata not found, skipping"); return
-    m = pd.read_csv(P["mimic_meta"])
+    m     = pd.read_csv(P["mimic_meta"])
+    print(m.head())
     front = m["ViewPosition"].isin(["AP", "PA"]).sum()
+    
     print(f"\nMIMIC-CXR  (TRAIN)")
     print(f"  images {len(m):,}   studies {m.study_id.nunique():,}   patients {m.subject_id.nunique():,}")
     print(f"  view position:")
@@ -644,6 +700,7 @@ def summarize_mimic(P):
 
 
 def summarize_chexpert(P):
+    # print("This is utils.dataset.summarize_chexpert(P) function")
     if not P["chex_val_csv"].exists():
         print("\nCheXpert: valid.csv not found, skipping"); return
     v = pd.read_csv(P["chex_val_csv"])
@@ -657,6 +714,7 @@ def summarize_chexpert(P):
 
 
 def summarize_nih(P):
+    # print("This is utils.dataset.summarize_nih(P) function")
     if not P["nih_entry"].exists():
         print("\nChestX-ray14: Data_Entry not found, skipping"); return
     d = pd.read_csv(P["nih_entry"])
@@ -673,7 +731,7 @@ def summarize_nih(P):
 
 def summarize_derived(P):
     """Preprocessed artefacts: what has been built, and whether the manifests still resolve."""
-    import h5py
+    
     derived = P["derived"]
     print(f"\nDerived artefacts  ({derived})")
     if not derived.exists():
@@ -698,10 +756,16 @@ def summarize_derived(P):
 
 def check_datasets(cfg_path="config/clip_dataset.yaml", derived=True):
     """One call: raw dataset availability, per-dataset summaries, derived-artefact status."""
-    P = load_dataset_config(cfg_path)
+    P       = load_dataset_config(cfg_path)
     missing = check_availability(P)
-    print("\n" + "=" * 78); print("DATASET SUMMARY"); print("=" * 78)
-    summarize_mimic(P); summarize_chexpert(P); summarize_nih(P)
+    
+    print("\n" + "=" * 78); 
+    print("DATASET SUMMARY"); 
+    print("=" * 78)
+    
+    summarize_mimic(P); 
+    summarize_chexpert(P); 
+    summarize_nih(P)
     if derived:
         summarize_derived(P)
     return missing

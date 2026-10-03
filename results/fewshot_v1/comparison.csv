@@ -1,0 +1,10 @@
+run,NIH-14 mean AUC,note
+"Arm B, negation weights",0.7105,"zero-shot, tuned"
+v2 + template-pair tuned,0.7035,"zero-shot, previous best"
+"v3, impression+findings",0.7031,"zero-shot, tuned"
+"v4, frontal-only",0.7022,"zero-shot, tuned"
+fs-retrain + SS-Text K=16 (tuned prompts),0.6955791849559729,"FEW-SHOT, 448 labeled images"
+fs-retrain + SS-Text K=16 (baseline prompts),0.6951276585989877,"FEW-SHOT, 448 labeled images"
+v2 + label-string tuned,0.6898,zero-shot
+"v1, 4 epochs",0.6738,"zero-shot, baseline prompts"
+"v2, 8 epochs",0.6685,"zero-shot, baseline prompts"

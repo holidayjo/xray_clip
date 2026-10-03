@@ -1,0 +1,4 @@
+[NbConvertApp] Converting notebook /mnt/My_Doc/experiments/fewshot_v1/5_zeroshot_to_fewshot.ipynb to notebook
+/home/hj/anaconda3/envs/hj/lib/python3.13/site-packages/nbformat/__init__.py:96: MissingIDFieldWarning: Cell is missing an id field, this will become a hard error in future nbformat versions. You may want to use `normalize()` on your notebooks before validations (available since nbformat 5.1.4). Previous versions of nbformat are fixing this issue transparently, and will stop doing so in the future.
+  validate(nb)
+[NbConvertApp] Writing 169351 bytes to /mnt/My_Doc/experiments/fewshot_v1/5_zeroshot_to_fewshot.ipynb

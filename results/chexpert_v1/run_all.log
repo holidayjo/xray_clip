@@ -1,0 +1,19 @@
+[2026-09-28 09:52:18] === CheXpert run started ===
+[2026-09-28 09:52:18] text   : mimic_impressions.csv (impression only)
+[2026-09-28 09:52:18] images : cxr.h5 (377,110, frontal + lateral)
+[2026-09-28 09:52:18] recipe : 8 epochs, batch 64, sgd lr 1e-4 momentum 0.9  (selection picks the best epoch)
+[2026-09-28 09:52:18] [1/6] gates
+      h5 377,110 x 320 uint8   text 377,110   aligned=True
+      NO IMPRESSION 15.1%   nan=42
+[2026-09-28 09:52:18] [2/6] training 8 epochs (impression-only text)
+[2026-09-28 11:23:52]       exit=0  checkpoints=236
+[2026-09-28 11:23:52] [3/6] checkpoint selection on CheXpert val (200 studies, radiologist labels)
+[2026-09-28 11:40:34]       exit=0
+[2026-09-28 11:40:34]       best: 32200,0.8581624915328266
+[2026-09-28 11:40:34] [4/6] preprocessing CheXpert test (view1 filter -> 500 frontal, one per study)
+[2026-09-28 11:40:52]       exit=0  rows=500
+[2026-09-28 11:40:52] [5/6] building support pool: 10000 frontal images from CheXpert train
+[2026-09-28 11:42:22]       exit=0  rows=10000
+[2026-09-28 11:42:22] [6/6] zero-shot + few-shot sweep on CheXpert test
+[2026-09-28 11:42:28]       exit=1
+[2026-09-28 11:42:28] === run finished ===

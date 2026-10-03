@@ -1,0 +1,9 @@
+dataset,method,labels,mean AUC
+CheXpert,DAM (supervised SOTA),100%,0.931
+CheXpert,DenseNet-121 (supervised),100%,0.902
+CheXpert,CheXzero zero-shot (paper),0,0.889
+CheXpert,"ours, zero-shot",0,0.8863607952757203
+CheXpert,"ours, SS-Text K=64",640,0.8506283509723387
+NIH,"ViT(ASL) supervised, 9 labels",100%,0.8119
+NIH,"ours, SS-Text K=64",1792,0.7072833407140549
+NIH,"ours, zero-shot",0,0.6820970172295766

@@ -1,0 +1,18 @@
+=== v4 (frontal-only) started Sun Sep 20 04:42:32 PM KST 2026 ===
+[1/6] staging h5 on NVMe...
+      staged, 25373493248 bytes
+[2/6] gates...
+Traceback (most recent call last):
+  File "<stdin>", line 5, in <module>
+  File "h5py/_objects.pyx", line 54, in h5py._objects.with_phil.wrapper
+  File "h5py/_objects.pyx", line 55, in h5py._objects.with_phil.wrapper
+  File "/home/hj/anaconda3/envs/hj/lib/python3.13/site-packages/h5py/_hl/dataset.py", line 610, in dtype
+    return self.id.dtype
+           ^^^^^^^^^^^^^
+  File "h5py/h5d.pyx", line 194, in h5py.h5d.DatasetID.dtype.__get__
+  File "h5py/h5d.pyx", line 196, in h5py.h5d.DatasetID.dtype.__get__
+  File "h5py/_objects.pyx", line 54, in h5py._objects.with_phil.wrapper
+  File "h5py/_objects.pyx", line 55, in h5py._objects.with_phil.wrapper
+  File "h5py/h5d.pyx", line 397, in h5py.h5d.DatasetID.get_type
+ValueError: Invalid dataset identifier (identifier is not of specified type)
+ABORT: gates failed

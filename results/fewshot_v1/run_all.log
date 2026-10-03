@@ -1,0 +1,14 @@
+[2026-09-27 23:04:43] === run_all started ===
+[2026-09-27 23:04:43] experiment dir : /mnt/My_Doc/experiments/fewshot_v1
+[2026-09-27 23:04:43] recipe         : v2 (8 epochs, batch 64, sgd lr 1e-4 momentum 0.9, save_interval 200)
+[2026-09-27 23:04:43] [1/4] gates
+      h5 377,110 x 320 uint8   text 377,110   aligned=True
+      NO IMPRESSION 4.4%   nan=42
+[2026-09-27 23:04:43] [2/4] training 8 epochs from scratch
+[2026-09-28 00:37:06]       train exit=0  checkpoints=236
+[2026-09-28 00:37:06] [3/4] checkpoint selection on CheXpert validation
+[2026-09-28 00:52:59]       select exit=0
+[2026-09-28 00:52:59]       best: /mnt/My_Doc/experiments/fewshot_v1/checkpoints/pt-imp-fs/checkpoint_29200.pt,0.865023475026937
+[2026-09-28 00:52:59] [4/4] zero-shot -> few-shot -> test
+[2026-09-28 00:53:01]       notebook exit=0
+[2026-09-28 00:53:01] === run_all finished ===
