@@ -1,0 +1,74 @@
+# Experiment config for 6_frequency_predicts_adaptation.ipynb
+#
+# Loaded by utils/config.py (load_experiment). Raw datasets come from `datasets:`;
+# the `chexzero_data` section lists files relative to its own `path`.
+# The experiment folder can be overridden with:  export F6_EXP_DIR=/some/other/place
+
+datasets: config/datasets.yaml             # where MIMIC / CheXpert / NIH live (relative to the repo)
+
+experiment:
+  dir:      /mnt/My_Doc/github/xray_clip/runs/freq_v1                         # everything this notebook writes
+  ckpt_dir: /mnt/My_Doc/github/xray_clip/runs/chexpert_v1/checkpoints/pt-imp-cxp   # 236 checkpoints, reused
+
+# ---- training (section 1; skipped when ckpt_dir already holds >= 200 checkpoints) ----
+train:                          # passed to CheXzero/run_train.py as --key value
+  batch_size:    64
+  epochs:        8
+  lr:            1.0e-4
+  optimizer:     sgd
+  momentum:      0.9
+  save_interval: 200
+min_checkpoints: 200
+
+# ---- evaluation --------------------------------------------------------------------
+eval:
+  batch:    256                 # inference batch size
+  ctx:      77                  # CLIP text context length
+  seeds:    20                  # few-shot repetitions per K
+  k_sweep:  [1, 2, 4, 8, 16, 32, 64]
+  n_sel:    6000                # NIH promptdev images reserved for checkpoint selection;
+                                # the other 14,000 are the few-shot support set
+  seed:     0
+  k_ref:    64                  # K used for the Law 2 headline, crossing point and figure
+  k_report: [16, 64]            # Ks shown in the sign test, policies and section 12
+  n_boot:   1000                # bootstrap resamples for CIs
+
+steps_per_epoch: 5893           # ceil(377,110 / 64), for the per-epoch view of checkpoint ranking
+
+reference:
+  chexzero_single: 0.878        # CheXzero single-model CheXpert mean AUC (our target, no ensemble)
+
+synonyms: config/concept_synonyms.yaml     # concept vocabulary for section 2 (relative to the repo)
+
+# ---- concept frequency f (section 2) -------------------------------------------------------
+# Every definition is computed and shown; `primary` is the one the analysis uses.
+#   labeler_pos_%      CheXpert labeler says positive (1)                 <- citable default (Irvin 2019)
+#   labeler_pos_unc_%  positive or uncertain (1 or -1), CheXpert's U-Ones mapping
+#   labeler_any_%      mentioned at all (1, 0 or -1), "mention extraction"
+#   regex_%            our hand-written synonym + negation regex (config/concept_synonyms.yaml)
+#   udandarao_%        Udandarao et al. 2024, their released code: spaCy noun lemmas, all words of
+#                      the class name, no synonyms, no negation (utils/freq/udandarao_count.py)
+# The labeler covers 7 of the 14 NIH labels; with a labeler_* primary the other 7 drop out.
+frequency:
+  primary: labeler_pos_%
+  spacy_python: ~/.venvs/spacy372/bin/python     # spaCy 3.7.2 + en_core_web_sm/lg 3.7.1 (their versions)
+
+# CheXpert competition tasks: reproduction vs CheXzero + checkpoint selection. Keep at 5.
+cxp_labels_5: [Atelectasis, Cardiomegaly, Consolidation, Edema, Pleural Effusion]
+# All CheXpert pathologies (no Support Devices / No Finding): Law 2 on CheXpert, section 12
+cxp_labels_all: [Enlarged Cardiomediastinum, Cardiomegaly, Lung Opacity, Lung Lesion, Edema,
+                 Consolidation, Pneumonia, Atelectasis, Pneumothorax, Pleural Effusion,
+                 Pleural Other, Fracture]
+
+# ---- data --------------------------------------------------------------------------
+# Raw datasets (MIMIC cxr_h5, CheXpert test/train/valid, NIH labels): see config/datasets.yaml.
+
+chexzero_data:                  # preprocessed files written by CheXzero/run_preprocess.py
+  path:           /mnt/My_Doc/github/xray_clip/CheXzero/data
+  impressions:    mimic_impressions.csv     # IMPRESSION ONLY, the paper's recipe
+  cxp_val_h5:     chexpert_valid.h5         # 200 studies
+  cxp_val_paths:  chexpert_valid_paths.csv  # row order of cxp_val_h5
+  nih_pool_h5:    nih_promptdev.h5          # 20,000 from train_val_list.txt
+  nih_pool_paths: nih_promptdev_paths.csv
+  nih_test_h5:    nih_test.h5               # 25,596 = test_list.txt
+  nih_test_paths: nih_test_paths.csv

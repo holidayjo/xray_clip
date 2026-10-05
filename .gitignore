@@ -5,4 +5,14 @@ files/
 *.npz
 *.pkl
 runs/
-__pycache__/CheXzero/*.log
+__pycache__/
+CheXzero/*.log
+
+# separate git repo (cloned), not part of this project
+FCA/
+# chest X-ray images (MIMIC data use agreement): never commit
+missing_viewposition/
+trash/missing_viewposition_contactsheet.png
+
+# cloned labeler repos (CheXpert labeler, NegBio): references, not part of this project
+labeler/

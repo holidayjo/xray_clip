@@ -1,4 +1,6 @@
-# Raw dataset locations. Override the root with:  export CXR_DATA_ROOT=/some/other/place
+# WHERE THE DATASETS ARE -- the one place in the repo that says so.
+# Every entry is relative to `root`. Override the root with:  export CXR_DATA_ROOT=/some/other/place
+# Loaded by utils/config.py (load_datasets); used by notebooks 1, 2_1, 6 and utils/dataset.py.
 root: /mnt/My_Doc/dataset/CXR_dataset
 
 mimic:                                    # TRAINING - image-report pairs, no labels
@@ -6,17 +8,25 @@ mimic:                                    # TRAINING - image-report pairs, no la
   reports:  MIMIC_CXR/mimic-cxr-reports/files
   metadata: MIMIC_CXR/mimic-cxr-jpg/2.1.0/mimic-cxr-2.0.0-metadata.csv.gz   # ViewPosition
   split:    MIMIC_CXR/mimic-cxr-jpg/2.1.0/mimic-cxr-2.0.0-split.csv.gz
+  cxr_h5:   MIMIC_CXR/cxr_cache/cxr.h5                                     # 377,110 images, all views (1_dataset_preparation)
+  chexpert_labels: MIMIC_CXR/mimic-cxr-jpg/2.1.0/mimic-cxr-2.0.0-chexpert.csv.gz   # CheXpert labeler output, one row per study
 
 chexpert:                                 # CHECKPOINT SELECTION - radiologist labels
   valid_images: CheXpert/kaggle/valid
   valid_csv:    CheXpert/kaggle/valid.csv
   test_csv:     CheXpert/test_set_labels/groundtruth.csv
+  test_images:  CheXpert/chexlocalize/chexlocalize/CheXpert/test                 # 500 test studies
+  test_labels:  CheXpert/chexlocalize/chexlocalize/CheXpert/test_labels.csv      # radiologist consensus
+  train_csv:    CheXpert/kaggle/train.csv                                       # CheXpert labeler (few-shot support pool)
 
 nih:                                      # TEST - zero-shot evaluation
   images:        ChestXray14/images
   labels:        ChestXray14/cxr8/Data_Entry_2017_v2020.csv
   test_list:     ChestXray14/cxr8/test_list.txt
   trainval_list: ChestXray14/cxr8/train_val_list.txt
+  prune_train:   ChestXray14/cxr8/PruneCXR/miccai2023_nih-cxr-lt_labels_train.csv   # NIH-CXR-LT splits (train.py)
+  prune_val:     ChestXray14/cxr8/PruneCXR/miccai2023_nih-cxr-lt_labels_val.csv
+  prune_test:    ChestXray14/cxr8/PruneCXR/miccai2023_nih-cxr-lt_labels_test.csv
   image_tarballs:
     - https://nihcc.box.com/shared/static/vfk49d74nhbxq3nqjg0900w5nvkorp5c.gz
     - https://nihcc.box.com/shared/static/i28rlmbvmfjbl8p2n3ril0pptcmcu9d1.gz

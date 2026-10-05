@@ -12,7 +12,7 @@ import utils.evaluation
 
 
 @torch.no_grad()
-def run(cfg            = "data/cxr_dataset.yaml",
+def run(cfg            = "config/cxr_dataset.yaml",
         weights        = "muldiff.pth",
         clip_model     = "hf-hub:microsoft/BiomedCLIP-PubMedBERT_256-vit_base_patch16_224",
         split          = "test",
@@ -162,7 +162,7 @@ def run(cfg            = "data/cxr_dataset.yaml",
 
 def parse_opt():
     parser = argparse.ArgumentParser(description="CLIP-Based Chest X-Ray Multi-Label Classification - Validation/Test")
-    parser.add_argument("--cfg", type=str, default="data/cxr_dataset.yaml", help="Path to dataset YAML file")
+    parser.add_argument("--cfg", type=str, default="config/cxr_dataset.yaml", help="Path to dataset YAML file")
     parser.add_argument("--weights", type=str, default="muldiff.pth", help="Path to trained checkpoint (.pth)")
     parser.add_argument("--clip_model", type=str, default="hf-hub:microsoft/BiomedCLIP-PubMedBERT_256-vit_base_patch16_224", help="Pre-trained CLIP model name")
     parser.add_argument("--split", type=str, default="test", choices=["train", "valid", "test"], help="Which dataset split to evaluate")

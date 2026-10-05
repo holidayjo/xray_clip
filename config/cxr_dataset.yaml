@@ -1,20 +1,57 @@
+# NIH ChestX-ray14 training config for the BiomedCLIP pipeline (train.py, val.py, notebooks/2_main).
+# The same dataset locations as config/datasets.yaml, written out in full here because train.py
+# and val.py read these keys directly. Former variants: trash/config/ (3-label, nodule-only).
+
 # Dataset root directory
-image_root: data/nih_images
+image_root: /mnt/My_Doc/dataset/CXR_dataset/ChestXray14/images             # was data/nih_images (now only download markers)
 
-# CSV file splits
-train_csv: data/cxr8/PruneCXR/miccai2023_nih-cxr-lt_labels_train.csv
-valid_csv: data/cxr8/PruneCXR/miccai2023_nih-cxr-lt_labels_val.csv
-test_csv : data/cxr8/PruneCXR/miccai2023_nih-cxr-lt_labels_test.csv
+# CSV file splits (prunecxr)
+train_csv: /mnt/My_Doc/dataset/CXR_dataset/ChestXray14/cxr8/PruneCXR/miccai2023_nih-cxr-lt_labels_train.csv
+valid_csv: /mnt/My_Doc/dataset/CXR_dataset/ChestXray14/cxr8/PruneCXR/miccai2023_nih-cxr-lt_labels_val.csv
+test_csv : /mnt/My_Doc/dataset/CXR_dataset/ChestXray14/cxr8/PruneCXR/miccai2023_nih-cxr-lt_labels_test.csv
 
-# Target classes for training (top_labels)
+# Original ChestX-ray14 release files.  (Official)
+data_entry_csv: /mnt/My_Doc/dataset/CXR_dataset/ChestXray14/cxr8/Data_Entry_2017_v2020.csv
+train_val_list: /mnt/My_Doc/dataset/CXR_dataset/ChestXray14/cxr8/train_val_list.txt
+test_list     : /mnt/My_Doc/dataset/CXR_dataset/ChestXray14/cxr8/test_list.txt
+
+
+# Target classes for training (top_labels).
+# These are the 9 diseases selected by the reference paper (Mezina & Burget, 2024, Detection of post-COVID-19-related pulmonary diseases in X-ray images using Vision Transformer-based neural network"),
+# so results here are directly comparable to its Table 3 / Table 4. Must stay in the same order as train_resnet_baseline.py's PAPER_LABELS, 
+# since pos_weight and the model's output logits are both ordered by it.
 top_labels:
-  - Infiltration
+  - Cardiomegaly
+  - Consolidation
+  - Edema
   - Effusion
+  - Emphysema
+  - Fibrosis
+  - Infiltration
   - Nodule
+  - Pneumothorax
+  # - Atelectasis
+  # - Cardiomegaly
+  # - Consolidation
+  # - Edema
+  # - Effusion
+  # - Emphysema
+  # - Fibrosis
+  # - Hernia
+  # - Infiltration
+  # - Mass
+  # - Nodule
+  # - Pleural Thickening
+  # - Pneumonia
+  # - Pneumothorax
+  # - Pneumoperitoneum
+  # - Pneumomediastinum
+  # - Subcutaneous Emphysema
+  # - Tortuous Aorta
+  # - Calcification of the Aorta
+  # - No Finding
 
-# Text prompt template used to build the per-label CLIP text prototypes.
-# {label} is substituted with each entry of top_labels. Must stay identical
-# between train.py and val.py.
+# Text prompt template.
 prompt_template: "A chest radiograph with {label}, characterized by specific radiological features in the pulmonary area, affecting the thoracic cavity."
 
 # All original 20 labels in the NIH dataset

@@ -1,4 +1,6 @@
 import argparse
+import matplotlib
+matplotlib.use("Agg")  # headless: figures are saved, never shown (was set inside utils/plot.py)
 import yaml
 import pathlib
 import numpy as np
@@ -371,7 +373,7 @@ def main(opt):
 
 def parse_opt():
     parser = argparse.ArgumentParser(description="CLIP-Based Chest X-Ray Multi-Label Classification")
-    parser.add_argument("--cfg", type=str, default="config/cxr_dataset_9class.yaml", help="Path to dataset YAML file")
+    parser.add_argument("--cfg", type=str, default="config/cxr_dataset.yaml", help="Path to dataset YAML file")
     parser.add_argument("--clip_model", type=str, default="hf-hub:microsoft/BiomedCLIP-PubMedBERT_256-vit_base_patch16_224", help="Pre-trained CLIP model name")
     parser.add_argument("--epochs", type=int, default=500, help="Total number of training epochs")
     parser.add_argument("--batch-size", type=int, default=1200, help="Total batch size")

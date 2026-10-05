@@ -16,11 +16,13 @@ import hashlib
 import tqdm
 import h5py
 
-# # ── CheXzero dataset locations (from config/clip_dataset.yaml) ──────────────────
+import utils.config
+
+# # ── CheXzero dataset locations (from config/datasets.yaml) ──────────────────
 # # One source of truth for where the three raw datasets live. Relocating them means
 # # editing that yaml, or exporting CXR_DATA_ROOT -- not editing code.
 # _REPO = pathlib.Path(__file__).resolve().parent.parent
-# _CFG  = yaml.safe_load(open(_REPO/"config/clip_dataset.yaml"))
+# _CFG  = yaml.safe_load(open(_REPO/"config/datasets.yaml"))
 
 # ROOT = pathlib.Path(os.environ.get("CXR_DATA_ROOT", _CFG["root"]))
 
@@ -52,7 +54,7 @@ import h5py
 
 
 
-def download_nih_dataset(cfg_path="config/clip_dataset.yaml"):
+def download_nih_dataset(cfg_path="config/datasets.yaml"):
     """Download and extract ChestX-ray14 images into the configured location.
 
     ChestX-ray14 is the only one of the three datasets that can be fetched by script.
@@ -63,8 +65,7 @@ def download_nih_dataset(cfg_path="config/clip_dataset.yaml"):
     Resumable: a per-tarball marker file means re-running skips completed work.
     """
     P = load_dataset_config(cfg_path)
-    cfg = yaml.safe_load(open(
-        pathlib.Path(__file__).resolve().parent.parent/cfg_path))
+    cfg = utils.config.load_yaml(cfg_path)
     links = cfg["nih"].get("image_tarballs", [])
     if not links:
         print(f"No 'nih.image_tarballs' in {cfg_path}. Aborting."); return
@@ -314,31 +315,28 @@ def feature_batches(source, batch_size, shuffle, model=None, device=None, genera
 
 
 
-def load_dataset_config(cfg_path="config/clip_dataset.yaml"):
+def load_dataset_config(cfg_path="config/datasets.yaml"):
     """Resolve the dataset layout in `cfg_path` into absolute paths.
 
     Relocating datasets means editing that yaml (or exporting CXR_DATA_ROOT),
-    never editing code. Returns a dict of pathlib.Path.
+    never editing code. Returns a dict of pathlib.Path. The YAML is read by
+    utils/config.py (load_datasets), the one loader shared with notebook 6.
     """
-    cfg_path = pathlib.Path(cfg_path)
-    if not cfg_path.is_absolute():                       # tolerate any cwd
-        cfg_path = pathlib.Path(__file__).resolve().parent.parent/cfg_path
-    cfg  = yaml.safe_load(open(cfg_path))
-    root = pathlib.Path(os.environ.get("CXR_DATA_ROOT", cfg["root"]))
-    repo = pathlib.Path(__file__).resolve().parent.parent
-    return {"root":          root,
-            "mimic_jpg":     root/cfg["mimic"]["images"],
-            "mimic_reports": root/cfg["mimic"]["reports"],
-            "mimic_meta":    root/cfg["mimic"]["metadata"],
-            "mimic_split":   root/cfg["mimic"]["split"],
-            "chex_val_dir":  root/cfg["chexpert"]["valid_images"],
-            "chex_val_csv":  root/cfg["chexpert"]["valid_csv"],
-            "chex_test_csv": root/cfg["chexpert"]["test_csv"],
-            "nih_images":    root/cfg["nih"]["images"],
-            "nih_entry":     root/cfg["nih"]["labels"],
-            "nih_test":      root/cfg["nih"]["test_list"],
-            "nih_trainval":  root/cfg["nih"]["trainval_list"],
-            "derived":       repo/cfg["derived"]}
+    D = utils.config.load_datasets(cfg_path)
+    P = lambda s: pathlib.Path(s)
+    return {"root":          P(D["root"]),
+            "mimic_jpg":     P(D["mimic"]["images"]),
+            "mimic_reports": P(D["mimic"]["reports"]),
+            "mimic_meta":    P(D["mimic"]["metadata"]),
+            "mimic_split":   P(D["mimic"]["split"]),
+            "chex_val_dir":  P(D["chexpert"]["valid_images"]),
+            "chex_val_csv":  P(D["chexpert"]["valid_csv"]),
+            "chex_test_csv": P(D["chexpert"]["test_csv"]),
+            "nih_images":    P(D["nih"]["images"]),
+            "nih_entry":     P(D["nih"]["labels"]),
+            "nih_test":      P(D["nih"]["test_list"]),
+            "nih_trainval":  P(D["nih"]["trainval_list"]),
+            "derived":       P(D["derived"])}
 
 
 # How to obtain each dataset, shown only when something is missing.
@@ -754,7 +752,7 @@ def summarize_derived(P):
     print(f"  path manifests: {'all resolve' if not stale else 'STALE -> ' + ', '.join(stale)}")
 
 
-def check_datasets(cfg_path="config/clip_dataset.yaml", derived=True):
+def check_datasets(cfg_path="config/datasets.yaml", derived=True):
     """One call: raw dataset availability, per-dataset summaries, derived-artefact status."""
     P       = load_dataset_config(cfg_path)
     missing = check_availability(P)

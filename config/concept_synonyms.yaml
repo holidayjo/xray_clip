@@ -1,0 +1,43 @@
+# Concept mention patterns for counting pathology frequency in MIMIC impressions.
+# Used by 6_frequency_predicts_adaptation.ipynb, section 2.
+#
+# Each label maps to a list of regex patterns, matched against lower-cased text.
+# Keep patterns in SINGLE quotes so that backslashes stay literal ('\bmass\b').
+#
+# NOTE: this is the hand-written list (no published source). It is kept as one
+# robustness variant; the primary frequency definition will come from the
+# CheXpert labeler output. See files/papers/name_freq/READING_GUIDE.md.
+
+negation:                       # a cue within `window` characters before the mention,
+  window: 40                    # with no sentence break ('.' or ';') in between
+  # quoted on purpose: unquoted `no` is parsed by YAML as the boolean False
+  cues: ['no', 'not', 'without', 'free of', 'absence of', 'negative for', 'rule out',
+         'ruled out', 'resolved', 'clear of', 'unremarkable for']
+
+synonyms:
+  # ---- ChestX-ray14 labels -----------------------------------------------------
+  Atelectasis:        [atelecta, collapse of the, lung collapse]
+  Cardiomegaly:       [cardiomegaly, enlarged heart, enlargement of the heart,
+                       cardiac enlargement, enlarged cardiac silhouette,
+                       heart size is enlarged, cardiac silhouette is enlarged]
+  Effusion:           [effusion]
+  Pleural Effusion:   [effusion]          # CheXpert name for the same finding
+  Infiltration:       [infiltrat]
+  Mass:               ['\bmass\b', '\bmasses\b']
+  Nodule:             [nodul]
+  Pneumonia:          [pneumonia, infectious consolidation]
+  Pneumothorax:       [pneumothorax, pneumothoraces]
+  Consolidation:      [consolidat]
+  Edema:              ['\bedema\b', pulmonary edema, fluid overload]
+  Emphysema:          [emphysema, emphysematous, hyperinflat]
+  Fibrosis:           [fibrosis, fibrotic, reticular]
+  Pleural_Thickening: [pleural thickening, thickened pleura, pleural scarring]
+  Hernia:             [hernia]
+
+  # ---- CheXpert-only labels, for the falsification test in section 12 ------------
+  Enlarged Cardiomediastinum: [mediastinal widening, widened mediastinum,
+                               enlarged cardiomediastinal, cardiomediastinal silhouette is enlarg]
+  Lung Opacity:       [opacit]
+  Lung Lesion:        ['\blesion\b', nodul, '\bmass\b']
+  Pleural Other:      [pleural thickening, pleural scarring, pleural plaque]
+  Fracture:           [fractur]
