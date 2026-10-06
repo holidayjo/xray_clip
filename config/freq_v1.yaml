@@ -45,6 +45,7 @@ synonyms: config/concept_synonyms.yaml     # concept vocabulary for section 2 (r
 #   labeler_pos_%      CheXpert labeler says positive (1)                 <- citable default (Irvin 2019)
 #   labeler_pos_unc_%  positive or uncertain (1 or -1), CheXpert's U-Ones mapping
 #   labeler_any_%      mentioned at all (1, 0 or -1), "mention extraction"
+#   negbio_pos_%       NegBio labeler says positive: same phrases, other negation rules (Johnson 2019)
 #   regex_%            our hand-written synonym + negation regex (config/concept_synonyms.yaml)
 #   udandarao_%        Udandarao et al. 2024, their released code: spaCy noun lemmas, all words of
 #                      the class name, no synonyms, no negation (utils/freq/udandarao_count.py)

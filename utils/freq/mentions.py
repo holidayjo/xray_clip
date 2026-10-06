@@ -36,21 +36,29 @@ def mention_stats(reports, patterns, neg):
 
 
 def mention_table(reports_csv, vocab_path, cache_dir):
-    """One row per concept, plus log_f = log10(affirmative %).
-
-    Cached as mention_rates_<hash>.csv, where <hash> comes from the vocabulary file, so
-    editing a synonym forces a recount. Returns (table, n_reports, cache_path).
     """
-    key = hashlib.md5(open(vocab_path, "rb").read()).hexdigest()[:8]
-    cache = os.path.join(cache_dir, f"mention_rates_{key}.csv")
+    One row per concept, plus log_f = log10(affirmative %).
+    Cached as mention_rates_<hash>.csv, 
+    where <hash> comes from the vocabulary file,
+    so editing a synonym forces a recount. 
+    Returns (table, n_reports, cache_path).
+    """
+    
+    key     = hashlib.md5(open(vocab_path, "rb").read()).hexdigest()[:8]
+    # print("mention_table: vocab hash", key, "from", vocab_path)
+    cache   = os.path.join(cache_dir, f"mention_rates_{key}.csv")
     reports = pd.read_csv(reports_csv)["impression"].fillna("").str.lower()
+    # print("mention_table: counting mentions in", len(reports), "reports ...")
+    # print("mention_table: caching to", cache)
+    # print("report sample:\n", reports)
     if os.path.exists(cache):
         table = pd.read_csv(cache, index_col=0)
     else:
         synonyms, neg = load_vocabulary(vocab_path)
-        table = pd.DataFrame({l: mention_stats(reports, p, neg) for l, p in synonyms.items()}).T
+        table         = pd.DataFrame({l: mention_stats(reports, p, neg) for l, p in synonyms.items()}).T
         table.to_csv(cache)
     table["log_f"] = np.log10(table["affirmative_%"])
+    
     return table, len(reports), cache
 
 
@@ -61,33 +69,45 @@ TO_CHEXPERT = {"Effusion": "Pleural Effusion"}
 LABELER_COLS = ["labeler_pos_%", "labeler_pos_unc_%", "labeler_any_%"]
 
 
-def labeler_table(impressions_csv, labels_csv, labels):
-    """Share (%) of training rows whose study the CheXpert labeler marks, per label.
+def labeler_table(impressions_csv, labels_csv, labels, negbio_csv=None):
+    """
+    Share (%) of training rows whose study the CheXpert labeler marks, per label.
 
-    Unit = training rows (image-text pairs), as the model saw them. A row whose training text is
-    NO IMPRESSION counts as NOT exposed whatever its label: MIMIC labelled those studies from the
-    findings section (Johnson et al. 2019, p.3), which the model never saw. Labels the labeler does
-    not cover get NaN.
+    Unit = training rows (image-text pairs), as the model saw them.
+    A row whose training text is NO IMPRESSION counts as NOT exposed whatever its label: 
+    MIMIC labelled those studies from the findings section (Johnson et al. 2019, p.3), 
+    which the model never saw. 
+    Labels the labeler does not cover get NaN.
+    
         labeler_pos_%      label 1                        (Irvin et al. 2019, aggregation, p.3)
         labeler_pos_unc_%  label 1 or -1                  (U-Ones mapping, p.4)
         labeler_any_%      label 1, 0 or -1, i.e. named   (mention extraction, p.3)
+        negbio_pos_%       label 1 in MIMIC's NegBio file: same mention phrases, NegBio's own
+                           negation/uncertainty rules (Johnson et al. 2019, p.3). Only if negbio_csv.
     """
-    imp = pd.read_csv(impressions_csv)
-    seen = (imp["impression"].astype(str) != "NO IMPRESSION").to_numpy()
+    imp   = pd.read_csv(impressions_csv)
+    seen  = (imp["impression"].astype(str) != "NO IMPRESSION").to_numpy()
+    # print(f"labeler_table: {seen.sum()} of {len(imp)} training rows have an impression")
     study = imp["filename"].str.extract(r"s(\d+)")[0].astype(int)
-    lab = pd.read_csv(labels_csv).set_index("study_id").reindex(study)
-    n = len(imp)
-    rows = {}
+    # print("study =", study)
+    # print(f"labeler_table: {len(study.unique())} unique studies in {len(imp)} training rows")
+    
+    lab   = pd.read_csv(labels_csv).set_index("study_id").reindex(study)
+    nb    = pd.read_csv(negbio_csv).set_index("study_id").reindex(study) if negbio_csv else None
+    n     = len(imp)
+    rows  = {}
     for label in labels:
         col = TO_CHEXPERT.get(label, label)
         if col not in lab.columns:
-            rows[label] = dict.fromkeys(LABELER_COLS, np.nan)
+            rows[label] = dict.fromkeys(LABELER_COLS + (["negbio_pos_%"] if nb is not None else []), np.nan)
             continue
         v = lab[col].to_numpy()
         pct = lambda m: 100 * (m & seen).sum() / n
         rows[label] = {"labeler_pos_%": pct(v == 1),
                        "labeler_pos_unc_%": pct((v == 1) | (v == -1)),
                        "labeler_any_%": pct(~np.isnan(v))}
+        if nb is not None:
+            rows[label]["negbio_pos_%"] = pct(nb[col].to_numpy() == 1)
     return pd.DataFrame(rows).T
 
 

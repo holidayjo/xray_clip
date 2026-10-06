@@ -4,12 +4,13 @@
 root: /mnt/My_Doc/dataset/CXR_dataset
 
 mimic:                                    # TRAINING - image-report pairs, no labels
-  images:   MIMIC_CXR/mimic-cxr-jpg/2.1.0/files
-  reports:  MIMIC_CXR/mimic-cxr-reports/files
-  metadata: MIMIC_CXR/mimic-cxr-jpg/2.1.0/mimic-cxr-2.0.0-metadata.csv.gz   # ViewPosition
-  split:    MIMIC_CXR/mimic-cxr-jpg/2.1.0/mimic-cxr-2.0.0-split.csv.gz
-  cxr_h5:   MIMIC_CXR/cxr_cache/cxr.h5                                     # 377,110 images, all views (1_dataset_preparation)
+  images:          MIMIC_CXR/mimic-cxr-jpg/2.1.0/files
+  reports:         MIMIC_CXR/mimic-cxr-reports/files
+  metadata:        MIMIC_CXR/mimic-cxr-jpg/2.1.0/mimic-cxr-2.0.0-metadata.csv.gz   # ViewPosition
+  split:           MIMIC_CXR/mimic-cxr-jpg/2.1.0/mimic-cxr-2.0.0-split.csv.gz
   chexpert_labels: MIMIC_CXR/mimic-cxr-jpg/2.1.0/mimic-cxr-2.0.0-chexpert.csv.gz   # CheXpert labeler output, one row per study
+  negbio_labels:   MIMIC_CXR/mimic-cxr-jpg/2.1.0/mimic-cxr-2.0.0-negbio.csv.gz     # NegBio labeler output, same layout
+  cxr_h5:          MIMIC_CXR/cxr_cache/cxr.h5                                     # 377,110 images, all views (1_dataset_preparation)
 
 chexpert:                                 # CHECKPOINT SELECTION - radiologist labels
   valid_images: CheXpert/kaggle/valid
