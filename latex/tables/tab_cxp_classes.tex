@@ -1,0 +1,29 @@
+\begin{table}[!t]
+\centering
+\footnotesize
+\caption{CheXpert classes: asserted frequency $f$ in the training impressions, positives in the 500-study
+test set, zero-shot AUC and few-shot (SS-Text) gain at $K=64$ (mean of 20 draws).}
+\label{tab:cxpclasses}
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{lrrrr}
+\toprule
+Class & $f$ & Test & Zero-shot & $\Delta$AUC \\
+ & (\%) & pos. & AUC & $K{=}64$ \\
+\midrule
+Pleural Effusion & 15.59 & 104 & 0.923 & -0.013 \\
+Lung Opacity & 15.33 & 264 & 0.908 & -0.003 \\
+Atelectasis & 12.75 & 153 & 0.837 & -0.072 \\
+Cardiomegaly & 12.05 & 151 & 0.899 & -0.063 \\
+Edema & 7.89 & 78 & 0.882 & -0.047 \\
+Pneumonia & 5.72 & 11 & 0.759 & -0.082 \\
+Consolidation & 3.09 & 29 & 0.885 & -0.006 \\
+Pneumothorax & 2.80 & 9 & 0.679 & +0.082 \\
+Lung Lesion & 2.34 & 8 & 0.554 & +0.159 \\
+Enlarged Cardiomediastinum & 1.86 & 253 & 0.839 & -0.365 \\
+Fracture & 1.55 & 5 & 0.377 & +0.191 \\
+Pleural Other & 0.68 & 4 & 0.540 & +0.364 \\
+\midrule
+Mean & & & 0.757 & +0.012 \\
+\bottomrule
+\end{tabular}
+\end{table}

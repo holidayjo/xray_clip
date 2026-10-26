@@ -1,0 +1,23 @@
+\begin{table*}[!t]
+\centering
+\footnotesize
+\caption{Datasets and splits. MIMIC-CXR provides image--text pairs (one row per image; a study's impression is
+repeated for each of its images); no labels are used for training. ChestX-ray14 selection and support are drawn from
+the official train/validation split and test is the official test split. CheXpert: one frontal image per study for
+validation and test; the support images are a fixed random subset of the training set. Last column: images
+positive for at least one of the labels used in that set.}
+\label{tab:data}
+\begin{tabular}{llrrlr}
+\toprule
+Set & Role & Images & Patients & Labels used & $\geq$1 positive (\%) \\
+\midrule
+MIMIC-CXR & training & 377{,}110 & 65{,}379 & impression text & -- \\
+ChestX-ray14 selection & checkpoint choice & 6{,}000 & 4{,}062 & 14 labels & 39.2 \\
+ChestX-ray14 support & few-shot examples & 14{,}000 & 7{,}646 & 14 labels & 39.4 \\
+ChestX-ray14 test & evaluation & 25{,}596 & 2{,}797 & 14 labels & 61.5 \\
+CheXpert validation & checkpoint choice & 200 & 200 & 5 labels & 64.0 \\
+CheXpert train subset & few-shot examples & 10{,}000 & 8{,}429 & 12 labels & 84.3 \\
+CheXpert test & evaluation & 500 & 500 & 12 labels & 70.4 \\
+\bottomrule
+\end{tabular}
+\end{table*}

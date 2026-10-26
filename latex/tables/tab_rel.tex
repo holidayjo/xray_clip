@@ -1,0 +1,20 @@
+\begin{table*}[!t]
+\centering
+\footnotesize
+\caption{Relationships (1) and (2) on both test sets (one point per class). Relationship (1): zero-shot AUC vs.\
+$\log_{10} f$. Relationship (2): few-shot gain $\Delta$AUC (SS-Text, $K=64$) vs.\ $\log_{10} f$; the partial
+correlation removes a linear effect of the zero-shot AUC from both. Last column: Pearson $r$ of $\log_{10} f$ with
+AUC at $K=0$ (zero-shot) and at $K=64$. Entries are $r$ or $\rho$ with two-sided $p$ in parentheses.}
+\label{tab:rel}
+\begin{tabular}{llrrrrr}
+\toprule
+Test set ($n$) & $f$ & \multicolumn{2}{c}{Rel.~(1)} & \multicolumn{2}{c}{Rel.~(2), $K=64$} & $r(\log f,\mathrm{AUC})$ \\
+ & & Pearson $r$ & Spearman $\rho$ & Pearson $r$ & partial $r$ & $K{=}0 \to 64$ \\
+\midrule
+ChestX-ray14 (14) & asserted & +0.59 (0.025) & +0.50 (0.069) & -0.55 (0.041) & -0.31 (0.278) & +0.59 $\to$ +0.34 \\
+ChestX-ray14 (14) & word (stemmed) & +0.56 (0.036) & +0.40 (0.159) & -0.67 (0.008) & -0.51 (0.060) & +0.56 $\to$ +0.21 \\
+ChestX-ray14 (14) & word (exact) & +0.51 (0.062) & +0.44 (0.118) & -0.52 (0.054) & -0.32 (0.262) & +0.51 $\to$ +0.25 \\
+CheXpert (12) & asserted & +0.76 (0.004) & +0.83 (<0.001) & -0.45 (0.143) & +0.17 (0.608) & +0.76 $\to$ +0.40 \\
+\bottomrule
+\end{tabular}
+\end{table*}

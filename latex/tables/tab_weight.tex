@@ -1,0 +1,23 @@
+\begin{table*}[!t]
+\centering
+\footnotesize
+\caption{Few-shot adaptation with three image weights: mean AUC over classes (each class: mean of 20 draws of the
+support images). SS-Text: $\alpha=1$ as in~\cite{silvarodriguez2025fca}. Global $\alpha$ and the frequency rule
+were chosen on the ChestX-ray14 selection set and applied to CheXpert without retuning.}
+\label{tab:weight}
+\begin{tabular}{lrrrrrr}
+\toprule
+ & \multicolumn{3}{c}{ChestX-ray14 test (14 classes)} & \multicolumn{3}{c}{CheXpert test (12 classes)} \\
+$K$ & SS-Text & global $\alpha$ & frequency rule & SS-Text & global $\alpha$ & frequency rule \\
+\midrule
+0 (zero-shot) & 0.685 & 0.685 & 0.685 & 0.757 & 0.757 & 0.757 \\
+1 & 0.601 & 0.687 & 0.687 & 0.653 & 0.758 & 0.759 \\
+2 & 0.622 & 0.688 & 0.689 & 0.666 & 0.762 & 0.766 \\
+4 & 0.637 & 0.691 & 0.691 & 0.685 & 0.767 & 0.767 \\
+8 & 0.664 & 0.698 & 0.700 & 0.712 & 0.777 & 0.783 \\
+16 & 0.685 & 0.703 & 0.705 & 0.725 & 0.779 & 0.784 \\
+32 & 0.699 & 0.709 & 0.712 & 0.756 & 0.800 & 0.806 \\
+64 & 0.703 & 0.710 & 0.713 & 0.769 & 0.810 & 0.814 \\
+\bottomrule
+\end{tabular}
+\end{table*}
