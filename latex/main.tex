@@ -25,12 +25,13 @@ Vision--Language Model: A Preliminary Study}
 \begin{abstract}
 
 Few-shot adaptation of medical vision--language models has been motivated by the claim that zero-shot performance is limited for concepts that are rare in the pretraining data. 
-We measured concept frequency as asserted, not merely mentioned, findings in the \MimicCxrPairs{} MIMIC-CXR image--text pairs that trained CheXzero, related it to zero-shot performance and few-shot gain, and used it to set a per-class weight in few-shot adaptation.
-Concept frequency was measured as the share of impressions in which the CheXpert labeler, extended to the 14 ChestX-ray14 classes, marks a finding as present. 
-Denied findings were not counted.
-As reported for general-domain models, zero-shot area under the ROC curve (AUC) increased with log concept frequency, on ChestX-ray14 (r = \NihROne, p = \NihPOne) and on CheXpert (r = \CxpROne, p = \CxpPOne).
+We studied a chest X-ray vision--language model trained on the MIMIC-CXR dataset and evaluated it on two external test sets, ChestX-ray14 and CheXpert.
+Concept frequency was the share of impressions in which the CheXpert labeler, extended to the 14 ChestX-ray14 classes, marks a finding as present, so denied findings (``no pneumothorax'') were not counted.
+We related this frequency to zero-shot performance and few-shot gain, and used it to set a per-class image weight in few-shot adaptation.
+Zero-shot area under the ROC curve (AUC) increased with log concept frequency on ChestX-ray14 (Pearson r = \NihROne, p = \NihPOne) and on CheXpert (r = \CxpROne, p = \CxpPOne).
 With \KRef{} support images per class, rarely asserted ChestX-ray14 classes gained more from few-shot adaptation (r = \NihRTwo, p = \NihPTwo), but the association was not significant after controlling for zero-shot AUC (partial r = \NihPartial, p = \NihPartialP).
 A low zero-shot AUC was itself associated with a larger gain.
+With its published image weight, the few-shot method SS-Text made \NihFcaBelow{} of 14 ChestX-ray14 classes and \CxpFcaBelow{} of 12 CheXpert classes worse than zero-shot.
 A smaller global image weight, tuned on ChestX-ray14 and applied to CheXpert without retuning, raised the mean AUC from \NihFcaRef{} to \NihGlobalRef{} and from \CxpFcaRef{} to \CxpGlobalRef{}.
 Setting the weight per class from concept frequency raised it further, to \NihRuleRef{} and \CxpRuleRef{}.
 Pretraining concept frequency thus provides a per-class image weight for few-shot adaptation that transfers across datasets without retuning.
@@ -54,13 +55,15 @@ applied this to chest radiographs, training on MIMIC-CXR images paired with the 
 of their radiology reports, and reached radiologist-level performance on several findings without
 labelled training images~\cite{tiu2022chexzero}.
 
-Such models are not ``zero-shot'' in the strict sense: the class names appear in the pretraining
-text. In general-domain models, Udandarao \emph{et al.}~\cite{udandarao2024zeroshot} found
+Such models are not ``zero-shot'' in the strict sense: the class names appear in the pretraining text. We call each class a \emph{concept}, following~\cite{udandarao2024zeroshot}; here, a concept is a radiographic finding.
+In general-domain models, Udandarao \emph{et al.}~\cite{udandarao2024zeroshot} found
 \emph{``a consistent linear relationship between CLIP's zero-shot performance on a concept and the
-log-scaled pretraining concept frequency.''} Parashar \emph{et al.}~\cite{parashar2024neglected} estimated
+log-scaled pretraining concept frequency.''}
+Parashar \emph{et al.}~\cite{parashar2024neglected} estimated
 concept frequency from pretraining captions and used it to improve rare concepts: they prompt with the
 most frequent synonym of a class name and train a linear classifier on a small, balanced set of retrieved
-pretraining data.
+pretraining data. For chest X-rays, Mishra \emph{et al.}~\cite{mishra2023improving} found a CheXzero model
+weaker on pathologies rarely named in the MIMIC-CXR impressions.
 
 This finding is also used to motivate few-shot adaptation. The Full Conformal Adaptation paper, whose
 training-free solver SS-Text we use, states that zero-shot \emph{``performance vanishes when specific
@@ -71,11 +74,14 @@ claim but does not measure concept frequency in its own models. Radiology also d
 measurement: reports routinely \emph{deny} findings (``no pneumothorax''), so a word count need not
 reflect how often a finding was actually reported.
 
-We test this motivation class by class, in one model and on two test sets:
+We test this motivation class by class, in one model and on two test sets, and use frequency to set the
+few-shot image weight:
 \begin{enumerate}
 \item \textbf{Relationship (1):} does zero-shot AUC increase with the log-frequency $f$ of the finding?
 \item \textbf{Relationship (2):} does the few-shot gain $\Delta$AUC \emph{decrease} with $\log f$, and
 does $f$ predict it beyond the zero-shot AUC?
+\item \textbf{Image weight:} does setting the few-shot image weight per class from $f$ improve on one
+global weight?
 \end{enumerate}
 Writing them as straight lines over $\log_{10} f$,
 \begin{equation}
@@ -99,14 +105,15 @@ class from $f$ adds a small further gain.
 al.}~\cite{udandarao2024zeroshot} counted concepts in the pretraining data of general-domain CLIP models
 and found zero-shot performance to grow log-linearly with concept frequency. Parashar \emph{et
 al.}~\cite{parashar2024neglected} estimated frequency from pretraining captions and used it to improve
-rare concepts through the choice of prompt and retrieved pretraining data. Both studies use web
-image--caption data, where captions rarely deny what is absent; we measure frequency in radiology
-reports with a negation-aware labeler, and on a medical model.
+rare concepts through the choice of prompt and retrieved pretraining data.
+Both studies use web image--caption data, where captions rarely deny what is absent.
+For chest X-rays, Mishra \emph{et al.}~\cite{mishra2023improving} counted how often pathology names occur in the MIMIC-CXR impressions and found a CheXzero model weaker on rarely mentioned pathologies, and CXR-CML~\cite{madhipati2025cxr} reported lower zero-shot AUC on long-tailed classes. Neither correlates pretraining frequency with performance across classes or excludes denied mentions; we do both, on two test sets, and extend the analysis to few-shot adaptation.
 
 \emph{Few-shot adaptation without training.} Training-free adapters combine the text classifier of a
-vision--language model with features of a few labelled images. Tip-Adapter~\cite{zhang2022tip}
-blends a cache of support features with the zero-shot classifier through one global weight. SS-Text, the
-solver of Full Conformal Adaptation~\cite{silvarodriguez2025fca}, adds the summed support features to
+vision--language model with features of a few labelled images. 
+Tip-Adapter~\cite{zhang2022tip} blends a cache of support features with the zero-shot classifier through one global weight. 
+CLAP~\cite{silva2024closer} instead learns a separate constraint weight for each class from the support labels, which limits how far each class prototype moves from its zero-shot initialization.
+SS-Text, the solver of Full Conformal Adaptation~\cite{silvarodriguez2025fca}, adds the summed support features to
 the text prototypes, with a weight that shrinks the role of the text as the support set grows; its
 authors evaluate it on medical models, including a chest X-ray model, and report results averaged over
 classes. We use SS-Text and examine its effect class by class, together with the image weight.
@@ -222,9 +229,9 @@ test set. The two numbers $a$ and $b$ are chosen for each $K$ on the ChestX-ray1
 ($a$ as above, $b$ between $-1.5$ and $1$ in steps of 0.1; $b=0$ recovers the global $\alpha$); $b<0$ gives frequently asserted classes a smaller image weight.
 \end{itemize}
 
-A single weight shared by all classes follows Tip-Adapter \cite{zhang2022tip}, whose residual ratio $\alpha$ balances the few-shot image term against CLIP's text classifier; its authors set $\alpha$ larger when the domain gap to the pretraining data is larger, but use one value for all classes of a dataset. (?? check it again.)
+A single weight shared by all classes follows Tip-Adapter \cite{zhang2022tip}, whose residual ratio $\alpha$ balances the few-shot image term against CLIP's text classifier; its authors set $\alpha$ larger when the domain gap to the pretraining data is larger, but use one value for all classes of a dataset.
 
-Both are chosen to maximize the mean AUC over classes on the selection set, averaged over the support
+The global $\alpha$ and the frequency rule are chosen to maximize the mean AUC over classes on the selection set, averaged over the support
 draws. The choices are made once on ChestX-ray14 and applied to CheXpert without retuning. Choosing them uses
 the labels of the selection set; after that, the frequency rule needs only $f$, which comes from the
 pretraining text.
@@ -311,7 +318,8 @@ zero-shot fell from \NihFcaSigWorse{} (SS-Text) to \NihGlobalSigWorse{} (global 
 The claim that zero-shot performance is limited by pretraining frequency, and that this is why
 adaptation is needed~\cite{silvarodriguez2025fca}, is half supported in this radiology model. Classes
 asserted more often in the training reports had higher zero-shot AUC on both test sets, in line with the
-log-linear trend reported for general-domain models~\cite{udandarao2024zeroshot}. Rarely asserted classes
+log-linear trend reported for general-domain models~\cite{udandarao2024zeroshot} and with the weaker
+performance on rarely mentioned pathologies reported for CheXzero~\cite{mishra2023improving}. Rarely asserted classes
 also tended to gain more from few-shot adaptation, but we found no significant association between
 frequency and the gain once the zero-shot AUC was controlled for, and the zero-shot AUC was itself
 associated with the gain.
@@ -329,6 +337,8 @@ per-class view in CheXzero, where a smaller weight than the published one was be
 further gain on both test sets. Its value is that $f$ comes from the pretraining text: once the two
 numbers of the rule are fixed, a new test set needs no labelled images to set its weights, as on
 CheXpert, where several classes do not occur in ChestX-ray14. The gain is small, and most of the improvement over SS-Text comes from the smaller weight itself.
+Per-class weights are not new in themselves: CLAP~\cite{silva2024closer} learns one constraint weight per
+class from the support labels. To our knowledge, pretraining concept frequency has not been used to set them.
 
 \emph{Robustness.} Following the multiverse and specification-curve
 recommendations~\cite{steegen2016multiverse,simonsohn2020specification}, we report relationships (1)
